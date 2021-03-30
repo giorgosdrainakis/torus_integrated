@@ -1,7 +1,7 @@
 import csv
 import math
 
-from polydiavlika import myglobal
+from waa import myglobal
 
 class Packet:
     def __init__(self,packet_id,time,packet_size,packet_qos,source_id,destination_id):
@@ -16,6 +16,8 @@ class Packet:
         self.time_trx_in=-1
         self.time_trx_out=-1
         self.mode=''
+        self.channel_id=0
+        self.annotated=False
 
     def show(self):
         outp=str(self.packet_id)+','+\
@@ -61,6 +63,21 @@ class Traffic_per_packet():
             else:
                 break
         return packet_list
+
+class Control_Packet:
+    def __init__(self,time,source_id):
+        self.time=float(time)
+        self.source_id=int(source_id)
+        self.time_trx_in=-1
+        self.time_trx_out=-1
+        self.packet_size=0 #bytes
+        self.channel_id=0
+        self.is_bonus_packet=False
+        self.bonus_info=None
+        self.annotated=False
+        self.minipack_list=[]
+
+
 
 
 

@@ -1,8 +1,36 @@
 import csv
-from polydiavlika import myglobal
+from waa import myglobal
 
 class Channels():
     db=[]
+
+    def get_unlucky_node_id(self):
+        mylist=self.get_unlucky_nodes_list()
+        if len(mylist)==0:
+            return myglobal.DEFAULT_UNLUCKY_NODE_ID
+        else:
+            return mylist[0]
+
+    def get_unlucky_nodes_list(self):
+        mylist=[]
+        for ch in self.db:
+            ret=ch.get_unlucky_node_id()
+            if ret is not None:
+                mylist.append(ret)
+        return mylist
+
+    def get_common_bitrate(self):
+        if len(self.db)<1:
+            print('ERROR! Cannot find channels')
+            return 0
+        else:
+            common_bitrate=self.db[0].bitrate
+        for ch in self.db:
+            if ch.bitrate!=common_bitrate:
+                print('ERROR! Variable cycles!')
+                return 0
+        return common_bitrate
+
 
     def add_new(self,channel):
         self.db.append(channel)
@@ -64,6 +92,12 @@ class Channel():
         self.detect_tx_out=0
         self.tx_in=0
         self.tx_out=0
+        self.trx_matrix=[]
+        self.reserved_for_high=False
+
+    def get_unlucky_node_id(self):
+        if len(self.trx_matrix)>0:
+            return self.trx_matrix[-1]
 
     def is_free_open(self,current_time):
         if self.tx_in <= current_time and current_time <= self.tx_out:

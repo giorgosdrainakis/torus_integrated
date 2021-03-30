@@ -1,24 +1,20 @@
 import datetime
 import pandas as pd
-from polydiavlika.node import *
-from polydiavlika.traffic import *
-from polydiavlika.buffer import *
-from polydiavlika.channel import *
+from waa.node import *
+from waa.traffic import *
+from waa.buffer import *
+from waa.channel import *
 
 def main():
-    if MODE=='DUAL':
-        BITRATE = 10e9
-        channel_id_list = [1]  # one data channel
-    else:
+    if MODE=='WAA':
         BITRATE=5e9
-        channel_id_list = [2] # 2 data channel
-        control_channel_id = 5000 # 1 control channel
-
-    duration = T_END - T_BEGIN
-    log_interval = duration / 1000 # for debugging
+        channel_id_list = [100,200] # 2 data channel
+        control_channel_id = 500 # 1 control channel
+    else:
+        print('Error - WRONG mode!')
+        return -1
 
     # init node and channel list
-    first_time = True # for debugging
     nodes=Nodes()
 
     # create nodes and channels
@@ -28,10 +24,7 @@ def main():
         new_node.buffer_low=Buffer(LOW_BUFFER_SIZE)
         new_node.buffer_med=Buffer(MED_BUFFER_SIZE)
         new_node.buffer_high=Buffer(HIGH_BUFFER_SIZE)
-        new_node.flag_A='competition'
-        new_node.flag_B=None
         nodes.add_new(new_node)
-    nodes.mode='competition'
 
     for id in channel_id_list:
         new_channel=Channel(id,BITRATE)
@@ -44,25 +37,15 @@ def main():
     # run simulation
     CURRENT_TIME=T_BEGIN
     print('start 0/1000=' + str(datetime.datetime.now()))
-    while CURRENT_TIME<=T_END or nodes.have_buffers_packets():
+    while CURRENT_TIME<=T_END*1.1:# or nodes.have_buffers_packets():
         nodes.add_new_packets_to_buffers(CURRENT_TIME)
-        if MODE == 'DUAL':  # collision avoidance CA
-            if CA:
-                nodes.check_transmission_CA(CURRENT_TIME)
-                nodes.transmit_CA(CURRENT_TIME)
-            else:
-                nodes.check_transmission_CD(CURRENT_TIME)
-                nodes.transmit_CD(CURRENT_TIME)
-        else: # new protocol
-            nodes.check_transmission_WAA(CURRENT_TIME)
-            nodes.transmit_WAA(CURRENT_TIME)
+        nodes.check_arrival_WAA(CURRENT_TIME)
+        nodes.process_new_cycle(CURRENT_TIME)
+        nodes.transmit_WAA(CURRENT_TIME)
         CURRENT_TIME=CURRENT_TIME+myglobal.timestep
-        # debugging
-        if first_time and CURRENT_TIME > log_interval:
-            print('completeness 1/1000='+str(datetime.datetime.now()))
-            first_time=False
-    print('FINISH!')
+
     # print buffer etc. content
+    print('FINISH!')
     mytime = str(datetime.datetime.now())
     mytime = mytime.replace('-', '_')
     mytime = mytime.replace(' ', '_')
@@ -74,15 +57,12 @@ def main():
         output_table = 'packet_id,time,packet_size,packet_qos,source_id,destination_id,' \
                        'time_buffer_in,time_buffer_out,time_trx_in,time_trx_out,mode\n'
         print('id='+str(node.id))
-        print('rx='+str(len(node.received)))
-        print('ovflow='+str(len(node.dropped)))
-        print('destroyed='+str(len(node.destroyed)))
+        print('rx='+str(len(node.data_sent)))
+        print('ovflow='+str(len(node.data_dropped)))
         print('---------')
-        for packet in node.received:
+        for packet in node.data_sent:
             output_table=output_table+packet.show()+'\n'
-        for packet in node.dropped:
-            output_table=output_table+packet.show()+'\n'
-        for packet in node.destroyed:
+        for packet in node.data_dropped:
             output_table=output_table+packet.show()+'\n'
 
         print('Writing node +...'+str(node.id))
@@ -110,13 +90,12 @@ def main():
 
 
 ### params and run
-MODE='DUAL' # or WAA
-CA=False #collision avoidance=True or detection=False
+MODE='WAA'
 T_BEGIN = 0
-T_END = 1
+T_END = 0.1
 TOTAL_NODES =  8
 HIGH_BUFFER_SIZE = 1e6 # bytes
 MED_BUFFER_SIZE = 1e6 # bytes
 LOW_BUFFER_SIZE = 1e6 # bytes
-traffic_dataset_folder='2021_03_09_14_30_35_864499//'
+traffic_dataset_folder='2021_03_02_18_03_02_702107//'
 main() # will create N logfiles for N nodes and a combined csv with all packets in root/logs

@@ -9,18 +9,19 @@ import statistics
 import csv
 import matplotlib
 from matplotlib.ticker import MaxNLocator
-from polydiavlika.myglobal import *
+from waa.myglobal import *
 
 # First run with avgg=False to check all samples (where they span)
 # According to this plot-> set avgg=True and set grouping parameters to get finalized plots
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=True
-filename='C:\\Pycharm\\Projects\\polydiavlika\\polydiavlika\\logs\\CD_0_1.csv'
+avgg=False
+filename= 'logs\\WAA_v02_0_1.csv'
 my_tbegin=0
 my_tend=0.1
 samples=500
+compare_bitare=1e10
 # Grouping params
 start_sampling_value=0
 end_sampling_value=8e5
@@ -39,7 +40,7 @@ class My_Group:
         self.ro_thru=[]
         self.ro_drop = []
         self.timestep=timestep
-        self.byterate1=1e10/8 #bytes per sec for ro=1, ro(x)=Byterate(1)/(Byterate(x)*ro(1))=byterate(x)/byterate(1)
+        self.byterate1=compare_bitare/8 #bytes per sec for ro=1, ro(x)=Byterate(1)/(Byterate(x)*ro(1))=byterate(x)/byterate(1)
 
     def calc_ro_drop(self):
         total=0
@@ -181,7 +182,7 @@ class My_Group:
 class Record():
     def __init__(self,packet_id,time,size,qos,source_id,
                  destination_id,time_buffer_in,time_buffer_out,
-                 time_trx_in,time_trx_out,mode):
+                 time_trx_in,time_trx_out):
         self.packet_id=int(packet_id)
         self.time=float(time)
         self.packet_size=float(size)
@@ -193,7 +194,7 @@ class Record():
         self.time_trx_in =float(time_trx_in)
         self.time_trx_out =float(time_trx_out)
         self.plot_time=0
-        self.mode=mode
+        self.mode=None
 
 class My_Timeslot():
     def __init__(self,tbegin,tend):
@@ -225,7 +226,7 @@ with open(filename) as csv_file:
         new_rec=Record(row['packet_id'],row['time'],row['packet_size'],
                        row['packet_qos'], row['source_id'], row['destination_id'],
                        row['time_buffer_in'], row['time_buffer_out'],
-                       row['time_trx_in'],row['time_trx_out'],row['mode'] )
+                       row['time_trx_in'],row['time_trx_out'] )
         db.append(new_rec)
 
 tbegin_range=np.linspace(my_tbegin, my_tend, samples)
@@ -321,6 +322,8 @@ for gr in mygroup_list:
 print(str(prLOAD_BIT))
 print(str(prTHRU_BIT))
 print(str(prDROP_BIT))
+print(str(prDELAY))
+print(str(prDROPPROP))
 
 idx=0
 while idx<len(prDROP_BIT):
@@ -328,6 +331,8 @@ while idx<len(prDROP_BIT):
         del prLOAD_BIT[idx]
         del prTHRU_BIT[idx]
         del prDROP_BIT[idx]
+        del prDELAY[idx]
+        del prDROPPROP[idx]
     idx=idx+1
 
 idx=0
@@ -336,6 +341,8 @@ while idx<len(prDROP_BIT):
         del prLOAD_BIT[idx]
         del prTHRU_BIT[idx]
         del prDROP_BIT[idx]
+        del prDELAY[idx]
+        del prDROPPROP[idx]
     idx=idx+1
 
 idx=0
@@ -345,15 +352,21 @@ while idx<len(prDROP_BIT):
         del prLOAD_BIT[idx]
         del prTHRU_BIT[idx]
         del prDROP_BIT[idx]
+        del prDELAY[idx]
+        del prDROPPROP[idx]
     idx=idx+1
 
 del prLOAD_BIT[-1]
 del prTHRU_BIT[-1]
 del prDROP_BIT[-1]
+del prDELAY[-1]
+del prDROPPROP[-1]
 
-print(str(prLOAD_BIT))
-print(str(prTHRU_BIT))
-print(str(prDROP_BIT))
+print('LOAD='+str(prLOAD_BIT))
+print('THRU='+str(prTHRU_BIT))
+print('DROP='+str(prDROP_BIT))
+print('DELAY='+str(prDELAY))
+print('DROPPROP='+str(prDROPPROP))
 
 if avgg:
     #plt.plot(prLOAD,prTHRU, label = "thru")
@@ -371,11 +384,11 @@ if avgg:
     ############### LABELS #####################
     plt.xlabel('Load (bps)', fontsize=25)
     #plt.xlabel('Thruput (bytes per sec)', fontsize=25)
-    plt.ylabel('Probability', fontsize=25)
+    plt.ylabel('Bitrate', fontsize=25)
     #plt.ylabel('Sec', fontsize=25)
     #plt.ylabel('Probability', fontsize=25)
     plt.grid(True, which='major', axis='both')
-    plt.title('Both Waiting and Prop Delay', fontsize=25)
+    plt.title('Title', fontsize=25)
     plt.legend()
     plt.show()
 else:

@@ -1,13 +1,17 @@
-ROOT='C:\\Pycharm\\Projects\\polydiavlika\\polydiavlika\\'
+ROOT='C:\\Pycharm\\Projects\\polydiavlika\\waa\\'
 TRAFFIC_DATASETS_FOLDER='traffic_datasets\\'
-PROPAGATION_TIME=0 #PROPAGATION_TIME=0 10/(2e8)
-WAA_capacity_64=46
-WAA_packet_image_bits=9
+PROPAGATION_TIME=10/(2e8) #PROPAGATION_TIME=0 10/(2e8)
+ID_DIFF=1
+MAX_PACKET_SIZE=1500 #bytes
+MIN_PACKET_SIZE=64 #bytes
+CYCLE_SIZE=1500 #bytes
+CONTROL_MSG_PACKS_PER_BUFF=46
+TOTAL_BUFFS_PER_NODE=3
+CONTROL_MINIPACK_SIZE=9 #bits
+BONUS_MSG_BITSIZE=7 #bits
+DEFAULT_UNLUCKY_NODE_ID=1
+DEFAULT_LUCKY_NUM=10
 TOLERANCE = 1e-9
-N_collision = 16
-T_send = 1e-4
-T_load = 4e-5
-T_idle = (2.56)*(1e-8)+PROPAGATION_TIME
-timestep = (0.8)*(1e-9) #timestep = 0.8e-9
+timestep = (0.8)*(1e-9) #timestep = 0.8e-9 -> NEED TOTAL_TIME MOD timestep=0 (sync!)
 WAITING=timestep
 timeslot=(10)*(1e-9) #timeslot=(51.2)*(1e-9)

@@ -1,5 +1,5 @@
 import csv
-from polydiavlika import myglobal
+from waa import myglobal
 
 class Buffer():
     def __init__(self,size):

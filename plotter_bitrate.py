@@ -36,6 +36,7 @@ class My_Group:
         self.drop=[]
         self.delay=[]
         self.dropprop=[]
+        self.end_delay=[]
         self.ro=[]
         self.ro_thru=[]
         self.ro_drop = []
@@ -132,6 +133,17 @@ class My_Group:
         else:
             return 0
 
+    def calc_end_delay(self):
+        total=0
+        N=0
+        for i in self.end_delay:
+            total=total+i
+            N=N+1
+        if N>0:
+            return total/N
+        else:
+            return 0
+
     def calc_thru(self):
         total=0
         N=0
@@ -208,6 +220,8 @@ class My_Timeslot():
         self.dropped=0
         self.thru=0
         self.thrud=0
+        self.end_delay = 0
+        self.end_delayed = 0
 
 def find_closest(element,list_of_things):
     diff=math.inf
@@ -257,18 +271,21 @@ for rec in db:
             timeslot.thrud = timeslot.thrud + 1
             timeslot.delay=timeslot.delay+(rec.time_trx_out-rec.time)
             timeslot.delayed=timeslot.delayed+1
+            timeslot.end_delay=timeslot.end_delay+(rec.time_trx_in-rec.time)
+            timeslot.end_delayed=timeslot.end_delayed+1
 LOAD=[]
 THRU=[]
 DROP=[]
 DELAY=[]
 THRU_BIT=[]
 LOAD_BIT=[]
+END_DELAY=[]
 
 for timeslot in timeslot_list:
     LOAD.append(timeslot.load)
     THRU.append(timeslot.thru)
     DROP.append(timeslot.drop)
-    DELAY.append(timeslot.delay/timeslot.delayed)
+    DELAY.append(timeslot.delay)
     THRU_BIT.append(timeslot.thru*8)
     LOAD_BIT.append(timeslot.load*8)
 
@@ -295,6 +312,8 @@ for idx in range(0,len(LOAD)):
             else:
                 gr.dropprop.append(DROP[idx]/LOAD[idx])
             break
+        if not found:
+            print('Didnt find this rate='+str(gr.load_rate))
 
 prLOAD=[]
 prTHRU=[]
@@ -307,11 +326,13 @@ prRO_DROP=[]
 prLOAD_BIT=[]
 prTHRU_BIT=[]
 prDROP_BIT=[]
+prEND_DELAY=[]
 for gr in mygroup_list:
     prLOAD.append(gr.calc_avgload())
     prTHRU.append(gr.calc_thru())
     prDROP.append(gr.calc_drop())
     prDELAY.append(gr.calc_delay())
+    prEND_DELAY.append(gr.calc_end_delay())
     prDROPPROP.append(gr.calc_dropprop())
     prRO.append(gr.calc_ro())
     prRO_THRU.append(gr.calc_ro_thru())
@@ -332,6 +353,7 @@ while idx<len(prDROP_BIT):
         del prTHRU_BIT[idx]
         del prDROP_BIT[idx]
         del prDELAY[idx]
+        del prEND_DELAY[idx]
         del prDROPPROP[idx]
     idx=idx+1
 
@@ -342,6 +364,7 @@ while idx<len(prDROP_BIT):
         del prTHRU_BIT[idx]
         del prDROP_BIT[idx]
         del prDELAY[idx]
+        del prEND_DELAY[idx]
         del prDROPPROP[idx]
     idx=idx+1
 
@@ -353,6 +376,7 @@ while idx<len(prDROP_BIT):
         del prTHRU_BIT[idx]
         del prDROP_BIT[idx]
         del prDELAY[idx]
+        del prEND_DELAY[idx]
         del prDROPPROP[idx]
     idx=idx+1
 
@@ -360,12 +384,14 @@ del prLOAD_BIT[-1]
 del prTHRU_BIT[-1]
 del prDROP_BIT[-1]
 del prDELAY[-1]
+del prEND_DELAY[-1]
 del prDROPPROP[-1]
 
 print('LOAD='+str(prLOAD_BIT))
 print('THRU='+str(prTHRU_BIT))
 print('DROP='+str(prDROP_BIT))
 print('DELAY='+str(prDELAY))
+print('END_DELAY='+str(prEND_DELAY))
 print('DROPPROP='+str(prDROPPROP))
 
 if avgg:

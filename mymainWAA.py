@@ -98,8 +98,10 @@ def main():
 MODE='WAA'
 T_BEGIN = 0
 T_END = 0.2
-TOTAL_NODES =  8
+TOTAL_NODES =  4
 if TOTAL_NODES==4:
+    # total packets that will be printed per buff
+    myglobal.CONTROL_MSG_PACKS_PER_BUFF = 46
     # node description string
     myglobal.STR_SOURCE_DEST_ID = "{0:02b}"
     # define minipack
@@ -114,6 +116,8 @@ if TOTAL_NODES==4:
     myglobal.LUCKY_SLOT_LEN = 6
     myglobal.UNLUCKY_SLOT_LEN = 5
 elif TOTAL_NODES==8:
+    # total packets that will be printed per buff
+    myglobal.CONTROL_MSG_PACKS_PER_BUFF = 46
     # node description string
     myglobal.STR_SOURCE_DEST_ID = "{0:03b}"
     # define minipack
@@ -128,6 +132,8 @@ elif TOTAL_NODES==8:
     myglobal.LUCKY_SLOT_LEN = 3
     myglobal.UNLUCKY_SLOT_LEN = 2
 elif TOTAL_NODES==12:
+    # total packets that will be printed per buff
+    myglobal.CONTROL_MSG_PACKS_PER_BUFF = 29
     # node description string
     myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
     # define minipack
@@ -146,5 +152,5 @@ else:
 HIGH_BUFFER_SIZE = 1e6 # bytes
 MED_BUFFER_SIZE = 1e6 # bytes
 LOW_BUFFER_SIZE = 1e6 # bytes
-traffic_dataset_folder='0.2sec//'
+traffic_dataset_folder='0.2sec_m4//'
 main() # will create N logfiles for N nodes and a combined csv with all packets in root/logs

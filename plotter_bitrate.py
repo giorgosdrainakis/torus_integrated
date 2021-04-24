@@ -16,16 +16,16 @@ from waa.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=False
-filename= 'logs\\WAA_v02_0_1.csv'
+avgg=True
+filename= 'logs\\waa02sec.csv'
 my_tbegin=0
-my_tend=0.1
+my_tend=0.2
 samples=500
 compare_bitare=1e10
 # Grouping params
 start_sampling_value=0
-end_sampling_value=8e5
-grouping_points=18
+end_sampling_value=1.6e6
+grouping_points=20
 rates=np.linspace(start_sampling_value,end_sampling_value,grouping_points)
 
 class My_Group:

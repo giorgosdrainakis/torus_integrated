@@ -345,9 +345,10 @@ class Nodes:
     def run_distributed_algo(self,control_msg):
         if len(control_msg)==0:
             return None
-        lucky_node_bit_id, lucky_number=self.get_s_p_params(control_msg,break_position=3)
+        lucky_node_bit_id, lucky_number=self.get_s_p_params(control_msg,break_position=myglobal.BREAK_POSITION)
         lucky_node=lucky_node_bit_id+myglobal.ID_DIFF
-        decoder=self.decode_control_msg(control_msg,cut1=3,cut2=6,cut3=8,node_id_diff=myglobal.ID_DIFF)
+        decoder=self.decode_control_msg(control_msg,cut1=myglobal.CUT_1,cut2=myglobal.CUT_2,cut3=myglobal.CUT_3,
+                                        node_id_diff=myglobal.ID_DIFF)
         self.build_trx_matrices(lucky_node)
 
         # Assign at least the last channel to potential big packets
@@ -364,9 +365,9 @@ class Nodes:
             for i in range(0, len(ch.trx_matrix)):
                 node_id = ch.trx_matrix[i]
                 if ch.get_unlucky_node_id() == node_id:
-                    max_pack_num = 2
+                    max_pack_num = myglobal.UNLUCKY_SLOT_LEN
                 else:
-                    max_pack_num = 3
+                    max_pack_num = myglobal.LUCKY_SLOT_LEN
                 packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot,
                                                              lucky_number)
                 if packs_filled > 0:
@@ -381,9 +382,9 @@ class Nodes:
             for i in range(0, len(ch.trx_matrix)):
                 node_id = ch.trx_matrix[i]
                 if ch.get_unlucky_node_id() == node_id:
-                    max_pack_num = 2
+                    max_pack_num = myglobal.UNLUCKY_SLOT_LEN
                 else:
-                    max_pack_num = 3
+                    max_pack_num = myglobal.LUCKY_SLOT_LEN
                 packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot, lucky_number)
                 if packs_filled > 0:
                     start_slot = start_slot + packs_filled
@@ -551,8 +552,9 @@ class Node:
         i=0
         for pack in self.buffer_high.db:
             if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
-                src_bit_id="{0:03b}".format(self.id-myglobal.ID_DIFF)
-                dest_bit_id="{0:03b}".format(pack.destination_id-myglobal.ID_DIFF)
+                strr=myglobal.STR_SOURCE_DEST_ID
+                src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
+                dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
                 cl='00'
                 subcl='0'
                 total_str=src_bit_id+dest_bit_id+cl+subcl
@@ -564,8 +566,9 @@ class Node:
         i=0
         for pack in self.buffer_med.db:
             if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
-                src_bit_id="{0:03b}".format(self.id-myglobal.ID_DIFF)
-                dest_bit_id="{0:03b}".format(pack.destination_id-myglobal.ID_DIFF)
+                strr=myglobal.STR_SOURCE_DEST_ID
+                src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
+                dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
                 cl='01'
                 if pack.packet_size==myglobal.MIN_PACKET_SIZE:
                     subcl='0'
@@ -580,8 +583,8 @@ class Node:
         i=0
         for pack in self.buffer_low.db:
             if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
-                src_bit_id="{0:03b}".format(self.id-myglobal.ID_DIFF)
-                dest_bit_id="{0:03b}".format(pack.destination_id-myglobal.ID_DIFF)
+                src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
+                dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
                 cl = '10'
                 if pack.packet_size == myglobal.MIN_PACKET_SIZE:
                     subcl = '0'
@@ -615,7 +618,8 @@ class Node:
         if self.id==unlucky_node_id:
             max_node_id=total_nodes-myglobal.ID_DIFF
             r = random.randint(0, max_node_id)
-            s = "{0:03b}".format(r)
+            strr=myglobal.STR_SOURCE_DEST_ID
+            s = strr.format(r)
             r = random.randint(1, 10)
             p = "{0:04b}".format(r)
             info=s+p
@@ -702,9 +706,9 @@ class Node:
             if self.buffer_low.has_packets():
                 lucky=random.uniform(0, 1)
                 if lucky<0.3:
-                    self.buffer_low.get_next_packet()
+                    return self.buffer_low.get_next_packet()
                 else:
-                    self.buffer_med.get_next_packet()
+                    return self.buffer_med.get_next_packet()
             else:
                 return self.buffer_med.get_next_packet()
         elif self.buffer_low.has_packets():

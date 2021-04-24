@@ -10,6 +10,10 @@ def main():
         BITRATE=5e9
         channel_id_list = [100,200] # 2 data channel
         control_channel_id = 500 # 1 control channel
+    elif MODE=='WAA_single':
+        BITRATE=10e9
+        channel_id_list = [100] # 1 data channel
+        control_channel_id = 500 # 1 control channel
     else:
         print('Error - WRONG mode!')
         return -1
@@ -30,15 +34,16 @@ def main():
         new_channel=Channel(id,BITRATE)
         nodes.channels.add_new(new_channel)
 
-    if MODE=='WAA':
+    if MODE=='WAA' or MODE=='WAA_single':
         control_channel=Channel(control_channel_id,BITRATE)
         nodes.control_channel=control_channel
 
     # run simulation
     CURRENT_TIME=T_BEGIN
     print('start 0/1000=' + str(datetime.datetime.now()))
-    while CURRENT_TIME<=T_END*1.1:# or nodes.have_buffers_packets():
-        nodes.add_new_packets_to_buffers(CURRENT_TIME)
+    while CURRENT_TIME<=T_END or nodes.have_buffers_packets():
+        if CURRENT_TIME<=T_END:
+            nodes.add_new_packets_to_buffers(CURRENT_TIME)
         nodes.check_arrival_WAA(CURRENT_TIME)
         nodes.process_new_cycle(CURRENT_TIME)
         nodes.transmit_WAA(CURRENT_TIME)
@@ -92,10 +97,54 @@ def main():
 ### params and run
 MODE='WAA'
 T_BEGIN = 0
-T_END = 0.1
+T_END = 0.2
 TOTAL_NODES =  8
+if TOTAL_NODES==4:
+    # node description string
+    myglobal.STR_SOURCE_DEST_ID = "{0:02b}"
+    # define minipack
+    myglobal.CONTROL_MINIPACK_SIZE = 7  # bits
+    myglobal.CUT_1 = 2
+    myglobal.CUT_2 = 4
+    myglobal.CUT_3 = 6
+    # define bonus msg
+    myglobal.BONUS_MSG_BITSIZE = 6  # bits
+    myglobal.BREAK_POSITION=2
+    # define len of lucky and unlucky slots
+    myglobal.LUCKY_SLOT_LEN = 6
+    myglobal.UNLUCKY_SLOT_LEN = 5
+elif TOTAL_NODES==8:
+    # node description string
+    myglobal.STR_SOURCE_DEST_ID = "{0:03b}"
+    # define minipack
+    myglobal.CONTROL_MINIPACK_SIZE = 9  # bits
+    myglobal.CUT_1 = 3
+    myglobal.CUT_2 = 6
+    myglobal.CUT_3 = 8
+    # define bonus msg
+    myglobal.BONUS_MSG_BITSIZE = 7  # bits
+    myglobal.BREAK_POSITION=3
+    # define len of lucky and unlucky slots
+    myglobal.LUCKY_SLOT_LEN = 3
+    myglobal.UNLUCKY_SLOT_LEN = 2
+elif TOTAL_NODES==12:
+    # node description string
+    myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
+    # define minipack
+    myglobal.CONTROL_MINIPACK_SIZE = 11  # bits
+    myglobal.CUT_1 = 4
+    myglobal.CUT_2 = 8
+    myglobal.CUT_3 = 10
+    # define bonus msg
+    myglobal.BONUS_MSG_BITSIZE = 8  # bits
+    myglobal.BREAK_POSITION=4
+    # define len of lucky and unlucky slots
+    myglobal.LUCKY_SLOT_LEN = 2
+    myglobal.UNLUCKY_SLOT_LEN = 1
+else:
+    print('Error with number of server')
 HIGH_BUFFER_SIZE = 1e6 # bytes
 MED_BUFFER_SIZE = 1e6 # bytes
 LOW_BUFFER_SIZE = 1e6 # bytes
-traffic_dataset_folder='2021_03_02_18_03_02_702107//'
+traffic_dataset_folder='0.2sec//'
 main() # will create N logfiles for N nodes and a combined csv with all packets in root/logs

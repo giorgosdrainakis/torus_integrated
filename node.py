@@ -103,23 +103,6 @@ class Decoder:
                     i=i+1
                 return packs_filled
 
-    def calc_reserved_channels(self,unlucky_nodes_list):
-        reserved_ch=0
-        for node in self.db:
-            node_reserved_ch=0
-            missing_slots=unlucky_nodes_list.count(node.node_id)
-            buf=len(node.high_buffer)
-            while buf > 0:
-                if missing_slots > 0:
-                    buf = buf - 2
-                    node_reserved_ch = node_reserved_ch + 1
-                    missing_slots = missing_slots - 1
-                else:
-                    buf = buf - 3
-                    node_reserved_ch = node_reserved_ch + 1
-            reserved_ch=max(reserved_ch,node_reserved_ch)
-        return reserved_ch
-
 class Decoded_Node:
     def __init__(self):
         self.node_id=None
@@ -260,87 +243,6 @@ class Nodes:
             else:
                 previous_matrix=self.channels.db[i-1].trx_matrix
                 self.channels.db[i].trx_matrix=previous_matrix[1:] + [previous_matrix[0]]
-
-    def run_distributed_algo_v01(self,control_msg):
-        if len(control_msg)==0:
-            return None
-        node_id_diff=1
-        lucky_node_bit_id, lucky_number=self.get_s_p_params(control_msg,break_position=3)
-        lucky_node=lucky_node_bit_id+node_id_diff
-        decoder=self.decode_control_msg(control_msg,cut1=3,cut2=6,cut3=8,node_id_diff=node_id_diff)
-        self.build_trx_matrices(lucky_node)
-        reserved_high_ch=decoder.calc_reserved_channels(self.channels.get_unlucky_nodes_list())
-
-        if reserved_high_ch>=len(self.channels.db):
-            # initiate only small trasmissions
-            for ch in self.channels.db:
-                remaining_packs=0
-                start_slot=0
-                for i in range(0,len(ch.trx_matrix)):
-                    node_id=ch.trx_matrix[i]
-                    #start_slot=3*i-remaining_packs
-                    if ch.get_unlucky_node_id()==node_id:
-                        max_pack_num=2
-                    else:
-                        max_pack_num = 3
-                    packs_filled=decoder.fill_with_small_packs(node_id,ch.id,max_pack_num,start_slot,lucky_number)
-                    #remaining_packs=remaining_packs+max_pack_num-packs_filled
-                    if packs_filled>0:
-                        start_slot=start_slot+packs_filled
-        else:
-            free_ch=len(self.channels.db)-reserved_high_ch
-            print('DBG-Enter check for 1500 with reserved ch='+str(reserved_high_ch))
-            for i in range(0,free_ch):
-                # check for first 1500ari in ch[-1] else
-                ch=self.channels.db[-(i+1)]
-                start_slot = 0
-                i=0
-                is_big_filled=False
-                while (i<len(ch.trx_matrix) and (not is_big_filled)):
-                    node_id = ch.trx_matrix[i]
-                    is_big_filled = decoder.fill_with_big_packs(node_id, ch.id, start_slot)
-                    i=i+1
-                if not is_big_filled:
-                    start_slot = 0
-                    for i in range(0, len(ch.trx_matrix)):
-                        node_id = ch.trx_matrix[i]
-                        if ch.get_unlucky_node_id() == node_id:
-                            max_pack_num = 2
-                        else:
-                            max_pack_num = 3
-                        packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot,
-                                                                     lucky_number)
-                        if packs_filled > 0:
-                            start_slot = start_slot + packs_filled
-                else:
-                    print('Debug: Will TRX big pack in ch='+str(ch.id))
-        # DEBUGG
-        total_str=[]
-        for node in decoder.db:
-            mystr='Node:'+str(node.node_id)
-            high_str=[]
-            for pack in node.high_buffer:
-                if pack.slot is not None:
-                    newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
-                    high_str.append(newstr)
-
-            med_str = []
-            for pack in node.med_buffer:
-                if pack.slot is not None:
-                    newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
-                    med_str.append(newstr)
-
-            low_str = []
-            for pack in node.low_buffer:
-                if pack.slot is not None:
-                    newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
-                    low_str.append(newstr)
-
-            print(str(mystr)+' high slots:'+str(high_str)+' med slots:'+str(med_str)+' low slots:'+str(low_str))
-            total_str=total_str+high_str+med_str+low_str
-        total_str=sorted(total_str)
-        print(str(total_str))
-        return decoder
 
     def run_distributed_algo(self,control_msg):
         if len(control_msg)==0:

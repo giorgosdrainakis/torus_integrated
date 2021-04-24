@@ -57,9 +57,9 @@ def modify(file_list,final_file_name,my_source_id,my_dest_list):
             csv_output.writerows(data)
 
 folder_name='0.2sec_m12\\'
-file_list=['test1.csv','test2.csv']
-final_file_name=['testA.csv','testB.csv','testC.csv']
-my_source_id_list=[1,2,3]
+file_list=['test7.csv','test8.csv']
+final_file_name=['testJ.csv','testK.csv','testL.csv']
+my_source_id_list=[10,11,12]
 my_dest_list=[1,2,3,4,5,6,7,8,9,10,11,12]
 modify(file_list,final_file_name,my_source_id_list,my_dest_list)
 #gia ta 12 i file_list tha einai p.x. test1,test2, final_name tha ine list testA,testB,testC,mysource_list=rand(1,2) kai ant

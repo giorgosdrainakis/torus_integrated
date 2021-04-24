@@ -485,6 +485,7 @@ class Node:
         i=0
         for pack in self.buffer_low.db:
             if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
+                strr=myglobal.STR_SOURCE_DEST_ID
                 src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
                 dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
                 cl = '10'

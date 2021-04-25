@@ -98,7 +98,7 @@ def main():
 MODE='WAA'
 T_BEGIN = 0
 T_END = 0.2
-TOTAL_NODES =  12
+TOTAL_NODES =  4
 if TOTAL_NODES==4:
     # total packets that will be printed per buff
     myglobal.CONTROL_MSG_PACKS_PER_BUFF = 46
@@ -152,5 +152,5 @@ else:
 HIGH_BUFFER_SIZE = 1e6 # bytes
 MED_BUFFER_SIZE = 1e6 # bytes
 LOW_BUFFER_SIZE = 1e6 # bytes
-traffic_dataset_folder='0.2sec_m12//'
+traffic_dataset_folder='0.2sec_m4//'
 main() # will create N logfiles for N nodes and a combined csv with all packets in root/logs

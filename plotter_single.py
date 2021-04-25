@@ -24,7 +24,7 @@ my_samples=1000
 start_group_value=0
 end_group_value=7.5e5
 grouping_points=40
-
+current_source_id=1
 class Record():
     def __init__(self,packet_id,time,size,qos,source_id,
                  destination_id,time_buffer_in,time_buffer_out,
@@ -637,48 +637,49 @@ class My_Timeslot_List():
         print('Entered init with db')
         debug_id=0
         for rec in record_db:
-            print('B=' + str(debug_id))
-            debug_id = debug_id + 1
-            for timeslot in self.db:
-                if timeslot.t_begin <= rec.time and rec.time <= timeslot.t_end:
-                    timeslot.load_total.append(rec.packet_size)
-                    if rec.packet_qos=='high':
-                        timeslot.load_high.append(rec.packet_size)
-                    elif rec.packet_qos=='med':
-                        timeslot.load_med.append(rec.packet_size)
-                    elif rec.packet_qos=='low':
-                        timeslot.load_low.append(rec.packet_size)
+            if rec.source_id==current_source_id or current_source_id==-1:
+                print('B=' + str(debug_id))
+                debug_id = debug_id + 1
+                for timeslot in self.db:
+                    if timeslot.t_begin <= rec.time and rec.time <= timeslot.t_end:
+                        timeslot.load_total.append(rec.packet_size)
+                        if rec.packet_qos=='high':
+                            timeslot.load_high.append(rec.packet_size)
+                        elif rec.packet_qos=='med':
+                            timeslot.load_med.append(rec.packet_size)
+                        elif rec.packet_qos=='low':
+                            timeslot.load_low.append(rec.packet_size)
 
-                    if rec.time_buffer_in > -1:
-                        timeslot.delay_total.append(rec.time_trx_out - rec.time)
-                        timeslot.qdelay_total.append(rec.time_trx_in - rec.time)
-                        if rec.packet_qos == 'high':
-                            timeslot.delay_high.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_high.append(rec.time_trx_in - rec.time)
-                        elif rec.packet_qos == 'med':
-                            timeslot.delay_med.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_med.append(rec.time_trx_in - rec.time)
-                        elif rec.packet_qos == 'low':
-                            timeslot.delay_low.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_low.append(rec.time_trx_in - rec.time)
-                    else:
-                        timeslot.drop_total.append(rec.packet_size)
-                        if rec.packet_qos == 'high':
-                            timeslot.drop_high.append(rec.packet_size)
-                        elif rec.packet_qos == 'med':
-                            timeslot.drop_med.append(rec.packet_size)
-                        elif rec.packet_qos == 'low':
-                            timeslot.drop_low.append(rec.packet_size)
+                        if rec.time_buffer_in > -1:
+                            timeslot.delay_total.append(rec.time_trx_out - rec.time)
+                            timeslot.qdelay_total.append(rec.time_trx_in - rec.time)
+                            if rec.packet_qos == 'high':
+                                timeslot.delay_high.append(rec.time_trx_out - rec.time)
+                                timeslot.qdelay_high.append(rec.time_trx_in - rec.time)
+                            elif rec.packet_qos == 'med':
+                                timeslot.delay_med.append(rec.time_trx_out - rec.time)
+                                timeslot.qdelay_med.append(rec.time_trx_in - rec.time)
+                            elif rec.packet_qos == 'low':
+                                timeslot.delay_low.append(rec.time_trx_out - rec.time)
+                                timeslot.qdelay_low.append(rec.time_trx_in - rec.time)
+                        else:
+                            timeslot.drop_total.append(rec.packet_size)
+                            if rec.packet_qos == 'high':
+                                timeslot.drop_high.append(rec.packet_size)
+                            elif rec.packet_qos == 'med':
+                                timeslot.drop_med.append(rec.packet_size)
+                            elif rec.packet_qos == 'low':
+                                timeslot.drop_low.append(rec.packet_size)
 
-            for timeslot in self.db:
-                if timeslot.t_begin <= rec.time_trx_out and rec.time_trx_out <= timeslot.t_end:
-                    timeslot.thru_total.append(rec.packet_size)
-                    if rec.packet_qos == 'high':
-                        timeslot.thru_high.append(rec.packet_size)
-                    elif rec.packet_qos == 'med':
-                        timeslot.thru_med.append(rec.packet_size)
-                    elif rec.packet_qos == 'low':
-                        timeslot.thru_low.append(rec.packet_size)
+                for timeslot in self.db:
+                    if timeslot.t_begin <= rec.time_trx_out and rec.time_trx_out <= timeslot.t_end:
+                        timeslot.thru_total.append(rec.packet_size)
+                        if rec.packet_qos == 'high':
+                            timeslot.thru_high.append(rec.packet_size)
+                        elif rec.packet_qos == 'med':
+                            timeslot.thru_med.append(rec.packet_size)
+                        elif rec.packet_qos == 'low':
+                            timeslot.thru_low.append(rec.packet_size)
 
 
     def get_list_load_total(self):
@@ -916,180 +917,90 @@ if not avgg:
     plt.legend()
     plt.show()
 else: #Group stage
-    if False:
-        group_list = My_Group_List(my_tbegin,my_tend,my_samples,start_group_value, end_group_value, grouping_points)
-        group_list.assign_timeslots_to_groups(timeslot_list)
+    group_list = My_Group_List(my_tbegin, my_tend, my_samples, start_group_value, end_group_value, grouping_points)
+    group_list.assign_timeslots_to_groups(timeslot_list)
 
+    avg, err = group_list.get_groups_load_total_bps()
+    prLOAD_BIT = avg
+    print('waa_load_total_bps' + '_avg=' + str(avg))
+    print('waa_load_total_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_load_high_bps()
+    print('waa_load_high_bps' + '_avg=' + str(avg))
+    print('waa_load_high_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_load_med_bps()
+    print('waa_load_med_bps' + '_avg=' + str(avg))
+    print('waa_load_med_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_load_low_bps()
+    print('waa_load_low_bps' + '_avg=' + str(avg))
+    print('waa_load_low_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_total_bps()
+    prTHRU_BIT = avg
+    print('waa_thru_total_bps' + '_avg=' + str(avg))
+    print('waa_thru_total_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_high_bps()
+    print('waa_thru_high_bps' + '_avg=' + str(avg))
+    print('waa_thru_high_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_med_bps()
+    print('waa_thru_med_bps' + '_avg=' + str(avg))
+    print('waa_thru_med_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_low_bps()
+    print('waa_thru_low_bps' + '_avg=' + str(avg))
+    print('waa_thru_low_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_total_bps()
+    prDROP_BIT = avg
+    print('waa_drop_total_bps' + '_avg=' + str(avg))
+    print('waa_drop_total_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_high_bps()
+    print('waa_drop_high_bps' + '_avg=' + str(avg))
+    print('waa_drop_high_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_med_bps()
+    print('waa_drop_med_bps' + '_avg=' + str(avg))
+    print('waa_drop_med_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_low_bps()
+    print('waa_drop_low_bps' + '_avg=' + str(avg))
+    print('waa_drop_low_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_prob_total()
+    print('waa_drop_prob_total' + '_avg=' + str(avg))
+    print('waa_drop_prob_total' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_prob_high()
+    print('waa_drop_prob_high' + '_avg=' + str(avg))
+    print('waa_drop_prob_high' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_prob_med()
+    print('waa_drop_prob_med' + '_avg=' + str(avg))
+    print('waa_drop_prob_med' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_prob_low()
+    print('waa_drop_prob_low' + '_avg=' + str(avg))
+    print('waa_drop_prob_low' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_total()
+    print('waa_delay_total' + '_avg=' + str(avg))
+    print('waa_delay_total' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_high()
+    print('waa_delay_high' + '_avg=' + str(avg))
+    print('waa_delay_high' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_med()
+    print('waa_delay_med' + '_avg=' + str(avg))
+    print('waa_delay_med' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_low()
+    print('waa_delay_low' + '_avg=' + str(avg))
+    print('waa_delay_low' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_total()
+    print('waa_qdelay_total' + '_avg=' + str(avg))
+    print('waa_qdelay_total' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_high()
+    print('waa_qdelay_high' + '_avg=' + str(avg))
+    print('waa_qdelay_high' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_med()
+    print('waa_qdelay_med' + '_avg=' + str(avg))
+    print('waa_qdelay_med' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_low()
+    print('waa_qdelay_low' + '_avg=' + str(avg))
+    print('waa_qdelay_low' + '_err=' + str(err))
 
-        avg,err=group_list.get_groups_load_total_bps()
-        prLOAD_BIT=avg
-        print('get_groups_load_total_bps' + '(avg)='+str(avg))
-        print('get_groups_load_total_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_load_high_bps()
-        print('get_groups_load_high_bps' + '(avg)='+str(avg))
-        print('get_groups_load_high_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_load_med_bps()
-        print('get_groups_load_med_bps' + '(avg)='+str(avg))
-        print('get_groups_load_med_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_load_low_bps()
-        print('get_groups_load_low_bps' + '(avg)='+str(avg))
-        print('get_groups_load_low_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_thru_total_bps()
-        prTHRU_BIT=avg
-        print('get_groups_thru_total_bps' + '(avg)='+str(avg))
-        print('get_groups_thru_total_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_thru_high_bps()
-        print('get_groups_thru_high_bps' + '(avg)='+str(avg))
-        print('get_groups_thru_high_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_thru_med_bps()
-        print('get_groups_thru_med_bps' + '(avg)='+str(avg))
-        print('get_groups_thru_med_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_thru_low_bps()
-        print('get_groups_thru_low_bps' + '(avg)='+str(avg))
-        print('get_groups_thru_low_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_total_bps()
-        prDROP_BIT=avg
-        print('get_groups_drop_total_bps' + '(avg)='+str(avg))
-        print('get_groups_drop_total_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_high_bps()
-        print('get_groups_drop_high_bps' + '(avg)='+str(avg))
-        print('get_groups_drop_high_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_med_bps()
-        print('get_groups_drop_med_bps' + '(avg)='+str(avg))
-        print('get_groups_drop_med_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_low_bps()
-        print('get_groups_drop_low_bps' + '(avg)='+str(avg))
-        print('get_groups_drop_low_bps' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_prob_total()
-        print('get_groups_drop_prob_total' + '(avg)='+str(avg))
-        print('get_groups_drop_prob_total' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_prob_high()
-        print('get_groups_drop_prob_high' + '(avg)='+str(avg))
-        print('get_groups_drop_prob_high' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_prob_med()
-        print('get_groups_drop_prob_med' + '(avg)='+str(avg))
-        print('get_groups_drop_prob_med' + '(err)='+str(err))
-        avg,err=group_list.get_groups_drop_prob_low()
-        print('get_groups_drop_prob_low' + '(avg)='+str(avg))
-        print('get_groups_drop_prob_low' + '(err)='+str(err))
-        avg,err=group_list.get_groups_delay_total()
-        print('get_groups_delay_total' + '(avg)='+str(avg))
-        print('get_groups_delay_total' + '(err)='+str(err))
-        avg,err=group_list.get_groups_delay_high()
-        print('get_groups_delay_high' + '(avg)='+str(avg))
-        print('get_groups_delay_high' + '(err)='+str(err))
-        avg,err=group_list.get_groups_delay_med()
-        print('get_groups_delay_med' + '(avg)='+str(avg))
-        print('get_groups_delay_med' + '(err)='+str(err))
-        avg,err=group_list.get_groups_delay_low()
-        print('get_groups_delay_low' + '(avg)='+str(avg))
-        print('get_groups_delay_low' + '(err)='+str(err))
-        avg,err=group_list.get_groups_qdelay_total()
-        print('get_groups_qdelay_total' + '(avg)='+str(avg))
-        print('get_groups_qdelay_total' + '(err)='+str(err))
-        avg,err=group_list.get_groups_qdelay_high()
-        print('get_groups_qdelay_high' + '(avg)='+str(avg))
-        print('get_groups_qdelay_high' + '(err)='+str(err))
-        avg,err=group_list.get_groups_qdelay_med()
-        print('get_groups_qdelay_med' + '(avg)='+str(avg))
-        print('get_groups_qdelay_med' + '(err)='+str(err))
-        avg,err=group_list.get_groups_qdelay_low()
-        print('get_groups_qdelay_low' + '(avg)='+str(avg))
-        print('get_groups_qdelay_low' + '(err)='+str(err))
-
-        plt.plot(prLOAD_BIT, prTHRU_BIT, label="thruput bitrate")
-        plt.plot(prLOAD_BIT,prDROP_BIT,  label="drop bitrate")
-        plt.xlabel('Load (bps)', fontsize=25)
-        plt.ylabel('Probability', fontsize=25)
-        plt.grid(True, which='major', axis='both')
-        plt.title('Both Waiting and Prop Delay', fontsize=25)
-        plt.legend()
-        plt.show()
-    else:
-        group_list = My_Group_List(my_tbegin, my_tend, my_samples, start_group_value, end_group_value, grouping_points)
-        group_list.assign_timeslots_to_groups(timeslot_list)
-
-        avg, err = group_list.get_groups_load_total_bps()
-        prLOAD_BIT = avg
-        print('waa_load_total_bps' + '_avg=' + str(avg))
-        print('waa_load_total_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_load_high_bps()
-        print('waa_load_high_bps' + '_avg=' + str(avg))
-        print('waa_load_high_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_load_med_bps()
-        print('waa_load_med_bps' + '_avg=' + str(avg))
-        print('waa_load_med_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_load_low_bps()
-        print('waa_load_low_bps' + '_avg=' + str(avg))
-        print('waa_load_low_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_thru_total_bps()
-        prTHRU_BIT = avg
-        print('waa_thru_total_bps' + '_avg=' + str(avg))
-        print('waa_thru_total_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_thru_high_bps()
-        print('waa_thru_high_bps' + '_avg=' + str(avg))
-        print('waa_thru_high_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_thru_med_bps()
-        print('waa_thru_med_bps' + '_avg=' + str(avg))
-        print('waa_thru_med_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_thru_low_bps()
-        print('waa_thru_low_bps' + '_avg=' + str(avg))
-        print('waa_thru_low_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_total_bps()
-        prDROP_BIT = avg
-        print('waa_drop_total_bps' + '_avg=' + str(avg))
-        print('waa_drop_total_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_high_bps()
-        print('waa_drop_high_bps' + '_avg=' + str(avg))
-        print('waa_drop_high_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_med_bps()
-        print('waa_drop_med_bps' + '_avg=' + str(avg))
-        print('waa_drop_med_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_low_bps()
-        print('waa_drop_low_bps' + '_avg=' + str(avg))
-        print('waa_drop_low_bps' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_prob_total()
-        print('waa_drop_prob_total' + '_avg=' + str(avg))
-        print('waa_drop_prob_total' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_prob_high()
-        print('waa_drop_prob_high' + '_avg=' + str(avg))
-        print('waa_drop_prob_high' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_prob_med()
-        print('waa_drop_prob_med' + '_avg=' + str(avg))
-        print('waa_drop_prob_med' + '_err=' + str(err))
-        avg, err = group_list.get_groups_drop_prob_low()
-        print('waa_drop_prob_low' + '_avg=' + str(avg))
-        print('waa_drop_prob_low' + '_err=' + str(err))
-        avg, err = group_list.get_groups_delay_total()
-        print('waa_delay_total' + '_avg=' + str(avg))
-        print('waa_delay_total' + '_err=' + str(err))
-        avg, err = group_list.get_groups_delay_high()
-        print('waa_delay_high' + '_avg=' + str(avg))
-        print('waa_delay_high' + '_err=' + str(err))
-        avg, err = group_list.get_groups_delay_med()
-        print('waa_delay_med' + '_avg=' + str(avg))
-        print('waa_delay_med' + '_err=' + str(err))
-        avg, err = group_list.get_groups_delay_low()
-        print('waa_delay_low' + '_avg=' + str(avg))
-        print('waa_delay_low' + '_err=' + str(err))
-        avg, err = group_list.get_groups_qdelay_total()
-        print('waa_qdelay_total' + '_avg=' + str(avg))
-        print('waa_qdelay_total' + '_err=' + str(err))
-        avg, err = group_list.get_groups_qdelay_high()
-        print('waa_qdelay_high' + '_avg=' + str(avg))
-        print('waa_qdelay_high' + '_err=' + str(err))
-        avg, err = group_list.get_groups_qdelay_med()
-        print('waa_qdelay_med' + '_avg=' + str(avg))
-        print('waa_qdelay_med' + '_err=' + str(err))
-        avg, err = group_list.get_groups_qdelay_low()
-        print('waa_qdelay_low' + '_avg=' + str(avg))
-        print('waa_qdelay_low' + '_err=' + str(err))
-
-        plt.plot(prLOAD_BIT, prTHRU_BIT, label="thruput bitrate")
-        plt.plot(prLOAD_BIT, prDROP_BIT, label="drop bitrate")
-        plt.xlabel('Load (bps)', fontsize=25)
-        plt.ylabel('Probability', fontsize=25)
-        plt.grid(True, which='major', axis='both')
-        plt.title('Both Waiting and Prop Delay', fontsize=25)
-        plt.legend()
-        plt.show()
+    plt.plot(prLOAD_BIT, prTHRU_BIT, label="thruput bitrate")
+    plt.plot(prLOAD_BIT, prDROP_BIT, label="drop bitrate")
+    plt.xlabel('Load (bps)', fontsize=25)
+    plt.ylabel('Probability', fontsize=25)
+    plt.grid(True, which='major', axis='both')
+    plt.title('Both Waiting and Prop Delay', fontsize=25)
+    plt.legend()
+    plt.show()

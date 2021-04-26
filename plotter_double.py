@@ -920,51 +920,53 @@ def plot_qdelays():
 
     pos=1
     label_1=pos
-    ax.bar(pos, waa_10_high*200, width, color='white',edgecolor='black',linewidth=3, hatch='//')
+    #ax.bar(pos, waa_10_high*200, width, color='blue',edgecolor='black',linewidth=3, hatch='//')
+    ax.bar(pos, waa_10_high*200, width, color='blue',edgecolor='black',linewidth=3)
     pos=pos+pos_close
     label_1=(label_1+pos)/2
-    ax.bar(pos, dual_10_high, width, color='white',edgecolor='black',linewidth=3, hatch='.')
+    #ax.bar(pos, dual_10_high, width, color='magenta',edgecolor='black',linewidth=3, hatch='.')
+    ax.bar(pos, dual_10_high, width, color='magenta',edgecolor='black',linewidth=3)
 
     pos=pos+pos_far
     label_2=pos
-    ax.bar(pos, waa_10_med, width, color='white',edgecolor='black',linewidth=3, hatch='//')
+    ax.bar(pos, waa_10_med, width, color='blue',edgecolor='black',linewidth=3)
     pos=pos+pos_close
     label_2=(label_2+pos)/2
-    ax.bar(pos, dual_10_med, width, color='white',edgecolor='black',linewidth=3, hatch='.')
+    ax.bar(pos, dual_10_med, width, color='magenta',edgecolor='black',linewidth=3)
 
     pos=pos+pos_far
     label_3=pos
-    ax.bar(pos, waa_10_low, width, color='white',edgecolor='black',linewidth=3, hatch='//')
+    ax.bar(pos, waa_10_low, width, color='blue',edgecolor='black',linewidth=3)
     pos=pos+pos_close
     label_3=(label_3+pos)/2
-    ax.bar(pos, dual_10_low, width, color='white',edgecolor='black',linewidth=3, hatch='.')
+    ax.bar(pos, dual_10_low, width, color='magenta',edgecolor='black',linewidth=3)
 
     pos=pos+pos_vfar
     label_4=pos
-    ax.bar(pos, waa_23_low, width, color='white',edgecolor='black',linewidth=3, hatch='//')
+    ax.bar(pos, waa_23_low, width, color='blue',edgecolor='black',linewidth=3)
     pos=pos+pos_close
     label_4=(label_4+pos)/2
-    ax.bar(pos, dual_23_low, width, color='white',edgecolor='black',linewidth=3, hatch='.')
+    ax.bar(pos, dual_23_low, width, color='magenta',edgecolor='black',linewidth=3)
 
     pos=pos+pos_far
     label_5=pos
-    ax.bar(pos, waa_23_med, width, color='white',edgecolor='black',linewidth=3, hatch='//',label="Intra-MAC")
+    ax.bar(pos, waa_23_med, width, color='blue',edgecolor='black',linewidth=3,label="Intra-MAC")
     pos=pos+pos_close
     label_5=(label_5+pos)/2
-    ax.bar(pos, dual_23_med, width, color='white',edgecolor='black',linewidth=3, hatch='.',label="LSDM MAC")
+    ax.bar(pos, dual_23_med, width, color='magenta',edgecolor='black',linewidth=3, label="LSDM MAC")
 
     pos=pos+pos_far
     label_6=pos
-    ax.bar(pos, waa_23_low, width, color='white',edgecolor='black',linewidth=3, hatch='//')
+    ax.bar(pos, waa_23_low, width, color='blue',edgecolor='black',linewidth=3)
     pos=pos+pos_close
     label_6=(label_6+pos)/2
-    ax.bar(pos, dual_23_low, width, color='white',edgecolor='black',linewidth=3, hatch='.')
+    ax.bar(pos, dual_23_low, width, color='magenta',edgecolor='black',linewidth=3)
 
     x = [label_1,label_2,label_3,label_4,label_5,label_6]
     labels = ['high', 'med', 'low','high', 'med', 'low']
 
-    plt.text(label_2-0.2,-20,'10 Gbps',fontsize='xx-large',color='b')
-    plt.text(label_5-0.2,-20,'23 Gbps',fontsize='xx-large',color='b')
+    plt.text(label_2-0.2,-20,'10 Gbps',fontsize='xx-large',color='k')
+    plt.text(label_5-0.2,-20,'23 Gbps',fontsize='xx-large',color='k')
 
     plt.xticks(x, labels, rotation='horizontal',fontsize=14)
     plt.yticks(fontsize=14)

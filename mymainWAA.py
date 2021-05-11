@@ -149,6 +149,8 @@ elif TOTAL_NODES==12:
     myglobal.UNLUCKY_SLOT_LEN = 1
 else:
     print('Error with number of server')
+
+
 HIGH_BUFFER_SIZE = 1e6 # bytes
 MED_BUFFER_SIZE = 1e6 # bytes
 LOW_BUFFER_SIZE = 1e6 # bytes

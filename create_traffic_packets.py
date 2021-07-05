@@ -73,7 +73,9 @@ def get_on_off_times(t_begin,t_end,packet_num,c_pareto,sigma):
             on_periods.append([new_on_start,new_off_start])
         counter=counter+1
     return on_periods
-def generate_packets_low_qos(packet_id,t_begin,t_end,avg_throughput,source_id,destination_ids,c_pareto,sigma_lognormal,alpha):
+def generate_packets_low_qos(packet_id,t_begin,t_end,avg_throughput,source_id,destination_ids,c_pareto,
+                             sigma_lognormal,alpha,
+                             torid,inter_dest_list,intra_traffic_perc):
     csv_reader=''
     first_packet_id=packet_id
     avg_packet_size=64*0.6+1500*0.4 #bytes
@@ -89,13 +91,23 @@ def generate_packets_low_qos(packet_id,t_begin,t_end,avg_throughput,source_id,de
             new_time=inttime
             packet_size = get_variable_packet_size(64, 1500, 0.6)
             qos = 'low'
-            destination_id=random.sample(destination_ids,1)[0]
+            luckynum=random.uniform(0,1)
+            if luckynum<=intra_traffic_perc:
+                destination_id = random.sample(destination_ids, 1)[0]
+                destination_tor=torid
+            else:
+                destination_id = 0
+                destination_tor=random.sample(inter_dest_list, 1)[0]
+
+            # 'packet_id,time,packet_size,packet_qos,source_id,source_tor,destination_id,destination_tor\
             csv_reader=csv_reader+str(packet_id)+','+str(new_time)+','\
-                       +str(packet_size)+','+str(qos)+','+str(source_id)+','+str(destination_id)+'\n'
+                       +str(packet_size)+','+str(qos)+','+str(source_id)+','\
+                       +str(torid)+','+str(destination_id)+','+str(destination_tor)+'\n'
             packet_id = packet_id + 1
             print('node '+str(source_id)+',low progress %='+str((packet_id-first_packet_id)*100/total_len))
     return csv_reader,packet_id
-def generate_packets_med_qos(packet_id,t_begin,t_end,avg_throughput,source_id,destination_ids,sigma_lognormal):
+def generate_packets_med_qos(packet_id,t_begin,t_end,avg_throughput,source_id,destination_ids,sigma_lognormal,
+                             torid,inter_dest_list,intra_traffic_perc):
     csv_reader=''
     first_packet_id=packet_id
     avg_packet_size=64*0.7+1500*0.3#bytes
@@ -107,13 +119,24 @@ def generate_packets_med_qos(packet_id,t_begin,t_end,avg_throughput,source_id,de
         packet_size=get_variable_packet_size(64,1500,0.7)
         qos='med'
         new_time=inttime
-        destination_id = random.sample(destination_ids, 1)[0]
+
+        luckynum = random.uniform(0, 1)
+        if luckynum <= intra_traffic_perc:
+            destination_id = random.sample(destination_ids, 1)[0]
+            destination_tor = torid
+        else:
+            destination_id = 0
+            destination_tor = random.sample(inter_dest_list, 1)[0]
+
+        # 'packet_id,time,packet_size,packet_qos,source_id,source_tor,destination_id,destination_tor\
         csv_reader = csv_reader + str(packet_id) + ',' + str(new_time) + ',' \
-                     + str(packet_size) + ',' + str(qos) + ',' + str(source_id) + ',' + str(destination_id) + '\n'
+                     + str(packet_size) + ',' + str(qos) + ',' + str(source_id) + ',' \
+                     + str(torid) + ',' + str(destination_id) + ',' + str(destination_tor) + '\n'
         packet_id = packet_id + 1
         print('node ' + str(source_id) + ',med progress %=' + str((packet_id - first_packet_id) * 100 / total_len))
     return csv_reader,packet_id
-def generate_packets_high_qos(packet_id,t_begin,t_end,avg_throughput,source_id,destination_ids):
+def generate_packets_high_qos(packet_id,t_begin,t_end,avg_throughput,source_id,destination_ids,
+                              torid,inter_dest_list,intra_traffic_perc):
     csv_reader=''
     packet_id=packet_id
     first_packet_id=packet_id
@@ -126,71 +149,24 @@ def generate_packets_high_qos(packet_id,t_begin,t_end,avg_throughput,source_id,d
         packet_size=avg_packet_size
         qos='high'
         new_time=inttime
-        destination_id = random.sample(destination_ids, 1)[0]
+
+        luckynum = random.uniform(0, 1)
+        if luckynum <= intra_traffic_perc:
+            destination_id = random.sample(destination_ids, 1)[0]
+            destination_tor = torid
+        else:
+            destination_id = 0
+            destination_tor = random.sample(inter_dest_list, 1)[0]
+
+        # 'packet_id,time,packet_size,packet_qos,source_id,source_tor,destination_id,destination_tor\
         csv_reader = csv_reader + str(packet_id) + ',' + str(new_time) + ',' \
-                     + str(packet_size) + ',' + str(qos) + ',' + str(source_id) + ',' + str(destination_id) + '\n'
+                     + str(packet_size) + ',' + str(qos) + ',' + str(source_id) + ',' \
+                     + str(torid) + ',' + str(destination_id) + ',' + str(destination_tor) + '\n'
         packet_id=packet_id+1
         print('node ' + str(source_id) + ',high progress %=' + str((packet_id - first_packet_id) * 100 / total_len))
     return csv_reader,packet_id
-def export_traffic_dataset(nodes,t_begin,t_end,avg_throughput,qos,hasHeader):
-    sigma_lognormal_low = 2.6
-    sigma_lognormal_med = 1
-    alpha_weibull = 0.8
-    c_pareto = 0.5
-    csv_content = ''
-    nodes_dict = list(range(1, nodes+1))
-
-    # For every source node
-    for source_id in range(1,nodes+1):
-        print('Node '+str(source_id))
-        if nodes==1:
-            dest_ids=[0,0]
-        else:
-            dest_ids=[x for x in nodes_dict if x != source_id]
-            # If only two nodes, force each to send to the other
-            if len(dest_ids)==1:
-                dest_ids=[dest_ids,dest_ids]
-
-        # Generate low qos traffic
-        if qos=='all' or qos=='low':
-            low_packets=generate_packets_low_qos(t_begin,t_end,avg_throughput,source_id,dest_ids,c_pareto,sigma_lognormal_low,alpha_weibull)
-            if low_packets is None:
-                print('Warning: No low packets generated - check distribution params')
-            else:
-                csv_content = csv_content+low_packets
-
-
-        # Generate medium qos traffic
-        if qos=='all' or qos=='med':
-            med_packets=generate_packets_med_qos(t_begin,t_end,avg_throughput,source_id,dest_ids,sigma_lognormal_med)
-            if med_packets is None:
-                print('Warning: No med packets generated - check distribution params')
-            else:
-                csv_content = csv_content+med_packets
-
-        # Generate high qos traffic
-        if qos=='all' or qos=='high':
-            high_packets=generate_packets_high_qos(t_begin,t_end,avg_throughput,source_id,dest_ids)
-            if high_packets is None:
-                print('Warning: No high packets generated - check distribution params')
-            else:
-                csv_content = csv_content+high_packets
-
-    csv_names='packet_id,time,packet_size,packet_qos,source_id,destination_id\n'
-    if hasHeader:
-        output_table= csv_names+csv_content
-    else:
-        output_table=csv_content
-
-    mytime = str(datetime.datetime.now())
-    mytime = mytime.replace('-', '_')
-    mytime = mytime.replace(' ', '_')
-    mytime = mytime.replace(':', '_')
-    mytime = mytime.replace('.', '_')
-
-    with open(Global._ROOT + Global._LOGS_FOLDER + 'traffic_dataset_packets_'+mytime + ".txt", mode='a') as file:
-        file.write(output_table + '\n')
-def export_traffic_dataset_single(nodeid,nodeslist,t_begin,t_end,avg_throughput,qos,hasHeader,low_thru_param,med_thru_param,high_thru_param):
+def export_traffic_dataset_single(nodeid,intralist,torid,interlist,t_begin,t_end,avg_throughput,qos,hasHeader,
+                                  low_thru_param,med_thru_param,high_thru_param,intra_traffic_perc):
     packet_id=0
     sigma_lognormal_low = 5
     sigma_lognormal_med = 2
@@ -200,34 +176,47 @@ def export_traffic_dataset_single(nodeid,nodeslist,t_begin,t_end,avg_throughput,
     thru_low=avg_throughput*low_thru_param #3
     thru_med=avg_throughput*med_thru_param #2.5
     thru_high=avg_throughput*high_thru_param #0.1
-    # For every source node
-    dest_ids=nodeslist
 
+    intra_dest_list=intralist
+    inter_dest_list=interlist
     # Generate low qos traffic
     if qos=='all' or qos=='low':
-        low_packets,packet_id=generate_packets_low_qos(packet_id,t_begin,t_end,thru_low,nodeid,dest_ids,c_pareto,sigma_lognormal_low,alpha_weibull)
+        low_packets,packet_id=generate_packets_low_qos(packet_id,t_begin,t_end,thru_low,nodeid,
+                                                       intra_dest_list,c_pareto,sigma_lognormal_low,alpha_weibull,
+                                                       torid,inter_dest_list,intra_traffic_perc)
         if low_packets is None:
             print('Warning: No low packets generated - check distribution params')
+            return 0
         else:
+            print(len(low_packets))
             csv_content = csv_content+low_packets
 
     # Generate medium qos traffic
     if qos=='all' or qos=='med':
-        med_packets,packet_id=generate_packets_med_qos(packet_id,t_begin,t_end,thru_med,nodeid,dest_ids,sigma_lognormal_med)
+        med_packets,packet_id=generate_packets_med_qos(packet_id,t_begin,t_end,thru_med,nodeid,
+                                                       intra_dest_list,sigma_lognormal_med,
+                                                       torid,inter_dest_list,intra_traffic_perc)
         if med_packets is None:
             print('Warning: No med packets generated - check distribution params')
+            return 0
         else:
+            print(len(med_packets))
             csv_content = csv_content+med_packets
 
     # Generate high qos traffic
     if qos=='all' or qos=='high':
-        high_packets,packet_id=generate_packets_high_qos(packet_id,t_begin,t_end,thru_high,nodeid,dest_ids)
+        high_packets,packet_id=generate_packets_high_qos(packet_id,t_begin,t_end,
+                                                         thru_high,nodeid,intra_dest_list,
+                                                         torid,inter_dest_list,intra_traffic_perc)
         if high_packets is None:
             print('Warning: No high packets generated - check distribution params')
+            return 0
         else:
+            print(len(high_packets))
             csv_content = csv_content+high_packets
 
-    csv_names='packet_id,time,packet_size,packet_qos,source_id,destination_id\n'
+    csv_names='packet_id,time,packet_size,packet_qos,source_id,tor_id,' \
+              'destination_id,destination_tor\n'
     if hasHeader:
         output_table= csv_names+csv_content
     else:
@@ -240,14 +229,17 @@ def export_traffic_dataset_single(nodeid,nodeslist,t_begin,t_end,avg_throughput,
     mytime = mytime.replace('.', '_')
 
     print('Writing...')
-    with open(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER+mynewfolder+ 'test'+str(nodeid) + ".csv", mode='a') as file:
+    current_file=myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER+mynewfolder+'tor'+str(torid)+'node'+str(nodeid)+".csv"
+
+    with open(current_file, mode='a') as file:
         file.write(output_table + '\n')
     print('Sorting...')
-    with open(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER+mynewfolder+  'test'+str(nodeid) + ".csv", 'r', newline='') as f_input:
+    with open(current_file, 'r', newline='') as f_input:
         csv_input = csv.DictReader(f_input)
         data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
+        print(len(data))
     print('Rewriting...')
-    with open(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER+mynewfolder+  'test'+str(nodeid) + ".csv", 'w', newline='') as f_output:
+    with open(current_file, 'w', newline='') as f_output:
         csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
         csv_output.writeheader()
         csv_output.writerows(data)
@@ -259,25 +251,30 @@ def get_timestamp_to_string():
     mytime = mytime.replace('.', '_')
     return mytime
 def run_with_params(): # main
-    for nodeid in node_id_list:
-        temp=[nodeid]
-        nodeslist=[item for item in maxnodeslist if item not in temp]
-        hasHeader=True
-        export_traffic_dataset_single(nodeid,nodeslist,t_begin,t_end,avg_throughput_per_node,qos,hasHeader,low_thru_shape_param,med_thru_shape_param,high_thru_shape_param)
+    for tor in inter_tor_list:
+        for node in intra_nodes_list:
+            my_tor=[tor]
+            my_node=[node]
+            intra_dest_list=[item for item in intra_nodes_list if item not in my_node]
+            inter_dest_list=[item for item in inter_tor_list if item not in my_tor]
+            hasHeader=True
+            intra_traffic_perc = intra_perc
+            export_traffic_dataset_single(node,intra_dest_list,tor,inter_dest_list,t_begin,t_end,avg_throughput_per_node,
+                                qos,hasHeader,low_thru_shape_param,med_thru_shape_param,
+                                          high_thru_shape_param,intra_traffic_perc)
 
 #############  params  ###############
 t_begin=0 #sec (float)
-t_end=1 #sec (float)
-avg_throughput=1e10 # mean bytes per sec being generated
-node_id_list=[7, 8] #source nodes
+t_end=0.010 #sec (float)
+avg_throughput=100e9 # mean bytes per sec being generated
 qos='all'# choose qos packets allowed {'low','med','high','all'}
-
-############ constants ###############
-maxnodeslist = [1, 2, 3, 4, 5, 6, 7, 8] #destination nodes
+intra_nodes_list=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+inter_tor_list=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 low_thru_shape_param=3 # (float)
-med_thru_shape_param=2.5 # (float)
-high_thru_shape_param=0.1 # (float)
-avg_throughput_per_node=avg_throughput/len(maxnodeslist)
+med_thru_shape_param=5 # (float)
+high_thru_shape_param=0.04 # (float)
+avg_throughput_per_node=avg_throughput/len(intra_nodes_list)
+intra_perc=0.8
 
 # MAIN - traffic dset is created by default in
 # traffic_dataset/<CURRENT_TIMESTAMP> as 'testN.csv', for N=1,2...

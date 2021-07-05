@@ -41,6 +41,7 @@ class Decoder:
 
    #     print('Debug fill with small for node_id' +str(node_id)+',ch'+str(ch_id)+' slot'+str(start_slot))
         packs_filled=self.fill_high(node_id, max_pack_num, start_slot, ch_id)
+
         if packs_filled<max_pack_num:
             if lucky_number <= 7:
                 packs_filled=packs_filled+self.fill_med(node_id, max_pack_num-packs_filled, start_slot+packs_filled, ch_id)
@@ -126,11 +127,26 @@ class Nodes:
         for node in self.db:
             node.add_new_packets_to_buffers(current_time)
 
+    def geodranas_consumption(self,current_time):
+        for node in self.db:
+            if node.id==16:
+                node.geodranas_consume(1500,current_time)
+
     def check_arrival_WAA(self,current_time):
         # check arrivals
+        total_packet_arrived_list=[]
         for node in self.db:
             node.check_control_arrival_WAA(current_time)
-            node.check_data_arrival_WAA(current_time)
+            total_packet_arrived_list.extend(node.check_data_arrival_WAA(current_time))
+
+        for pack in total_packet_arrived_list:
+            if pack.destination_tor==1:
+                arrival_id=pack.destination_id
+            else:
+                arrival_id=16
+            for node in self.db:
+                if node.id==arrival_id:
+                    node.add_reception(pack)
 
     def process_new_cycle(self,current_time):
         total_nodes = len(self.db)
@@ -141,11 +157,7 @@ class Nodes:
         control_cycle_slot_time=control_bitsize_per_node/self.channels.get_common_bitrate()
         entered_new_cycle=(current_time>=cycle_time*self.current_cycle)
         if entered_new_cycle:
-            print('Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
-            #build new message
-            #if self.current_cycle==0:
-                #control_msg=None
-            #else:
+            print('-----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
             control_msg = self.build_new_control_message()
             decoder=self.run_distributed_algo(control_msg)
 
@@ -253,50 +265,79 @@ class Nodes:
                                         node_id_diff=myglobal.ID_DIFF)
         self.build_trx_matrices(lucky_node)
 
-        # Assign at least the last channel to potential big packets
-        ch = self.channels.db[-1]
-        start_slot = 0
-        i = 0
-        is_big_filled = False
-        while (i < len(ch.trx_matrix) and (not is_big_filled)):
-            node_id = ch.trx_matrix[i]
-            is_big_filled = decoder.fill_with_big_packs(node_id, ch.id, start_slot)
-            i = i + 1
-        if not is_big_filled:
-            start_slot = 0
-            for i in range(0, len(ch.trx_matrix)):
-                node_id = ch.trx_matrix[i]
-                if ch.get_unlucky_node_id() == node_id:
-                    max_pack_num = myglobal.UNLUCKY_SLOT_LEN
-                else:
-                    max_pack_num = myglobal.LUCKY_SLOT_LEN
-                packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot,
-                                                             lucky_number)
-                if packs_filled > 0:
-                    start_slot = start_slot + packs_filled
-        else:
-            print('Debug: Will TRX big pack in ch=' + str(ch.id))
-
-        # rest of the channels will be filled with small, unless not enough
-        current_ch_list=[x for x in self.channels.db if (x.id!=ch.id)]
-        for ch in current_ch_list:
-            start_slot = 0
-            for i in range(0, len(ch.trx_matrix)):
-                node_id = ch.trx_matrix[i]
-                if ch.get_unlucky_node_id() == node_id:
-                    max_pack_num = myglobal.UNLUCKY_SLOT_LEN
-                else:
-                    max_pack_num = myglobal.LUCKY_SLOT_LEN
-                packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot, lucky_number)
-                if packs_filled > 0:
-                    start_slot = start_slot + packs_filled
-            if start_slot==0: # no small packets found
+        #Assign all channels to big packets first!
+        if myglobal.ASSIGN_CHANNEL_POLICY=='ALL_BIG':
+            for ch in self.channels.db:
+                start_slot = 0
                 i = 0
                 is_big_filled = False
                 while (i < len(ch.trx_matrix) and (not is_big_filled)):
                     node_id = ch.trx_matrix[i]
                     is_big_filled = decoder.fill_with_big_packs(node_id, ch.id, start_slot)
                     i = i + 1
+                if not is_big_filled:
+                    start_slot = 0
+                    for i in range(0, len(ch.trx_matrix)):
+                        node_id = ch.trx_matrix[i]
+                        # check if current node belongs in lucky or unlucky family
+                        if node_id in ch.get_unlucky_list():
+                            max_pack_num = myglobal.UNLUCKY_SLOT_LEN
+                        else:
+                            max_pack_num = myglobal.LUCKY_SLOT_LEN
+                        packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot,
+                                                                     lucky_number)
+                        if packs_filled > 0:
+                            start_slot = start_slot + packs_filled
+                else:
+                    print('Debug: Will TRX big pack in ch=' + str(ch.id))
+        else:
+            # Assign at least the last channel to potential big packets
+            ch = self.channels.db[-1]
+            start_slot = 0
+            i = 0
+            is_big_filled = False
+            while (i < len(ch.trx_matrix) and (not is_big_filled)):
+                node_id = ch.trx_matrix[i]
+                is_big_filled = decoder.fill_with_big_packs(node_id, ch.id, start_slot)
+                i = i + 1
+            if not is_big_filled:
+                start_slot = 0
+                for i in range(0, len(ch.trx_matrix)):
+                    node_id = ch.trx_matrix[i]
+                    # check if current node belongs in lucky or unlucky family
+                    if node_id in ch.get_unlucky_list():
+                        max_pack_num = myglobal.UNLUCKY_SLOT_LEN
+                    else:
+                        max_pack_num = myglobal.LUCKY_SLOT_LEN
+                    packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot,
+                                                                 lucky_number)
+                    if packs_filled > 0:
+                        start_slot = start_slot + packs_filled
+            else:
+                print('Debug: Will TRX big pack in ch=' + str(ch.id))
+
+            # rest of the channels will be filled with small, unless not enough
+            current_ch_list=[x for x in self.channels.db if (x.id!=ch.id)]
+            for ch in current_ch_list:
+                start_slot = 0
+                for i in range(0, len(ch.trx_matrix)):
+                    node_id = ch.trx_matrix[i]
+                    if node_id in ch.get_unlucky_list():
+                        max_pack_num = myglobal.UNLUCKY_SLOT_LEN
+                    else:
+                        max_pack_num = myglobal.LUCKY_SLOT_LEN
+                    packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot, lucky_number)
+                    if packs_filled > 0:
+                        start_slot = start_slot + packs_filled
+                if start_slot==0: # no small packets found
+                    i = 0
+                    is_big_filled = False
+                    while (i < len(ch.trx_matrix) and (not is_big_filled)):
+                        node_id = ch.trx_matrix[i]
+                        is_big_filled = decoder.fill_with_big_packs(node_id, ch.id, start_slot)
+                        i = i + 1
+                    if is_big_filled:
+                        print('Debug: Will TRX big pack in ch=' + str(ch.id))
 
         # DEBUGG
         total_str=[]
@@ -397,9 +438,23 @@ class Node:
         self.control_meta_buffer=[]
         self.control_sent=[]
 
-        self.matrix_A=[]
-        self.matrix_B=[]
+        self.receiver=[]
+        self.consumed=[]
 
+    def geodranas_consume(self,size,curr_time):
+        current_size = 0
+        for item in self.receiver:
+            if item.packet_size+current_size<=size:
+                current_size = current_size+item.packet_size
+                item.consume_time=curr_time
+                self.consumed.append(item)
+                self.receiver.remove(item)
+                print('Consuming in TOR for item_ID:'+str(item.packet_id)+'with size='+str(item.packet_size))
+            else:
+                break
+
+    def add_reception(self,packet):
+        self.receiver.append(packet)
 
     def decode_previous_cycle(self, decoder, cycle_time, cycle_slot_time, current_cycle, data_channels):
         if decoder is None:
@@ -516,7 +571,7 @@ class Node:
     def build_bonus_msg(self,current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
 
-        unlucky_node_id=data_channels.get_unlucky_node_id()
+        unlucky_node_id=data_channels.get_one_unlucky_node_id()
 
         if self.id==unlucky_node_id:
             max_node_id=total_nodes-myglobal.ID_DIFF
@@ -558,16 +613,18 @@ class Node:
                 data_pack.annotated = True
 
     def check_data_arrival_WAA(self,current_time):
+        total_packet_arrived_list=[]
         for pack in self.data_meta_buffer:
             has_packet_arrived=pack.time_trx_in<pack.time_trx_out and pack.time_trx_out<=current_time
             if has_packet_arrived:
                 pack.time_trx_out=current_time
                 self.data_sent.append(pack)
                 self.data_meta_buffer.remove(pack)
+                total_packet_arrived_list.append(pack)
                 print('Received data packet with ID='+str(pack.packet_id)+' from node=' + str(pack.source_id))
-
             else: #packet has not arrived
                 pass
+        return total_packet_arrived_list
     def check_control_arrival_WAA(self, current_time):
         for pack in self.control_meta_buffer:
             has_packet_arrived=pack.time_trx_in<pack.time_trx_out and pack.time_trx_out<=current_time

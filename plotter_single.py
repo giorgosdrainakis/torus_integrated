@@ -16,19 +16,19 @@ from dualmac.myglobal import *
 
 # Sampling params
 avgg=True
-filename= 'logs\\12m_2ch.csv'
+filename= 'logs\\combined2021_07_04_23_00_02_639606.csv'
 my_tbegin=0
-my_tend=0.2
-my_samples=1000
+my_tend=0.01
+my_samples=500
 # Grouping params
 start_group_value=0
-end_group_value=7.5e5
-grouping_points=40
+end_group_value=6e5
+grouping_points=25
 
 class Record():
     def __init__(self,packet_id,time,size,qos,source_id,
                  destination_id,time_buffer_in,time_buffer_out,
-                 time_trx_in,time_trx_out,mode):
+                 time_trx_in,time_trx_out,mode,consume_time):
         self.packet_id=int(packet_id)
         self.time=float(time)
         self.packet_size=float(size)
@@ -41,6 +41,7 @@ class Record():
         self.time_trx_out =float(time_trx_out)
         self.plot_time=0
         self.mode=mode
+        self.consume_time=float(consume_time)
 
 class My_Group:
     def __init__(self,timestep):
@@ -1166,6 +1167,7 @@ class My_Group:
             return mylist[0], 0
         else:
             return statistics.mean(mylist), statistics.stdev(mylist)
+
     def get_stats_load_node12_bps(self):
         mylist=[]
         for tslot in self.timeslots:
@@ -1239,6 +1241,303 @@ class My_Group:
             return mylist[0], 0
         else:
             return statistics.mean(mylist), statistics.stdev(mylist)
+
+    def get_stats_load_node13_bps(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_load_node13())
+        # bytes to bits and millisec to sec
+        final_list=[((8*i)/self.timestep) for i in mylist]
+        if len(final_list)==0:
+            return 0, 0
+        elif len(final_list)==1:
+            return final_list[0],0
+        else:
+            return statistics.mean(final_list),statistics.stdev(final_list)
+    def get_stats_thru_node13_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_thru_node13())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_node13_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_drop_node13())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_prob_node13(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            if tslot.get_agg_load_node13()==0:
+                mylist.append(0)
+            else:
+                mylist.append(tslot.get_agg_drop_node13()/tslot.get_agg_load_node13())
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_delay_node13(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_delay_node13()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_qdelay_node13(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_qdelay_node13()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist) == 0:
+            return 0, 0
+        elif len(mylist) == 1:
+            return mylist[0], 0
+        else:
+            return statistics.mean(mylist), statistics.stdev(mylist)
+
+    def get_stats_load_node14_bps(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_load_node14())
+        # bytes to bits and millisec to sec
+        final_list=[((8*i)/self.timestep) for i in mylist]
+        if len(final_list)==0:
+            return 0, 0
+        elif len(final_list)==1:
+            return final_list[0],0
+        else:
+            return statistics.mean(final_list),statistics.stdev(final_list)
+    def get_stats_thru_node14_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_thru_node14())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_node14_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_drop_node14())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_prob_node14(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            if tslot.get_agg_load_node14()==0:
+                mylist.append(0)
+            else:
+                mylist.append(tslot.get_agg_drop_node14()/tslot.get_agg_load_node14())
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_delay_node14(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_delay_node14()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_qdelay_node14(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_qdelay_node14()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist) == 0:
+            return 0, 0
+        elif len(mylist) == 1:
+            return mylist[0], 0
+        else:
+            return statistics.mean(mylist), statistics.stdev(mylist)
+
+    def get_stats_load_node15_bps(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_load_node15())
+        # bytes to bits and millisec to sec
+        final_list=[((8*i)/self.timestep) for i in mylist]
+        if len(final_list)==0:
+            return 0, 0
+        elif len(final_list)==1:
+            return final_list[0],0
+        else:
+            return statistics.mean(final_list),statistics.stdev(final_list)
+    def get_stats_thru_node15_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_thru_node15())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_node15_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_drop_node15())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_prob_node15(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            if tslot.get_agg_load_node15()==0:
+                mylist.append(0)
+            else:
+                mylist.append(tslot.get_agg_drop_node15()/tslot.get_agg_load_node15())
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_delay_node15(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_delay_node15()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_qdelay_node15(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_qdelay_node15()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist) == 0:
+            return 0, 0
+        elif len(mylist) == 1:
+            return mylist[0], 0
+        else:
+            return statistics.mean(mylist), statistics.stdev(mylist)
+
+    def get_stats_load_node16_bps(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_load_node16())
+        # bytes to bits and millisec to sec
+        final_list=[((8*i)/self.timestep) for i in mylist]
+        if len(final_list)==0:
+            return 0, 0
+        elif len(final_list)==1:
+            return final_list[0],0
+        else:
+            return statistics.mean(final_list),statistics.stdev(final_list)
+    def get_stats_thru_node16_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_thru_node16())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_node16_bps(self):
+        mylist = []
+        for tslot in self.timeslots:
+            mylist.append(tslot.get_agg_drop_node16())
+        # bytes to bits and millisec to sec
+        final_list = [((8 * i) / self.timestep) for i in mylist]
+        if len(final_list) == 0:
+            return 0, 0
+        elif len(final_list) == 1:
+            return final_list[0], 0
+        else:
+            return statistics.mean(final_list), statistics.stdev(final_list)
+    def get_stats_drop_prob_node16(self):
+        mylist=[]
+        for tslot in self.timeslots:
+            if tslot.get_agg_load_node16()==0:
+                mylist.append(0)
+            else:
+                mylist.append(tslot.get_agg_drop_node16()/tslot.get_agg_load_node16())
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_delay_node16(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_delay_node16()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_qdelay_node16(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_avg_qdelay_node16()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist) == 0:
+            return 0, 0
+        elif len(mylist) == 1:
+            return mylist[0], 0
+        else:
+            return statistics.mean(mylist), statistics.stdev(mylist)
+
 class My_Group_List():
     def __init__(self,tbegin,tend,samples, start_group_value,end_group_value,grouping_points):
         self.db = []
@@ -2098,7 +2397,6 @@ class My_Group_List():
             avg_list.append(avg)
             err_list.append(err)
         return avg_list, err_list
-
     def get_groups_thru_node12_bps(self):
         avg_list = []
         err_list = []
@@ -2107,7 +2405,6 @@ class My_Group_List():
             avg_list.append(avg)
             err_list.append(err)
         return avg_list, err_list
-
     def get_groups_drop_node12_bps(self):
         avg_list = []
         err_list = []
@@ -2116,7 +2413,6 @@ class My_Group_List():
             avg_list.append(avg)
             err_list.append(err)
         return avg_list, err_list
-
     def get_groups_drop_prob_node12(self):
         avg_list = []
         err_list = []
@@ -2125,7 +2421,6 @@ class My_Group_List():
             avg_list.append(avg)
             err_list.append(err)
         return avg_list, err_list
-
     def get_groups_delay_node12(self):
         avg_list = []
         err_list = []
@@ -2134,7 +2429,6 @@ class My_Group_List():
             avg_list.append(avg)
             err_list.append(err)
         return avg_list, err_list
-
     def get_groups_qdelay_node12(self):
         avg_list = []
         err_list = []
@@ -2143,6 +2437,204 @@ class My_Group_List():
             avg_list.append(avg)
             err_list.append(err)
         return avg_list, err_list
+
+
+    def get_groups_load_node13_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_load_node13_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_thru_node13_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_thru_node13_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_node13_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_node13_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_prob_node13(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_prob_node13()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_delay_node13(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_delay_node13()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_qdelay_node13(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_qdelay_node13()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+
+    def get_groups_load_node14_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_load_node14_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_thru_node14_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_thru_node14_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_node14_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_node14_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_prob_node14(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_prob_node14()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_delay_node14(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_delay_node14()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_qdelay_node14(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_qdelay_node14()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+
+    def get_groups_load_node15_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_load_node15_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_thru_node15_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_thru_node15_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_node15_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_node15_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_prob_node15(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_prob_node15()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_delay_node15(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_delay_node15()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_qdelay_node15(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_qdelay_node15()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+
+    def get_groups_load_node16_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_load_node16_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_thru_node16_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_thru_node16_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_node16_bps(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_node16_bps()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_drop_prob_node16(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_drop_prob_node16()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_delay_node16(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_delay_node16()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_qdelay_node16(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_qdelay_node16()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+
 class My_Timeslot_List():
     def __init__(self,tbegin,tend,samples):
         self.db=[]
@@ -2190,6 +2682,14 @@ class My_Timeslot_List():
                         timeslot.load_node11.append(rec.packet_size)
                     elif rec.source_id==12:
                         timeslot.load_node12.append(rec.packet_size)
+                    elif rec.source_id==13:
+                        timeslot.load_node13.append(rec.packet_size)
+                    elif rec.source_id==14:
+                        timeslot.load_node14.append(rec.packet_size)
+                    elif rec.source_id==15:
+                        timeslot.load_node15.append(rec.packet_size)
+                    elif rec.source_id==16:
+                        timeslot.load_node16.append(rec.packet_size)
                     else:
                         print('cannot find source for sourceid='+str(rec.source_id))
 
@@ -2248,6 +2748,18 @@ class My_Timeslot_List():
                         elif rec.source_id == 12:
                             timeslot.delay_node12.append(rec.time_trx_out - rec.time)
                             timeslot.qdelay_node12.append(rec.time_trx_in - rec.time)
+                        elif rec.source_id == 13:
+                            timeslot.delay_node13.append(rec.time_trx_out - rec.time)
+                            timeslot.qdelay_node13.append(rec.time_trx_in - rec.time)
+                        elif rec.source_id == 14:
+                            timeslot.delay_node14.append(rec.time_trx_out - rec.time)
+                            timeslot.qdelay_node14.append(rec.time_trx_in - rec.time)
+                        elif rec.source_id == 15:
+                            timeslot.delay_node15.append(rec.time_trx_out - rec.time)
+                            timeslot.qdelay_node15.append(rec.time_trx_in - rec.time)
+                        elif rec.source_id == 16:
+                            timeslot.delay_node16.append(rec.time_trx_out - rec.time)
+                            timeslot.qdelay_node16.append(rec.time_trx_in - rec.time)
                         else:
                             print('cannot find source for sourceid=' + str(rec.source_id))
                     else:
@@ -2282,6 +2794,14 @@ class My_Timeslot_List():
                             timeslot.drop_node11.append(rec.packet_size)
                         elif rec.source_id == 12:
                             timeslot.drop_node12.append(rec.packet_size)
+                        elif rec.source_id == 13:
+                            timeslot.drop_node13.append(rec.packet_size)
+                        elif rec.source_id == 14:
+                            timeslot.drop_node14.append(rec.packet_size)
+                        elif rec.source_id == 15:
+                            timeslot.drop_node15.append(rec.packet_size)
+                        elif rec.source_id == 16:
+                            timeslot.drop_node16.append(rec.packet_size)
                         else:
                             print('cannot find source for sourceid=' + str(rec.source_id))
 
@@ -2318,6 +2838,14 @@ class My_Timeslot_List():
                         timeslot.thru_node11.append(rec.packet_size)
                     elif rec.source_id==12:
                         timeslot.thru_node12.append(rec.packet_size)
+                    elif rec.source_id==13:
+                        timeslot.thru_node13.append(rec.packet_size)
+                    elif rec.source_id==14:
+                        timeslot.thru_node14.append(rec.packet_size)
+                    elif rec.source_id==15:
+                        timeslot.thru_node15.append(rec.packet_size)
+                    elif rec.source_id==16:
+                        timeslot.thru_node16.append(rec.packet_size)
                     else:
                         print('cannot find source for sourceid='+str(rec.source_id))
 
@@ -2360,6 +2888,10 @@ class My_Timeslot():
         self.load_node10=[]
         self.load_node11=[]
         self.load_node12=[]
+        self.load_node13=[]
+        self.load_node14=[]
+        self.load_node15=[]
+        self.load_node16=[]
         self.delay_total=[]
         self.delay_high=[]
         self.delay_med= []
@@ -2376,6 +2908,10 @@ class My_Timeslot():
         self.delay_node10=[]
         self.delay_node11=[]
         self.delay_node12=[]
+        self.delay_node13=[]
+        self.delay_node14=[]
+        self.delay_node15=[]
+        self.delay_node16=[]
         self.drop_total=[]
         self.drop_high=[]
         self.drop_med= []
@@ -2392,6 +2928,10 @@ class My_Timeslot():
         self.drop_node10=[]
         self.drop_node11=[]
         self.drop_node12=[]
+        self.drop_node13=[]
+        self.drop_node14=[]
+        self.drop_node15=[]
+        self.drop_node16=[]
         self.thru_total=[]
         self.thru_high=[]
         self.thru_med=[]
@@ -2408,6 +2948,10 @@ class My_Timeslot():
         self.thru_node10=[]
         self.thru_node11=[]
         self.thru_node12=[]
+        self.thru_node13=[]
+        self.thru_node14=[]
+        self.thru_node15=[]
+        self.thru_node16=[]
         self.qdelay_total=[]
         self.qdelay_high=[]
         self.qdelay_med=[]
@@ -2424,6 +2968,10 @@ class My_Timeslot():
         self.qdelay_node10=[]
         self.qdelay_node11=[]
         self.qdelay_node12=[]
+        self.qdelay_node13=[]
+        self.qdelay_node14=[]
+        self.qdelay_node15=[]
+        self.qdelay_node16=[]
 
     def get_agg_load_total(self):
         mytotal=0
@@ -2510,6 +3058,28 @@ class My_Timeslot():
         for el in self.load_node12:
             mytotal=mytotal+el
         return mytotal
+
+    def get_agg_load_node13(self):
+        mytotal=0
+        for el in self.load_node13:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_load_node14(self):
+        mytotal=0
+        for el in self.load_node14:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_load_node15(self):
+        mytotal=0
+        for el in self.load_node15:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_load_node16(self):
+        mytotal=0
+        for el in self.load_node16:
+            mytotal=mytotal+el
+        return mytotal
+
     def get_agg_thru_total(self):
         mytotal=0
         for el in self.thru_total:
@@ -2589,9 +3159,31 @@ class My_Timeslot():
         for el in self.thru_node11:
             mytotal=mytotal+el
         return mytotal
+
     def get_agg_thru_node12(self):
         mytotal=0
         for el in self.thru_node12:
+            mytotal=mytotal+el
+        return mytotal
+
+    def get_agg_thru_node13(self):
+        mytotal=0
+        for el in self.thru_node13:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_thru_node14(self):
+        mytotal=0
+        for el in self.thru_node14:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_thru_node15(self):
+        mytotal=0
+        for el in self.thru_node15:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_thru_node16(self):
+        mytotal=0
+        for el in self.thru_node16:
             mytotal=mytotal+el
         return mytotal
     def get_agg_drop_total(self):
@@ -2678,6 +3270,28 @@ class My_Timeslot():
         for el in self.drop_node12:
             mytotal=mytotal+el
         return mytotal
+
+    def get_agg_drop_node13(self):
+        mytotal=0
+        for el in self.drop_node13:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_drop_node14(self):
+        mytotal=0
+        for el in self.drop_node14:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_drop_node15(self):
+        mytotal=0
+        for el in self.drop_node15:
+            mytotal=mytotal+el
+        return mytotal
+    def get_agg_drop_node16(self):
+        mytotal=0
+        for el in self.drop_node16:
+            mytotal=mytotal+el
+        return mytotal
+
     def get_avg_delay_total(self):
         mytotal=0
         N=0
@@ -2688,7 +3302,6 @@ class My_Timeslot():
             return mytotal/N
         else:
             return None
-
     def get_avg_delay_high(self):
         mytotal=0
         N=0
@@ -2699,7 +3312,6 @@ class My_Timeslot():
             return mytotal/N
         else:
             return None
-
     def get_avg_delay_med(self):
         mytotal=0
         N=0
@@ -2710,7 +3322,6 @@ class My_Timeslot():
             return mytotal/N
         else:
             return None
-
     def get_avg_delay_low(self):
         mytotal=0
         N=0
@@ -2742,7 +3353,6 @@ class My_Timeslot():
             return mytotal/N
         else:
             return None
-
     def get_avg_delay_node3(self):
         mytotal=0
         N=0
@@ -2843,6 +3453,49 @@ class My_Timeslot():
             return mytotal/N
         else:
             return None
+
+    def get_avg_delay_node13(self):
+        mytotal=0
+        N=0
+        for el in self.delay_node13:
+            mytotal=mytotal+el
+            N=N+1
+        if N>0:
+            return mytotal/N
+        else:
+            return None
+    def get_avg_delay_node14(self):
+        mytotal=0
+        N=0
+        for el in self.delay_node14:
+            mytotal=mytotal+el
+            N=N+1
+        if N>0:
+            return mytotal/N
+        else:
+            return None
+    def get_avg_delay_node15(self):
+        mytotal=0
+        N=0
+        for el in self.delay_node15:
+            mytotal=mytotal+el
+            N=N+1
+        if N>0:
+            return mytotal/N
+        else:
+            return None
+    def get_avg_delay_node16(self):
+        mytotal=0
+        N=0
+        for el in self.delay_node16:
+            mytotal=mytotal+el
+            N=N+1
+        if N>0:
+            return mytotal/N
+        else:
+            return None
+
+
     def get_avg_qdelay_total(self):
         mytotal = 0
         N = 0
@@ -2853,7 +3506,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_high(self):
         mytotal = 0
         N = 0
@@ -2864,7 +3516,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_med(self):
         mytotal = 0
         N = 0
@@ -2875,7 +3526,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_low(self):
         mytotal = 0
         N = 0
@@ -2886,7 +3536,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node1(self):
         mytotal = 0
         N = 0
@@ -2897,7 +3546,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node2(self):
         mytotal = 0
         N = 0
@@ -2908,7 +3556,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node3(self):
         mytotal = 0
         N = 0
@@ -2919,7 +3566,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node4(self):
         mytotal = 0
         N = 0
@@ -2930,7 +3576,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node5(self):
         mytotal = 0
         N = 0
@@ -2941,7 +3586,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node6(self):
         mytotal = 0
         N = 0
@@ -2952,7 +3596,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node7(self):
         mytotal = 0
         N = 0
@@ -2963,7 +3606,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node8(self):
         mytotal = 0
         N = 0
@@ -2974,7 +3616,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node9(self):
         mytotal = 0
         N = 0
@@ -2985,7 +3626,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node10(self):
         mytotal = 0
         N = 0
@@ -2996,7 +3636,6 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node11(self):
         mytotal = 0
         N = 0
@@ -3007,11 +3646,51 @@ class My_Timeslot():
             return mytotal / N
         else:
             return None
-
     def get_avg_qdelay_node12(self):
         mytotal = 0
         N = 0
         for el in self.qdelay_node12:
+            mytotal = mytotal + el
+            N = N + 1
+        if N > 0:
+            return mytotal / N
+        else:
+            return None
+
+    def get_avg_qdelay_node13(self):
+        mytotal = 0
+        N = 0
+        for el in self.qdelay_node13:
+            mytotal = mytotal + el
+            N = N + 1
+        if N > 0:
+            return mytotal / N
+        else:
+            return None
+    def get_avg_qdelay_node14(self):
+        mytotal = 0
+        N = 0
+        for el in self.qdelay_node14:
+            mytotal = mytotal + el
+            N = N + 1
+        if N > 0:
+            return mytotal / N
+        else:
+            return None
+    def get_avg_qdelay_node15(self):
+        mytotal = 0
+        N = 0
+        for el in self.qdelay_node15:
+            mytotal = mytotal + el
+            N = N + 1
+        if N > 0:
+            return mytotal / N
+        else:
+            return None
+    def get_avg_qdelay_node16(self):
+        mytotal = 0
+        N = 0
+        for el in self.qdelay_node16:
             mytotal = mytotal + el
             N = N + 1
         if N > 0:
@@ -3027,13 +3706,14 @@ with open(filename) as csv_file:
         new_rec=Record(row['packet_id'],row['time'],row['packet_size'],
                        row['packet_qos'], row['source_id'], row['destination_id'],
                        row['time_buffer_in'], row['time_buffer_out'],
-                       row['time_trx_in'],row['time_trx_out'],row['mode'] )
+                       row['time_trx_in'],row['time_trx_out'],row['mode'],row['consume_time'] )
         my_db.append(new_rec)
         print(str(debug_id))
         debug_id=debug_id+1
 
 timeslot_list=My_Timeslot_List(my_tbegin,my_tend,my_samples)
 timeslot_list.init_with_db(my_db)
+
 
 if not avgg:
     LOAD=timeslot_list.get_list_drop_total()
@@ -3310,6 +3990,72 @@ else: #Group stage
     avg, err = group_list.get_groups_qdelay_node12()
     print('waa_qdelay_node12' + '_avg=' + str(avg))
     print('waa_qdelay_node12' + '_err=' + str(err))
+
+    avg, err = group_list.get_groups_load_node13_bps()
+    print('waa_load_node13_bps' + '_avg=' + str(avg))
+    print('waa_load_node13_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_node13_bps()
+    print('waa_thru_node13_bps' + '_avg=' + str(avg))
+    print('waa_thru_node13_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_node13_bps()
+    print('waa_drop_node13_bps' + '_avg=' + str(avg))
+    print('waa_drop_node13_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_node13()
+    print('waa_delay_node13' + '_avg=' + str(avg))
+    print('waa_delay_node13' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_node13()
+    print('waa_qdelay_node13' + '_avg=' + str(avg))
+    print('waa_qdelay_node13' + '_err=' + str(err))
+
+    avg, err = group_list.get_groups_load_node14_bps()
+    print('waa_load_node14_bps' + '_avg=' + str(avg))
+    print('waa_load_node14_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_node14_bps()
+    print('waa_thru_node14_bps' + '_avg=' + str(avg))
+    print('waa_thru_node14_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_node14_bps()
+    print('waa_drop_node14_bps' + '_avg=' + str(avg))
+    print('waa_drop_node14_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_node14()
+    print('waa_delay_node14' + '_avg=' + str(avg))
+    print('waa_delay_node14' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_node14()
+    print('waa_qdelay_node14' + '_avg=' + str(avg))
+    print('waa_qdelay_node14' + '_err=' + str(err))
+
+    avg, err = group_list.get_groups_load_node15_bps()
+    print('waa_load_node15_bps' + '_avg=' + str(avg))
+    print('waa_load_node15_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_node15_bps()
+    print('waa_thru_node15_bps' + '_avg=' + str(avg))
+    print('waa_thru_node15_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_node15_bps()
+    print('waa_drop_node15_bps' + '_avg=' + str(avg))
+    print('waa_drop_node15_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_node15()
+    print('waa_delay_node15' + '_avg=' + str(avg))
+    print('waa_delay_node15' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_node15()
+    print('waa_qdelay_node15' + '_avg=' + str(avg))
+    print('waa_qdelay_node15' + '_err=' + str(err))
+
+    avg, err = group_list.get_groups_load_node16_bps()
+    print('waa_load_node16_bps' + '_avg=' + str(avg))
+    print('waa_load_node16_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_thru_node16_bps()
+    print('waa_thru_node16_bps' + '_avg=' + str(avg))
+    print('waa_thru_node16_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_drop_node16_bps()
+    print('waa_drop_node16_bps' + '_avg=' + str(avg))
+    print('waa_drop_node16_bps' + '_err=' + str(err))
+    avg, err = group_list.get_groups_delay_node16()
+    print('waa_delay_node16' + '_avg=' + str(avg))
+    print('waa_delay_node16' + '_err=' + str(err))
+    avg, err = group_list.get_groups_qdelay_node16()
+    print('waa_qdelay_node16' + '_avg=' + str(avg))
+    print('waa_qdelay_node16' + '_err=' + str(err))
+
+
 
     plt.plot(prLOAD_BIT, prTHRU_BIT, label="thruput bitrate")
     plt.plot(prLOAD_BIT, prDROP_BIT, label="drop bitrate")

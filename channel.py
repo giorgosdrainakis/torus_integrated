@@ -1,22 +1,24 @@
 import csv
+import random
+
 from waa import myglobal
 
 class Channels():
     db=[]
 
-    def get_unlucky_node_id(self):
+    def get_one_unlucky_node_id(self):
         mylist=self.get_unlucky_nodes_list()
         if len(mylist)==0:
             return myglobal.DEFAULT_UNLUCKY_NODE_ID
         else:
-            return mylist[0]
+            return random.choice(mylist)
 
     def get_unlucky_nodes_list(self):
         mylist=[]
         for ch in self.db:
-            ret=ch.get_unlucky_node_id()
+            ret=ch.get_unlucky_list()
             if ret is not None:
-                mylist.append(ret)
+                mylist.extend(ret)
         return mylist
 
     def get_common_bitrate(self):
@@ -95,9 +97,12 @@ class Channel():
         self.trx_matrix=[]
         self.reserved_for_high=False
 
-    def get_unlucky_node_id(self):
+    def get_unlucky_list(self):
+        mylist=[]
         if len(self.trx_matrix)>0:
-            return self.trx_matrix[-1]
+            for i in range(0,myglobal.TOTAL_UNLUCKY_NODES):
+                mylist.append(self.trx_matrix[-i-1])
+        return mylist
 
     def is_free_open(self,current_time):
         if self.tx_in <= current_time and current_time <= self.tx_out:

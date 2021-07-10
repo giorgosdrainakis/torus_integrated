@@ -9,7 +9,7 @@ import statistics
 import csv
 import matplotlib
 from matplotlib.ticker import MaxNLocator
-from dualmac.myglobal import *
+from torus_integrated.myglobal import *
 # First run with avgg=False to check all samples (where they span)
 # According to this plot-> set avgg=True and set grouping parameters to get finalized plots
 # Plot label params at the end of the script (thruput-delay-overflow)
@@ -27,18 +27,18 @@ grouping_points=25
 
 class Record():
     def __init__(self,packet_id,time,size,qos,source_id,
-                 destination_id,time_buffer_in,time_buffer_out,
-                 time_trx_in,time_trx_out,mode,consume_time):
+                 destination_id,time_intra_buffer_in,time_intra_buffer_out,
+                 time_intra_trx_in,time_intra_trx_out,mode,consume_time):
         self.packet_id=int(packet_id)
         self.time=float(time)
         self.packet_size=float(size)
         self.packet_qos=qos
         self.source_id=int(source_id)
         self.destination_id = int(destination_id)
-        self.time_buffer_in=float(time_buffer_in)
-        self.time_buffer_out =float(time_buffer_out)
-        self.time_trx_in =float(time_trx_in)
-        self.time_trx_out =float(time_trx_out)
+        self.time_intra_buffer_in=float(time_intra_buffer_in)
+        self.time_intra_buffer_out =float(time_intra_buffer_out)
+        self.time_intra_trx_in =float(time_intra_trx_in)
+        self.time_intra_trx_out =float(time_intra_trx_out)
         self.plot_time=0
         self.mode=mode
         self.consume_time=float(consume_time)
@@ -2700,66 +2700,66 @@ class My_Timeslot_List():
                     elif rec.packet_qos=='low':
                         timeslot.load_low.append(rec.packet_size)
 
-                    if rec.time_buffer_in > -1:
-                        timeslot.delay_total.append(rec.time_trx_out - rec.time)
-                        timeslot.qdelay_total.append(rec.time_trx_in - rec.time)
+                    if rec.time_intra_buffer_in > -1:
+                        timeslot.delay_total.append(rec.time_intra_trx_out - rec.time)
+                        timeslot.qdelay_total.append(rec.time_intra_trx_in - rec.time)
                         if rec.packet_qos == 'high':
-                            timeslot.delay_high.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_high.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_high.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_high.append(rec.time_intra_trx_in - rec.time)
                         elif rec.packet_qos == 'med':
-                            timeslot.delay_med.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_med.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_med.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_med.append(rec.time_intra_trx_in - rec.time)
                         elif rec.packet_qos == 'low':
-                            timeslot.delay_low.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_low.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_low.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_low.append(rec.time_intra_trx_in - rec.time)
                         if rec.source_id == 1:
-                            timeslot.delay_node1.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node1.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node1.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node1.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 2:
-                            timeslot.delay_node2.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node2.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node2.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node2.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 3:
-                            timeslot.delay_node3.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node3.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node3.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node3.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 4:
-                            timeslot.delay_node4.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node4.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node4.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node4.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 5:
-                            timeslot.delay_node5.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node5.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node5.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node5.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 6:
-                            timeslot.delay_node6.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node6.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node6.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node6.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 7:
-                            timeslot.delay_node7.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node7.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node7.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node7.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 8:
-                            timeslot.delay_node8.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node8.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node8.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node8.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 9:
-                            timeslot.delay_node9.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node9.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node9.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node9.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 10:
-                            timeslot.delay_node10.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node10.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node10.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node10.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 11:
-                            timeslot.delay_node11.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node11.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node11.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node11.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 12:
-                            timeslot.delay_node12.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node12.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node12.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node12.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 13:
-                            timeslot.delay_node13.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node13.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node13.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node13.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 14:
-                            timeslot.delay_node14.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node14.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node14.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node14.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 15:
-                            timeslot.delay_node15.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node15.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node15.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node15.append(rec.time_intra_trx_in - rec.time)
                         elif rec.source_id == 16:
-                            timeslot.delay_node16.append(rec.time_trx_out - rec.time)
-                            timeslot.qdelay_node16.append(rec.time_trx_in - rec.time)
+                            timeslot.delay_node16.append(rec.time_intra_trx_out - rec.time)
+                            timeslot.qdelay_node16.append(rec.time_intra_trx_in - rec.time)
                         else:
                             print('cannot find source for sourceid=' + str(rec.source_id))
                     else:
@@ -2806,7 +2806,7 @@ class My_Timeslot_List():
                             print('cannot find source for sourceid=' + str(rec.source_id))
 
             for timeslot in self.db:
-                if timeslot.t_begin <= rec.time_trx_out and rec.time_trx_out <= timeslot.t_end:
+                if timeslot.t_begin <= rec.time_intra_trx_out and rec.time_intra_trx_out <= timeslot.t_end:
                     timeslot.thru_total.append(rec.packet_size)
                     if rec.packet_qos == 'high':
                         timeslot.thru_high.append(rec.packet_size)
@@ -3705,8 +3705,8 @@ with open(filename) as csv_file:
     for row in csv_reader:
         new_rec=Record(row['packet_id'],row['time'],row['packet_size'],
                        row['packet_qos'], row['source_id'], row['destination_id'],
-                       row['time_buffer_in'], row['time_buffer_out'],
-                       row['time_trx_in'],row['time_trx_out'],row['mode'],row['consume_time'] )
+                       row['time_intra_buffer_in'], row['time_intra_buffer_out'],
+                       row['time_intra_trx_in'],row['time_intra_trx_out'],row['mode'],row['consume_time'] )
         my_db.append(new_rec)
         print(str(debug_id))
         debug_id=debug_id+1

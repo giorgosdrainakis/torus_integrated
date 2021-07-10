@@ -1,23 +1,23 @@
 import datetime
 import pandas as pd
-from waa.node import *
-from waa.traffic import *
-from waa.buffer import *
-from waa.channel import *
+from torus_integrated.node import *
+from torus_integrated.traffic import *
+from torus_integrated.buffer import *
+from torus_integrated.channel import *
 class Record():
     def __init__(self,packet_id,time,size,qos,source_id,
-                 destination_id,time_buffer_in,time_buffer_out,
-                 time_trx_in,time_trx_out,mode,consume_time):
+                 destination_id,time_intra_buffer_in,time_intra_buffer_out,
+                 time_intra_trx_in,time_intra_trx_out,mode,consume_time):
         self.packet_id=int(packet_id)
         self.time=float(time)
         self.packet_size=float(size)
         self.packet_qos=qos
         self.source_id=int(source_id)
         self.destination_id = int(destination_id)
-        self.time_buffer_in=float(time_buffer_in)
-        self.time_buffer_out =float(time_buffer_out)
-        self.time_trx_in =float(time_trx_in)
-        self.time_trx_out =float(time_trx_out)
+        self.time_intra_buffer_in=float(time_intra_buffer_in)
+        self.time_intra_buffer_out =float(time_intra_buffer_out)
+        self.time_intra_trx_in =float(time_intra_trx_in)
+        self.time_intra_trx_out =float(time_intra_trx_out)
         self.plot_time=0
         self.mode=mode
         self.consume_time=float(consume_time)
@@ -31,8 +31,8 @@ with open(combined_name) as csv_file:
     for row in csv_reader:
         new_rec=Record(row['packet_id'],row['time'],row['packet_size'],
                        row['packet_qos'], row['source_id'], row['destination_id'],
-                       row['time_buffer_in'], row['time_buffer_out'],
-                       row['time_trx_in'],row['time_trx_out'],row['mode'],row['consume_time'] )
+                       row['time_intra_buffer_in'], row['time_intra_buffer_out'],
+                       row['time_intra_trx_in'],row['time_intra_trx_out'],row['mode'],row['consume_time'] )
         my_db.append(new_rec)
         print(str(debug_id))
         debug_id=debug_id+1
@@ -52,7 +52,7 @@ for timeslot in np.arange(start, stop, timestep):
     myout=myin+timestep
     mybuffersize=0
     for item in my_db:
-        if item.time_trx_out>=myin and item.time_trx_out<myout:
+        if item.time_intra_trx_out>=myin and item.time_intra_trx_out<myout:
             mybuffersize=mybuffersize+item.packet_size
             added_packs=added_packs+1
     mybuffer.append(mybuffersize)
@@ -92,7 +92,7 @@ if False:
     print('Sorting...')
     with open(combined_name, 'r', newline='') as f_input:
         csv_input = csv.DictReader(f_input)
-        data = sorted(csv_input, key=lambda row: (float(row['time_trx_out']), float(row['packet_id'])))
+        data = sorted(csv_input, key=lambda row: (float(row['time_intra_trx_out']), float(row['packet_id'])))
 
     print('Rewriting...')
     with open(combined_name, 'w', newline='') as f_output:

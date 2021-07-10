@@ -9,7 +9,7 @@ import statistics
 import csv
 import matplotlib
 from matplotlib.ticker import MaxNLocator
-from waa.myglobal import *
+from torus_integrated.myglobal import *
 
 node_number=1
 filename='test1.csv'

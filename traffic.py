@@ -1,7 +1,7 @@
 import csv
 import math
 
-from waa import myglobal
+from torus_integrated import myglobal
 
 class Packet:
     def __init__(self,packet_id,time,packet_size,packet_qos,source_id,
@@ -14,12 +14,18 @@ class Packet:
         self.destination_id=int(destination_id)
         self.tor_id=int(tor_id)
         self.destination_tor=int(destination_tor)
-        self.time_buffer_in=-1
-        self.time_buffer_out=-1
-        self.time_trx_in=-1
-        self.time_trx_out=-1
-        self.consume_time=-1
-        self.mode=''
+        self.time_intra_buffer_in=-1
+        self.time_intra_buffer_out=-1
+        self.time_intra_trx_in=-1
+        self.time_intra_trx_out=-1
+        self.time_tor_buffer_in=-1
+        self.time_tor_buffer_out=-1
+        self.time_tor_trx_in=-1
+        self.time_tor_trx_out=-1
+        self.time_inter_buffer_in=-1
+        self.time_inter_buffer_out=-1
+        self.time_inter_trx_in=-1
+        self.time_inter_trx_out=-1
         self.channel_id=0
         self.annotated=False
 
@@ -30,12 +36,18 @@ class Packet:
                 str(self.packet_qos) + ',' +\
                 str(self.source_id) + ','+ \
                 str(self.destination_id) + ','+ \
-                str(self.time_buffer_in) + ',' + \
-             str(self.time_buffer_out) + ',' + \
-             str(self.time_trx_in) + ',' + \
-             str(self.time_trx_out) + ',' + \
-             str(self.mode) + ',' + \
-            str(self.consume_time)
+             str(self.time_intra_buffer_in) + ',' + \
+             str(self.time_intra_buffer_out) + ',' + \
+             str(self.time_intra_trx_in) + ',' + \
+             str(self.time_intra_trx_out) + ',' + \
+             str(self.time_tor_buffer_in) + ',' + \
+             str(self.time_tor_buffer_out) + ',' + \
+             str(self.time_tor_trx_in) + ',' + \
+             str(self.time_tor_trx_out) + ',' + \
+             str(self.time_inter_buffer_in) + ',' + \
+             str(self.time_inter_buffer_out) + ',' + \
+             str(self.time_inter_trx_in) + ',' + \
+             str(self.time_inter_trx_out)
         return outp
 class Traffic_per_packet():
     def __init__(self,file):
@@ -65,7 +77,7 @@ class Traffic_per_packet():
             #if math.isclose(current_time,packet.time,abs_tol=myglobal.TOLERANCE): # legacy
             if packet.time<=current_time:
                 packet_list.append(packet)
-                #packet.time_buffer_in=current_time
+                #packet.time_intra_buffer_in=current_time
                 self.db.remove(packet)
             else:
                 break
@@ -75,8 +87,8 @@ class Control_Packet:
     def __init__(self,time,source_id):
         self.time=float(time)
         self.source_id=int(source_id)
-        self.time_trx_in=-1
-        self.time_trx_out=-1
+        self.time_intra_trx_in=-1
+        self.time_intra_trx_out=-1
         self.packet_size=0 #bytes
         self.channel_id=0
         self.is_bonus_packet=False

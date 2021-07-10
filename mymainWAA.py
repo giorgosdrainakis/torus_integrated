@@ -1,140 +1,63 @@
 import datetime
 import pandas as pd
-from waa.node import *
-from waa.traffic import *
-from waa.buffer import *
-from waa.channel import *
+from torus_integrated.node import *
+from torus_integrated.traffic import *
+from torus_integrated.buffer import *
+from torus_integrated.channel import *
+from torus_integrated.tor import *
 
 def main():
-    if MODE=='WAA':
-        BITRATE=5e9
-        channel_id_list = [100,200] # 2 data channel
-        control_channel_id = 500 # 1 control channel
-    elif MODE=='WAA_single':
-        BITRATE=10e9
-        channel_id_list = [100] # 1 data channel
-        control_channel_id = 500 # 1 control channel
-    elif MODE=='WAA_4':
-        BITRATE=40e9
-        channel_id_list = [100,200,300,400] # 1 data channel
-        control_channel_id = 500 # 1 control channel
-    else:
-        print('Error - WRONG mode!')
-        return -1
+    # init tors and channel list
+    tors=Tors()
+    for tor_id in range(1,myglobal.TOTAL_TORS+1):
+        new_tor=Tor(tor_id)
+        for tor_dest_buff in range(1,myglobal.TOTAL_TORS+1):
+            if tor_dest_buff!=tor_id:
+                new_tor.outgoing_buffers_low_list.append(Tor_Buffer(myglobal.INTER_TOR_LOW_BUFFER_SIZE,tor_dest_buff))
+                new_tor.outgoing_buffers_med_list.append(Tor_Buffer(myglobal.INTER_TOR_MED_BUFFER_SIZE, tor_dest_buff))
+                new_tor.outgoing_buffers_high_list.append(Tor_Buffer(myglobal.INTER_TOR_HIGH_BUFFER_SIZE, tor_dest_buff))
 
-    # init node and channel list
-    nodes=Nodes()
-
-    # create nodes and channels
-    for id in range(1,TOTAL_NODES+1):
-        new_traffic=Traffic_per_packet(traffic_dataset_folder+'test'+str(id)+'.csv')
-        new_node=Node(id,new_traffic)
-        new_node.buffer_low=Buffer(LOW_BUFFER_SIZE)
-        new_node.buffer_med=Buffer(MED_BUFFER_SIZE)
-        new_node.buffer_high=Buffer(HIGH_BUFFER_SIZE)
-        nodes.add_new(new_node)
-    print('Found a total of new nodes='+str(len(nodes.db)))
-
-
-    for id in channel_id_list:
-        new_channel=Channel(id,BITRATE)
-        nodes.channels.add_new(new_channel)
-
-    control_channel=Channel(control_channel_id,BITRATE)
-    nodes.control_channel=control_channel
+        # create Tor's nodes
+        nodes = Nodes(tor_id)
+        for node_id in range(1, myglobal.TOTAL_NODES_PER_TOR + 1):
+            new_traffic = Traffic_per_packet('tor' + str(tor_id) +'node'+str(node_id)+'.csv')
+            new_node = Node(node_id,tor_id,new_traffic)
+            new_node.intra_buffer_low = Intra_Buffer(myglobal.INTRA_NODE_INPUT_LOW_BUFFER_SIZE,tor_id)
+            new_node.intra_buffer_med = Intra_Buffer(myglobal.INTRA_NODE_INPUT_MED_BUFFER_SIZE,tor_id)
+            new_node.intra_buffer_high = Intra_Buffer(myglobal.INTRA_NODE_INPUT_HIGH_BUFFER_SIZE,tor_id)
+            nodes.add_new(new_node)
+        # create Tor's intra data channels
+        for ch_id in myglobal.INTRA_CHANNEL_ID_LIST:
+            new_channel = Channel(ch_id, myglobal.INTRA_CHANNEL_BITRATE)
+            nodes.channels.add_new(new_channel)
+        # create Tor's intra control channels
+        control_channel = Channel(myglobal.INTRA_CONTROL_CHANNEL_ID, myglobal.INTRA_CHANNEL_BITRATE)
+        nodes.control_channel = control_channel
+        # set Tor nodes and add to Tor DB
+        new_tor.nodes=nodes
+        tors.add_new(new_tor)
+        print('Initializing TOR id'+str(tor_id)+',found new nodes=' + str(len(nodes.db)))
 
     # run simulation
-    CURRENT_TIME=T_BEGIN
-    print('start 0/1000=' + str(datetime.datetime.now()))
-    while CURRENT_TIME<=T_END or nodes.have_buffers_packets():
-        if CURRENT_TIME<=T_END:
-            nodes.add_new_packets_to_buffers(CURRENT_TIME)
-        nodes.check_arrival_WAA(CURRENT_TIME)
-        nodes.process_new_cycle(CURRENT_TIME)
-        nodes.transmit_WAA(CURRENT_TIME)
-        nodes.geodranas_consumption(CURRENT_TIME)
+    CURRENT_TIME=myglobal.T_BEGIN
+    while CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets():
+        if CURRENT_TIME<=myglobal.T_END:
+            tors.add_new_packets_to_buffers(CURRENT_TIME)
+        tors.check_arrival_WAA(CURRENT_TIME)
+        tors.process_new_cycle(CURRENT_TIME)
+        tors.transmit_WAA(CURRENT_TIME)
+        tors.inter_transmit(CURRENT_TIME)
+        tors.inter_check_arrival(CURRENT_TIME)
         # guard band
-        CURRENT_TIME=CURRENT_TIME+myglobal.CYCLE_GUARD_BAND*8/BITRATE
+        CURRENT_TIME=CURRENT_TIME+myglobal.CYCLE_GUARD_BAND*8/myglobal.INTRA_CHANNEL_BITRATE
         CURRENT_TIME=CURRENT_TIME+myglobal.timestep
 
     # print buffer etc. content
     print('FINISH!')
-    mytime = str(datetime.datetime.now())
-    mytime = mytime.replace('-', '_')
-    mytime = mytime.replace(' ', '_')
-    mytime = mytime.replace(':', '_')
-    mytime = mytime.replace('.', '_')
-
-    filenames=[]
-    for node in nodes.db:
-        output_table = 'packet_id,time,packet_size,packet_qos,source_id,destination_id,' \
-                       'time_buffer_in,time_buffer_out,time_trx_in,time_trx_out,mode,consume_time\n'
-        print('id='+str(node.id))
-        print('rx='+str(len(node.data_sent)))
-        print('ovflow='+str(len(node.data_dropped)))
-        print('---------')
-        for packet in node.data_sent:
-            output_table=output_table+packet.show()+'\n'
-        for packet in node.data_dropped:
-            output_table=output_table+packet.show()+'\n'
-
-        print('Writing node +...'+str(node.id))
-        nodename=myglobal.ROOT+'logs//' + 'log'+ mytime +'_for_node_'+  str(node.id) +".csv"
-        with open(nodename, mode='a') as file:
-            file.write(output_table)
-            filenames.append(nodename)
-
-    combined_csv = pd.concat([pd.read_csv(f) for f in filenames])
-    combined_name=myglobal.ROOT+'logs//'+'combined'+str(mytime)+'.csv'
-    combined_csv.to_csv(combined_name, index=False)
-
-    print('Sorting...')
-    with open(combined_name, 'r', newline='') as f_input:
-        csv_input = csv.DictReader(f_input)
-        data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
-
-    print('Rewriting...')
-    with open(combined_name, 'w', newline='') as f_output:
-        csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
-        csv_output.writeheader()
-        csv_output.writerows(data)
-
-    print('completeness 1000/1000=' + str(datetime.datetime.now()))
-
-    for node in nodes.db:
-        if node.id==16:
-            output_table = 'packet_id,time,packet_size,packet_qos,source_id,destination_id,' \
-                           'time_buffer_in,time_buffer_out,time_trx_in,time_trx_out,mode,consume_time\n'
-
-            for packet in node.receiver:
-                output_table = output_table + packet.show() + '\n'
-            for packet in node.consumed:
-                output_table = output_table + packet.show() + '\n'
-
-            print('Writing node +...' + str(node.id))
-            nodename = myglobal.ROOT + 'logs//' + 'log' + mytime + '_for_TOR_' + str(node.id) + ".csv"
-            with open(nodename, mode='a') as file:
-                file.write(output_table)
-
-            print('Sorting...')
-            with open(nodename, 'r', newline='') as f_input:
-                csv_input = csv.DictReader(f_input)
-                data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
-
-            print('Rewriting...')
-            with open(nodename, 'w', newline='') as f_output:
-                csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
-                csv_output.writeheader()
-                csv_output.writerows(data)
-
-            print('completeness 1000/1000=' + str(datetime.datetime.now()))
+    tors.write_log()
 
 ### params and run
-MODE='WAA_4'
-T_BEGIN = 0
-T_END = 0.01
-TOTAL_NODES =  16
-if TOTAL_NODES==4:
+if myglobal.TOTAL_NODES_PER_TOR==4:
     # total packets that will be printed per buff
     myglobal.CONTROL_MSG_PACKS_PER_BUFF = 46
     # node description string
@@ -152,8 +75,8 @@ if TOTAL_NODES==4:
     myglobal.UNLUCKY_SLOT_LEN = 5
     # define number of lucky/unlucky nodes per cycle
     myglobal.TOTAL_UNLUCKY_NODES=1
-    myglobal.TOTAL_LUCKY_NODES=TOTAL_NODES-myglobal.TOTAL_UNLUCKY_NODES
-elif TOTAL_NODES==8:
+    myglobal.TOTAL_LUCKY_NODES=myglobal.TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+elif myglobal.TOTAL_NODES_PER_TOR==8:
     # total packets that will be printed per buff
     myglobal.CONTROL_MSG_PACKS_PER_BUFF = 46
     # node description string
@@ -171,8 +94,8 @@ elif TOTAL_NODES==8:
     myglobal.UNLUCKY_SLOT_LEN = 2
     # define number of lucky/unlucky nodes per cycle
     myglobal.TOTAL_UNLUCKY_NODES=1
-    myglobal.TOTAL_LUCKY_NODES=TOTAL_NODES-myglobal.TOTAL_UNLUCKY_NODES
-elif TOTAL_NODES==12:
+    myglobal.TOTAL_LUCKY_NODES=myglobal.TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+elif myglobal.TOTAL_NODES_PER_TOR==12:
     # total packets that will be printed per buff
     myglobal.CONTROL_MSG_PACKS_PER_BUFF = 29
     # node description string
@@ -190,8 +113,8 @@ elif TOTAL_NODES==12:
     myglobal.UNLUCKY_SLOT_LEN = 1
     # define number of lucky/unlucky nodes per cycle
     myglobal.TOTAL_UNLUCKY_NODES=1
-    myglobal.TOTAL_LUCKY_NODES=TOTAL_NODES-myglobal.TOTAL_UNLUCKY_NODES
-elif TOTAL_NODES==16:
+    myglobal.TOTAL_LUCKY_NODES=myglobal.TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+elif myglobal.TOTAL_NODES_PER_TOR==16:
     # total packets that will be printed per buff
     myglobal.CONTROL_MSG_PACKS_PER_BUFF = 17
     # node description string
@@ -209,13 +132,8 @@ elif TOTAL_NODES==16:
     myglobal.UNLUCKY_SLOT_LEN = 1
     # define number of lucky/unlucky nodes per cycle
     myglobal.TOTAL_UNLUCKY_NODES=9
-    myglobal.TOTAL_LUCKY_NODES=TOTAL_NODES-myglobal.TOTAL_UNLUCKY_NODES
+    myglobal.TOTAL_LUCKY_NODES=myglobal.TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
 else:
-    print('Error with number of server')
+    print('ERROR - Main: Invalid number of nodes per tor')
 
-
-HIGH_BUFFER_SIZE = 1e6 # bytes
-MED_BUFFER_SIZE = 1e6 # bytes
-LOW_BUFFER_SIZE = 1e6 # bytes
-traffic_dataset_folder='torus//'
 main() # will create N logfiles for N nodes and a combined csv with all packets in root/logs

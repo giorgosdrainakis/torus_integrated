@@ -1,7 +1,7 @@
 import csv
 import random
 
-from waa import myglobal
+from torus_integrated import myglobal
 
 class Channels():
     db=[]
@@ -133,7 +133,7 @@ class Channel():
         arrived=[]
         for packet in self.db:
             travel_time=(packet.packet_size*8)/self.bitrate
-            if packet.time_trx_in+travel_time+self.propagation_time<=CURRENT_TIME:
+            if packet.time_intra_trx_in+travel_time+self.propagation_time<=CURRENT_TIME:
                 arrived.append(packet)
                 self.db.remove(packet)
         return arrived

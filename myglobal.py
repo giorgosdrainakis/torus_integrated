@@ -1,5 +1,6 @@
-ROOT='C:\\Pycharm\\Projects\\polydiavlika\\waa\\'
+ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\'
 TRAFFIC_DATASETS_FOLDER='traffic_datasets\\'
+LOGS_FOLDER='logs\\'
 PROPAGATION_TIME=10/(2e8) #PROPAGATION_TIME=0 10/(2e8)
 ID_DIFF=1
 MAX_PACKET_SIZE=1500 #bytes
@@ -27,3 +28,31 @@ TOTAL_UNLUCKY_NODES=1
 TOTAL_LUCKY_NODES=1
 ASSIGN_CHANNEL_POLICY='ALL_BIG'
 CYCLE_GUARD_BAND=1 # bytes
+
+# Architecure Settings
+TOTAL_NODES_PER_TOR = 16
+TOTAL_TORS=16
+
+# Intra Protocol Settings
+INTRA_CHANNEL_BITRATE = 40e9
+INTRA_CHANNEL_ID_LIST = [100, 200, 300, 400]  # 4 data channel
+INTRA_CONTROL_CHANNEL_ID = 500  # 1 control channel
+INTRA_NODE_INPUT_HIGH_BUFFER_SIZE = 1e6 # bytes
+INTRA_NODE_INPUT_MED_BUFFER_SIZE = 1e6 # bytes
+INTRA_NODE_INPUT_LOW_BUFFER_SIZE = 1e6 # bytes
+
+# Inter Protocol Settings
+INTER_TOR_HIGH_BUFFER_SIZE = 1e6 # bytes
+INTER_TOR_MED_BUFFER_SIZE = 1e6 # bytes
+INTER_TOR_LOW_BUFFER_SIZE = 1e6 # bytes
+
+# Simulation (traffic dataset) settings
+T_BEGIN = 0
+T_END = 0.01
+
+
+# logging
+OUTPUT_TABLE_TITLE='packet_id,time,packet_size,packet_qos,source_id,destination_id,' \
+                    'time_intra_buffer_in,time_intra_buffer_out,time_intra_trx_in,time_intra_trx_out,' \
+                   'time_tor_buffer_in,time_tor_buffer_out,time_tor_trx_in,time_tor_trx_out,' \
+                   'time_inter_buffer_in,time_inter_buffer_out,time_inter_trx_in,time_inter_trx_out\n'

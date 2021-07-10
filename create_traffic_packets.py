@@ -2,7 +2,7 @@ import csv
 import datetime
 import math
 import random
-from waa import myglobal
+from torus_integrated import myglobal
 from scipy.stats import genpareto
 import numpy as numpy
 from scipy.stats import weibull_min

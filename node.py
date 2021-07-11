@@ -681,7 +681,7 @@ class Node:
         return total_intra_packet_arrived_list
     def check_control_arrival_WAA(self, current_time):
         for pack in self.control_meta_buffer:
-            has_packet_arrived=pack.time_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
+            has_packet_arrived=pack.time_intra_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
             if has_packet_arrived:
                 pack.time_intra_trx_out=current_time
                 self.control_sent.append(pack)

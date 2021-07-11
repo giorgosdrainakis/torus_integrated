@@ -1,6 +1,6 @@
 import math
 import random
-from waa import myglobal
+from torus_integrated import myglobal
 from torus_integrated.channel import *
 from torus_integrated.traffic import Control_Packet
 import datetime

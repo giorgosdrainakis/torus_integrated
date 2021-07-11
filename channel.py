@@ -4,7 +4,8 @@ import random
 from torus_integrated import myglobal
 
 class Channels():
-    db=[]
+    def __init__(self):
+        self.db=[]
 
     def get_one_unlucky_node_id(self):
         mylist=self.get_unlucky_nodes_list()
@@ -29,7 +30,7 @@ class Channels():
             common_bitrate=self.db[0].bitrate
         for ch in self.db:
             if ch.bitrate!=common_bitrate:
-                print('ERROR! Variable cycles!')
+                print('ERROR! Variable cycles! Foundbrate='+str(ch.bitrate) + 'common=' +str(common_bitrate))
                 return 0
         return common_bitrate
 

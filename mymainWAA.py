@@ -7,10 +7,21 @@ from torus_integrated.channel import *
 from torus_integrated.tor import *
 
 def main():
-    # init tors and channel list
+    # init tors and torus_list
     tors=Tors()
+    torus_list=Torus_Matrix()
+    tors.torus_list=torus_list
+    tors.channels=Channels()
+    # create inter channel list
+    for ch_id in myglobal.INTER_CHANNEL_ID_LIST:
+        new_channel = Channel(ch_id, myglobal.INTER_CHANNEL_BITRATE)
+        tors.channels.add_new(new_channel)
+    print('Inter common bitrate=' +str(tors.channels.get_common_bitrate()))
+    print('Total channes='+str(len(tors.channels.db)))
+    # intra nodes and channes
     for tor_id in range(1,myglobal.TOTAL_TORS+1):
         new_tor=Tor(tor_id)
+        new_tor.torus_list=torus_list
         for tor_dest_buff in range(1,myglobal.TOTAL_TORS+1):
             if tor_dest_buff!=tor_id:
                 new_tor.outgoing_buffers_low_list.append(Tor_Buffer(myglobal.INTER_TOR_LOW_BUFFER_SIZE,tor_dest_buff))
@@ -30,6 +41,8 @@ def main():
         for ch_id in myglobal.INTRA_CHANNEL_ID_LIST:
             new_channel = Channel(ch_id, myglobal.INTRA_CHANNEL_BITRATE)
             nodes.channels.add_new(new_channel)
+        print('Intra common bitrate=' + str(nodes.channels.get_common_bitrate()))
+        print('Total channes=' + str(len(nodes.channels.db)))
         # create Tor's intra control channels
         control_channel = Channel(myglobal.INTRA_CONTROL_CHANNEL_ID, myglobal.INTRA_CHANNEL_BITRATE)
         nodes.control_channel = control_channel

@@ -477,7 +477,7 @@ class Node:
             is_in_buffer = self.intra_buffer_high.add(pack, current_time)
             # print('Added packet=' + str(packet.packet_id) + ' in high buffer node=' + str(self.id))
         if not is_in_buffer:
-            print('Dropped external packet=' + str(pack.packet_id) + ' in node=' + str(self.id))
+            print('Dropped INTER packet=' + str(pack.packet_id) + ' in node=' + str(self.id))
             self.data_dropped.append(pack)
 
     def decode_previous_cycle(self, decoder, cycle_time, cycle_slot_time, current_cycle, data_channels):
@@ -675,7 +675,7 @@ class Node:
                     pack.time_inter_trx_out=current_time
                     self.data_sent.append(pack)
                     self.data_meta_buffer.remove(pack)
-                    print('Consumed data packet with ID='+str(pack.packet_id)+' from node=' + str(pack.source_id))
+                    print('Consumed INTER packet with ID='+str(pack.packet_id)+' from node=' + str(pack.source_id))
                 else: #packet has not arrived
                     pass
         return total_intra_packet_arrived_list
@@ -686,7 +686,7 @@ class Node:
                 pack.time_intra_trx_out=current_time
                 self.control_sent.append(pack)
                 self.control_meta_buffer.remove(pack)
-                print('Received control packet from node=' + str(pack.source_id))
+                #print('Received control packet from node=' + str(pack.source_id))
             else: #packet has not arrived
                 pass
 

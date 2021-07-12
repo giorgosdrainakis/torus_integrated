@@ -36,6 +36,8 @@ def main():
             new_node.intra_buffer_low = Intra_Buffer(myglobal.INTRA_NODE_INPUT_LOW_BUFFER_SIZE,tor_id)
             new_node.intra_buffer_med = Intra_Buffer(myglobal.INTRA_NODE_INPUT_MED_BUFFER_SIZE,tor_id)
             new_node.intra_buffer_high = Intra_Buffer(myglobal.INTRA_NODE_INPUT_HIGH_BUFFER_SIZE,tor_id)
+            if node_id==myglobal.TOTAL_NODES_PER_TOR:
+                new_node.is_tor=True
             nodes.add_new(new_node)
         # create Tor's intra data channels
         for ch_id in myglobal.INTRA_CHANNEL_ID_LIST:

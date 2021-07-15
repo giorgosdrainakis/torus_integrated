@@ -29,6 +29,9 @@ class Packet:
         self.channel_id=0
         self.annotated=False
 
+    def is_intra(self):
+        return (self.tor_id==self.destination_tor)
+
     def show_mini(self):
         outp='id='+str(self.packet_id)+',source='+str(self.tor_id)+'-'+str(self.source_id)+',dest='+\
              str(self.destination_tor)+'-'+str(self.destination_id)

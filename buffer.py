@@ -83,11 +83,8 @@ class Tor_Buffer():
         if current_buffer_size+packet.packet_size<=self.size:
             packet.time_tor_buffer_in=current_time
             self.db.append(packet)
-            #print('source '+str(packet.source_id)+'exist '+str(current_buffer_size)+',new='+str(packet.packet_size)+', tota='+str(self.size))
             return True
         else:
-            #print('source ' + str(packet.source_id) + 'exist ' + str(current_buffer_size) + ',new=' + str(
-                #packet.packet_size) + ', tota=' + str(self.size))
             return False #drop
 
     def delete_by_id(self,id):

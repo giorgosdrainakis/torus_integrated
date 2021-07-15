@@ -55,18 +55,19 @@ class Tors:
         for tor in self.db:
             tor.add_new_packets_to_buffers(current_time)
 
-    def check_arrival_WAA(self,current_time):
+    def check_arrival_intra(self,current_time):
         for tor in self.db:
-            tor.check_arrival_WAA(current_time)
+            tor.check_arrival_intra(current_time)
 
     def process_new_cycle(self,current_time):
         new_cycle=False
         for tor in self.db:
             new_cycle=tor.process_new_cycle(current_time)
         return new_cycle
-    def transmit_WAA(self, current_time):
+    
+    def transmit_intra(self, current_time):
         for tor in self.db:
-            tor.transmit_WAA(current_time)
+            tor.transmit_intra(current_time)
 
     def write_log(self):
         # estimate actual time
@@ -193,7 +194,7 @@ class Tor:
                     mypack.time_tor_buffer_out=current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
-                    mypack.time_tor_trx_out = current_time+ trx_time_theor+ myglobal.PROPAGATION_TIME * 1
+                    mypack.time_tor_trx_out = mypack.time_tor_trx_in+ trx_time_theor+ myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_S.append(mypack)
                     out_buffer.db.pop(0)
                     can_fill_with_bigs = True
@@ -219,13 +220,13 @@ class Tor:
                             and fill_with_smalls_size < (
                             myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                         mypack = out_buffer.db[i]
-                        to_delete_list.append(mypack)  #
+                        copy_pack=mypack
+                        to_delete_list.append(copy_pack)  #
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
                         trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_S.append(mypack)
-                        #out_buffer.db.pop(i)
                         i = i + 1
                         fill_with_smalls_size = fill_with_smalls_size + 1
                     for item in to_delete_list:  #
@@ -237,7 +238,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -255,7 +257,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -305,7 +308,8 @@ class Tor:
                             and fill_with_smalls_size < (
                             myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                         mypack = out_buffer.db[i]
-                        to_delete_list.append(mypack)  #
+                        copy_pack=mypack
+                        to_delete_list.append(copy_pack)  #
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
                         trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -323,7 +327,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -341,7 +346,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -409,7 +415,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -427,7 +434,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -495,7 +503,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -513,7 +522,8 @@ class Tor:
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
-                    to_delete_list.append(mypack)  #
+                    copy_pack = mypack
+                    to_delete_list.append(copy_pack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
                     trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
@@ -572,24 +582,32 @@ class Tor:
         return list_of_sent_packs
 
     def have_buffers_packets(self):
+        # check inter buffers
+        for buffer in self.outgoing_buffers_high_list:
+            if buffer.has_packets():
+                return True
+        for buffer in self.outgoing_buffers_med_list:
+            if buffer.has_packets():
+                return True
+        for buffer in self.outgoing_buffers_low_list:
+            if buffer.has_packets():
+                return True
+        # check intra buffers
         return self.nodes.have_buffers_packets()
 
     def add_new_packets_to_buffers(self,current_time):
         self.nodes.add_new_packets_to_buffers(current_time)
 
-    def check_arrival_WAA(self,current_time):
-        total_intra_packet_arrived_list=self.nodes.check_arrival_WAA(current_time)
-        for pack in total_intra_packet_arrived_list:
-            if pack.destination_tor != self.id:
-                self.add_pack_to_outgoing_buffers(pack,current_time)
-            else:
-                print('*********** ERROR for pack '+str(pack.show_mini)+' at tor'+str(self.id))
+    def check_arrival_intra(self,current_time):
+        outgoing_packets_list=self.nodes.check_arrival_intra(current_time)
+        for pack in outgoing_packets_list:
+            self.add_pack_to_outgoing_buffers(pack,current_time)
 
     def process_new_cycle(self,current_time):
         new_cycle=self.nodes.process_new_cycle(current_time)
         return new_cycle
-    def transmit_WAA(self, current_time):
-        self.nodes.transmit_WAA(current_time)
+    def transmit_intra(self, current_time):
+        self.nodes.transmit_intra(current_time)
 
     def write_log(self,real_time):
         self.nodes.write_log(real_time)

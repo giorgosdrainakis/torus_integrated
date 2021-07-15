@@ -164,12 +164,12 @@ class Nodes:
         for node in self.db:
             node.add_new_packets_to_buffers(current_time)
 
-    def check_arrival_WAA(self,current_time):
+    def check_arrival_intra(self,current_time):
         # check arrivals
         total_packet_arrived_list=[]
         for node in self.db:
-            node.check_control_arrival_WAA(current_time)
-            total_packet_arrived_list.extend(node.check_data_arrival_WAA(current_time))
+            node.check_control_arrival_intra(current_time)
+            total_packet_arrived_list.extend(node.check_data_arrival_intra(current_time))
         return total_packet_arrived_list
 
     def process_new_cycle(self,current_time):
@@ -410,7 +410,7 @@ class Nodes:
     def get_per_cycle_time(self):
         return (myglobal.MAX_PACKET_SIZE*8)/self.channels.get_common_bitrate()
 
-    def transmit_WAA(self, current_time):
+    def transmit_intra(self, current_time):
         for node in self.db:
             node.transmit_control(current_time)
             if self.current_cycle>0:
@@ -503,12 +503,22 @@ class Node:
                 exit(-1)
             new_pack.channel_id = decoded_node.high_buffer[i].channel
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
-            if new_pack.destination_tor == self.parent_tor_id and new_pack.destination_id==myglobal.INTER_DESTINATION_SERVER_ID:
-                new_pack.time_inter_trx_in=(current_cycle+0)*cycle_time+decoded_node.high_buffer[i].slot*cycle_slot_time
-                new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
-            else:
+
+            if new_pack.is_intra():
                 new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.high_buffer[i].slot*cycle_slot_time
                 new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
+            else: # inter
+                if self.parent_tor_id == new_pack.tor_id:  # packet is still in source Tor
+                    new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time + decoded_node.high_buffer[
+                        i].slot * cycle_slot_time
+                    new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
+                        new_pack.packet_size)
+                else: # packet is still in dest Tor
+                    new_pack.time_inter_trx_in = (current_cycle + 0) * cycle_time + decoded_node.high_buffer[
+                        i].slot * cycle_slot_time
+                    new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(
+                        new_pack.packet_size)
+
             self.data_meta_buffer.append(new_pack)
             i=i+1
 
@@ -517,12 +527,20 @@ class Node:
             new_pack=self.intra_buffer_med.get_next_packet()
             new_pack.channel_id = decoded_node.med_buffer[i].channel
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
-            if new_pack.destination_tor == self.parent_tor_id and new_pack.destination_id==myglobal.INTER_DESTINATION_SERVER_ID:
-                new_pack.time_inter_trx_in=(current_cycle+0)*cycle_time+decoded_node.med_buffer[i].slot*cycle_slot_time
-                new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
-            else:
+            if new_pack.is_intra():
                 new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.med_buffer[i].slot*cycle_slot_time
                 new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
+            else: # inter
+                if self.parent_tor_id == new_pack.tor_id:  # packet is still in source Tor
+                    new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time + decoded_node.med_buffer[
+                        i].slot * cycle_slot_time
+                    new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
+                        new_pack.packet_size)
+                else: # packet is still in dest Tor
+                    new_pack.time_inter_trx_in = (current_cycle + 0) * cycle_time + decoded_node.med_buffer[
+                        i].slot * cycle_slot_time
+                    new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(
+                        new_pack.packet_size)
             self.data_meta_buffer.append(new_pack)
             i=i+1
 
@@ -531,12 +549,20 @@ class Node:
             new_pack=self.intra_buffer_low.get_next_packet()
             new_pack.channel_id = decoded_node.low_buffer[i].channel
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
-            if new_pack.destination_tor == self.parent_tor_id and new_pack.destination_id==myglobal.INTER_DESTINATION_SERVER_ID:
-                new_pack.time_inter_trx_in=(current_cycle+0)*cycle_time+decoded_node.low_buffer[i].slot*cycle_slot_time
-                new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
-            else:
+            if new_pack.is_intra():
                 new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.low_buffer[i].slot*cycle_slot_time
                 new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
+            else: # inter
+                if self.parent_tor_id == new_pack.tor_id:  # packet is still in source Tor
+                    new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time + decoded_node.low_buffer[
+                        i].slot * cycle_slot_time
+                    new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
+                        new_pack.packet_size)
+                else: # packet is still in dest Tor
+                    new_pack.time_inter_trx_in = (current_cycle + 0) * cycle_time + decoded_node.low_buffer[
+                        i].slot * cycle_slot_time
+                    new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(
+                        new_pack.packet_size)
             self.data_meta_buffer.append(new_pack)
             i=i+1
 
@@ -642,64 +668,73 @@ class Node:
 
     def transmit_data(self,current_time):
         for data_pack in self.data_meta_buffer:
-            if data_pack.destination_tor == self.parent_tor_id and data_pack.destination_id == myglobal.INTER_DESTINATION_SERVER_ID:
-                if data_pack.time_inter_trx_in<=current_time and (not data_pack.annotated):
-                    data_pack.annotated = True
-                    print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER-tx pack:' + str(
-                        data_pack.show_mini()))
-            else:
+            if data_pack.is_intra:
                 if data_pack.time_intra_trx_in<=current_time and (not data_pack.annotated):
                     data_pack.annotated = True
                     print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-tx pack:' + str(
                         data_pack.show_mini()))
+            else: # inter packet
+                if self.parent_tor_id==data_pack.tor_id: # packet is still in source Tor
+                    if data_pack.time_intra_trx_in<=current_time and (not data_pack.annotated):
+                        data_pack.annotated=True
+                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER-tx_1 pack:' + str(
+                            data_pack.show_mini()))
+                else: # packet to destination Tor
+                    if data_pack.time_inter_trx_in<=current_time and (not data_pack.annotated):
+                        data_pack.annotated=True
+                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER-tx_1 pack:' + str(
+                            data_pack.show_mini()))
 
-    def check_data_arrival_WAA(self,current_time):
-        total_intra_packet_arrived_list=[]
+    def check_data_arrival_intra(self,current_time):
+        outgoing_packets_list=[]
         for pack in self.data_meta_buffer:
-            if pack.destination_id == myglobal.INTER_DESTINATION_SERVER_ID:
-                if pack.destination_tor == self.parent_tor_id:
-                    has_packet_arrived=pack.time_inter_trx_in<pack.time_inter_trx_out and pack.time_inter_trx_out<=current_time
-                    if has_packet_arrived:
-                        pack.time_inter_trx_out=current_time
-                        #total_intra_packet_arrived_list.append(pack)
-                        self.data_sent.append(pack)
-                        self.data_meta_buffer.remove(pack)
-                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER-rx pack:' + str(
-                            pack.show_mini()))
-                    else: #packet has not arrived
-                        pass
-                else:
-                    has_packet_arrived=pack.time_intra_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
-                    if has_packet_arrived:
-                        pack.time_intra_trx_out=current_time
-                        total_intra_packet_arrived_list.append(pack)
-                        #self.data_sent.append(pack)
-                        self.data_meta_buffer.remove(pack)
-                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-rx pack:' + str(
-                            pack.show_mini()))
-                    else: #packet has not arrived
-                        pass
-            else:
+            if pack.is_intra(): # packet is intra packet
                 has_packet_arrived = pack.time_intra_trx_in < pack.time_intra_trx_out and pack.time_intra_trx_out <= current_time
                 if has_packet_arrived:
-                    pack.time_intra_trx_out = current_time
-                    pack.time_tor_buffer_in = 0
-                    pack.time_tor_buffer_out = 0
-                    pack.time_tor_trx_in = 0
-                    pack.time_tor_trx_out = 0
-                    pack.time_inter_buffer_in = 0
-                    pack.time_inter_buffer_out = 0
-                    pack.time_inter_trx_in = 0
-                    pack.time_inter_trx_out = 0
-                    self.data_sent.append(pack)
+                    copy_pack=pack
                     self.data_meta_buffer.remove(pack)
+                    copy_pack.time_intra_trx_out = current_time
+                    copy_pack.time_tor_buffer_in = 0
+                    copy_pack.time_tor_buffer_out = 0
+                    copy_pack.time_tor_trx_in = 0
+                    copy_pack.time_tor_trx_out = 0
+                    copy_pack.time_inter_buffer_in = 0
+                    copy_pack.time_inter_buffer_out = 0
+                    copy_pack.time_inter_trx_in = 0
+                    copy_pack.time_inter_trx_out = 0
+                    self.data_sent.append(copy_pack)
                     print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-rx pack:' + str(
-                        pack.show_mini()))
+                        copy_pack.show_mini()))
                 else:  # packet has not arrived
                     pass
-        return total_intra_packet_arrived_list
+            else: # packet is inter packet
+                if self.parent_tor_id==pack.tor_id: # packet is still in source Tor
+                    has_packet_arrived = pack.time_intra_trx_in < pack.time_intra_trx_out and pack.time_intra_trx_out <= current_time
+                    if has_packet_arrived:
+                        copy_pack=pack
+                        self.data_meta_buffer.remove(pack)
+                        copy_pack.time_intra_trx_out = current_time
+                        outgoing_packets_list.append(copy_pack) # move to outgoing list
+                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER_1-rx pack:' + str(
+                            copy_pack.show_mini()))
+                    else:  # packet has not arrived
+                        pass
+                elif self.parent_tor_id==pack.destination_tor: # packet has gone to destination Tor
+                    has_packet_arrived = pack.time_inter_trx_in < pack.time_inter_trx_out and pack.time_inter_trx_out <= current_time
+                    if has_packet_arrived:
+                        copy_pack=pack
+                        self.data_meta_buffer.remove(pack)
+                        copy_pack.time_inter_trx_out = current_time
+                        self.data_sent.append(copy_pack)
+                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER_2-rx pack:' + str(
+                            copy_pack.show_mini()))
+                    else:  # packet has not arrived
+                        pass
+                else:
+                    print('ERROR, unknow location for pack='+str(pack.show_mini())+' at TOR='+str(self.parent_tor_id))
+        return outgoing_packets_list
 
-    def check_control_arrival_WAA(self, current_time):
+    def check_control_arrival_intra(self, current_time):
         for pack in self.control_meta_buffer:
             has_packet_arrived=pack.time_intra_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
             if has_packet_arrived:

@@ -16,6 +16,7 @@ class Tors:
         potential_recs=[]
         for tor in self.db:
             potential_rec=tor.check_per_tor_requests()
+            print('Tor id-='+str(tor.id)+' potlist='+str(len(potential_rec)))
             potential_recs.extend(potential_rec)
 
         filtered_recs=[]
@@ -59,9 +60,10 @@ class Tors:
             tor.check_arrival_WAA(current_time)
 
     def process_new_cycle(self,current_time):
+        new_cycle=False
         for tor in self.db:
-            tor.process_new_cycle(current_time)
-
+            new_cycle=tor.process_new_cycle(current_time)
+        return new_cycle
     def transmit_WAA(self, current_time):
         for tor in self.db:
             tor.transmit_WAA(current_time)
@@ -105,6 +107,7 @@ class Tor:
     def check_per_tor_requests(self):
         # Check which outgoing buffers can fill up a 1500 message
         rx_1500_list=self.get_potential_rx_1500_list()
+        print('Tor ID='+str(self.id)+'potentialrxlist='+str(len(rx_1500_list)))
         # Build max 4 lamda request
         return self.build_4_lamda_request(rx_1500_list)
 
@@ -118,25 +121,25 @@ class Tor:
     def get_potential_rx_1500_list(self):
         # Check which outgoing buffers can fill up a 1500 message
         rx_1500_list=[]
-        for rx_id in range(1,myglobal.TOTAL_TORS):
+        for rx_id in range(1,myglobal.TOTAL_TORS+1):
             can_fill_with_bigs=False
             for out_buffer in self.outgoing_buffers_med_list:
                 # find buffer according to rx id
                 if out_buffer.destination_tor==rx_id:
-                    if out_buffer.has_packets() and out_buffer.db[0].size==myglobal.MAX_PACKET_SIZE:
+                    if out_buffer.has_packets() and out_buffer.db[0].packet_size==myglobal.MAX_PACKET_SIZE:
                         can_fill_with_bigs=True
             if not can_fill_with_bigs:
                 for out_buffer in self.outgoing_buffers_low_list:
                     # find buffer according to rx id
                     if out_buffer.destination_tor == rx_id:
-                        if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                        if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                             can_fill_with_bigs = True
             fill_with_smalls_size=0
             for out_buffer in self.outgoing_buffers_high_list:
                 # find buffer according to rx id
                 if out_buffer.destination_tor==rx_id:
                     i=0
-                    while i<len(out_buffer.db) and out_buffer.db[i].size<myglobal.MAX_PACKET_SIZE \
+                    while i<len(out_buffer.db) and out_buffer.db[i].packet_size<myglobal.MAX_PACKET_SIZE \
                             and fill_with_smalls_size<(myglobal.MAX_PACKET_SIZE/myglobal.MIN_PACKET_SIZE):
                         i=i+1
                         fill_with_smalls_size=fill_with_smalls_size+1
@@ -144,7 +147,7 @@ class Tor:
                 # find buffer according to rx id
                 if out_buffer.destination_tor==rx_id:
                     i=0
-                    while i<len(out_buffer.db) and out_buffer.db[i].size<myglobal.MAX_PACKET_SIZE \
+                    while i<len(out_buffer.db) and out_buffer.db[i].packet_size<myglobal.MAX_PACKET_SIZE \
                             and fill_with_smalls_size<(myglobal.MAX_PACKET_SIZE/myglobal.MIN_PACKET_SIZE):
                         i=i+1
                         fill_with_smalls_size=fill_with_smalls_size+1
@@ -152,7 +155,7 @@ class Tor:
                 # find buffer according to rx id
                 if out_buffer.destination_tor==rx_id:
                     i=0
-                    while i<len(out_buffer.db) and out_buffer.db[i].size<myglobal.MAX_PACKET_SIZE \
+                    while i<len(out_buffer.db) and out_buffer.db[i].packet_size<myglobal.MAX_PACKET_SIZE \
                             and fill_with_smalls_size<(myglobal.MAX_PACKET_SIZE/myglobal.MIN_PACKET_SIZE):
                         i=i+1
                         fill_with_smalls_size=fill_with_smalls_size+1
@@ -185,146 +188,170 @@ class Tor:
         can_fill_with_bigs = False
         for out_buffer in self.outgoing_buffers_med_list:
             if out_buffer.destination_tor == rx_id:
-                if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                     mypack=out_buffer.db[0]
                     mypack.time_tor_buffer_out=current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor=myglobal.INTER_CHANNEL_BITRATE/(8*mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time+ trx_time_theor+ myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_S.append(mypack)
-                    out_buffer.pop(0)
+                    out_buffer.db.pop(0)
                     can_fill_with_bigs = True
         if not can_fill_with_bigs:
             for out_buffer in self.outgoing_buffers_low_list:
                 if out_buffer.destination_tor == rx_id:
-                    if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                    if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                         mypack = out_buffer.db[0]
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_S.append(mypack)
-                        out_buffer.pop(0)
+                        out_buffer.db.pop(0)
                         can_fill_with_bigs = True
         if not can_fill_with_bigs:
             fill_with_smalls_size = 0
             for out_buffer in self.outgoing_buffers_high_list:
                 if out_buffer.destination_tor == rx_id:
                     i = 0
-                    while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                    to_delete_list = []  #
+                    while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                             and fill_with_smalls_size < (
                             myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                         mypack = out_buffer.db[i]
+                        to_delete_list.append(mypack)  #
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_S.append(mypack)
-                        out_buffer.pop(i)
+                        #out_buffer.db.pop(i)
                         i = i + 1
                         fill_with_smalls_size = fill_with_smalls_size + 1
+                    for item in to_delete_list:  #
+                        out_buffer.db.remove(item) #
             for out_buffer in self.outgoing_buffers_med_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_S.append(mypack)
-                    out_buffer.pop(i)
+                    #out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
             for out_buffer in self.outgoing_buffers_low_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_S.append(mypack)
-                    out_buffer.pop(i)
+                    #out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
         if can_fill_with_bigs:
-            print('Will InterTRXing bigs=')
+            print('Will InterTRXing bigs')
         else:
             print('Will InterTRXing smalls='+str(fill_with_smalls_size))
     def fill_N_meta_buffer(self,current_time,rx_id):
         can_fill_with_bigs = False
         for out_buffer in self.outgoing_buffers_med_list:
             if out_buffer.destination_tor == rx_id:
-                if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                     mypack=out_buffer.db[0]
                     mypack.time_tor_buffer_out=current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor=myglobal.INTER_CHANNEL_BITRATE/(8*mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time+ trx_time_theor+ myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_N.append(mypack)
-                    out_buffer.pop(0)
+                    out_buffer.db.pop(0)
                     can_fill_with_bigs = True
         if not can_fill_with_bigs:
             for out_buffer in self.outgoing_buffers_low_list:
                 if out_buffer.destination_tor == rx_id:
-                    if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                    if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                         mypack = out_buffer.db[0]
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_N.append(mypack)
-                        out_buffer.pop(0)
+                        out_buffer.db.pop(0)
                         can_fill_with_bigs = True
         if not can_fill_with_bigs:
             fill_with_smalls_size = 0
             for out_buffer in self.outgoing_buffers_high_list:
                 if out_buffer.destination_tor == rx_id:
                     i = 0
-                    while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                    to_delete_list=[] #
+                    while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                             and fill_with_smalls_size < (
                             myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                         mypack = out_buffer.db[i]
+                        to_delete_list.append(mypack)  #
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_N.append(mypack)
-                        out_buffer.pop(i)
+                        #out_buffer.db.pop(i)
                         i = i + 1
                         fill_with_smalls_size = fill_with_smalls_size + 1
+                    for item in to_delete_list:  #
+                        out_buffer.db.remove(item) #
             for out_buffer in self.outgoing_buffers_med_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_N.append(mypack)
-                    out_buffer.pop(i)
+                    #out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
             for out_buffer in self.outgoing_buffers_low_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_N.append(mypack)
-                    out_buffer.pop(i)
+                    #out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
         if can_fill_with_bigs:
             print('Will InterTRXing bigs=')
         else:
@@ -333,72 +360,84 @@ class Tor:
         can_fill_with_bigs = False
         for out_buffer in self.outgoing_buffers_med_list:
             if out_buffer.destination_tor == rx_id:
-                if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                     mypack=out_buffer.db[0]
                     mypack.time_tor_buffer_out=current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor=myglobal.INTER_CHANNEL_BITRATE/(8*mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time+ trx_time_theor+ myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_W.append(mypack)
-                    out_buffer.pop(0)
+                    out_buffer.db.pop(0)
                     can_fill_with_bigs = True
         if not can_fill_with_bigs:
             for out_buffer in self.outgoing_buffers_low_list:
                 if out_buffer.destination_tor == rx_id:
-                    if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                    if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                         mypack = out_buffer.db[0]
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_W.append(mypack)
-                        out_buffer.pop(0)
+                        out_buffer.db.pop(0)
                         can_fill_with_bigs = True
         if not can_fill_with_bigs:
             fill_with_smalls_size = 0
             for out_buffer in self.outgoing_buffers_high_list:
                 if out_buffer.destination_tor == rx_id:
                     i = 0
-                    while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                    to_delete_list=[] #
+                    while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                             and fill_with_smalls_size < (
                             myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                         mypack = out_buffer.db[i]
+                        to_delete_list.append(mypack) #
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_W.append(mypack)
-                        out_buffer.pop(i)
+                        #out_buffer.db.pop(i)
                         i = i + 1
                         fill_with_smalls_size = fill_with_smalls_size + 1
+                    for item in to_delete_list:  #
+                        out_buffer.db.remove(item) #
             for out_buffer in self.outgoing_buffers_med_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_W.append(mypack)
-                    out_buffer.pop(i)
+                    #out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
             for out_buffer in self.outgoing_buffers_low_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_W.append(mypack)
-                    out_buffer.pop(i)
+                    #out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
         if can_fill_with_bigs:
             print('Will InterTRXing bigs=')
         else:
@@ -407,72 +446,84 @@ class Tor:
         can_fill_with_bigs = False
         for out_buffer in self.outgoing_buffers_med_list:
             if out_buffer.destination_tor == rx_id:
-                if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                     mypack=out_buffer.db[0]
                     mypack.time_tor_buffer_out=current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor=myglobal.INTER_CHANNEL_BITRATE/(8*mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time+ trx_time_theor+ myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_E.append(mypack)
-                    out_buffer.pop(0)
+                    out_buffer.db.pop(0)
                     can_fill_with_bigs = True
         if not can_fill_with_bigs:
             for out_buffer in self.outgoing_buffers_low_list:
                 if out_buffer.destination_tor == rx_id:
-                    if out_buffer.has_packets() and out_buffer.db[0].size == myglobal.MAX_PACKET_SIZE:
+                    if out_buffer.has_packets() and out_buffer.db[0].packet_size == myglobal.MAX_PACKET_SIZE:
                         mypack = out_buffer.db[0]
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_E.append(mypack)
-                        out_buffer.pop(0)
+                        out_buffer.db.pop(0)
                         can_fill_with_bigs = True
         if not can_fill_with_bigs:
             fill_with_smalls_size = 0
             for out_buffer in self.outgoing_buffers_high_list:
                 if out_buffer.destination_tor == rx_id:
                     i = 0
-                    while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                    to_delete_list=[] #
+                    while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                             and fill_with_smalls_size < (
                             myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                         mypack = out_buffer.db[i]
+                        to_delete_list.append(mypack) #
                         mypack.time_tor_buffer_out = current_time
                         mypack.time_tor_trx_in = current_time
-                        trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                        trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                         mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                         self.meta_buffer_E.append(mypack)
-                        out_buffer.pop(i)
+                        #out_buffer.db.pop(i)
                         i = i + 1
                         fill_with_smalls_size = fill_with_smalls_size + 1
+                    for item in to_delete_list:  #
+                        out_buffer.db.remove(item) #
             for out_buffer in self.outgoing_buffers_med_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_E.append(mypack)
-                    out_buffer.pop(i)
+                    #out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
             for out_buffer in self.outgoing_buffers_low_list:
                 i = 0
-                while i < len(out_buffer.db) and out_buffer.db[i].size < myglobal.MAX_PACKET_SIZE \
+                to_delete_list = []  #
+                while i < len(out_buffer.db) and out_buffer.db[i].packet_size < myglobal.MAX_PACKET_SIZE \
                         and fill_with_smalls_size < (
                         myglobal.MAX_PACKET_SIZE / myglobal.MIN_PACKET_SIZE):
                     mypack = out_buffer.db[i]
+                    to_delete_list.append(mypack)  #
                     mypack.time_tor_buffer_out = current_time
                     mypack.time_tor_trx_in = current_time
-                    trx_time_theor = myglobal.INTER_CHANNEL_BITRATE / (8 * mypack.packet_size)
+                    trx_time_theor=(8*mypack.packet_size)/myglobal.INTER_CHANNEL_BITRATE
                     mypack.time_tor_trx_out = current_time + trx_time_theor + myglobal.PROPAGATION_TIME * 1
                     self.meta_buffer_E.append(mypack)
-                    out_buffer.pop(i)
+                    # out_buffer.db.pop(i)
                     i = i + 1
                     fill_with_smalls_size = fill_with_smalls_size + 1
+                for item in to_delete_list:  #
+                    out_buffer.db.remove(item)  #
         if can_fill_with_bigs:
             print('Will InterTRXing bigs=')
         else:
@@ -497,21 +548,25 @@ class Tor:
         for pack in self.meta_buffer_S:
             has_packet_arrived_inter=pack.time_tor_trx_in<pack.time_tor_trx_out and pack.time_tor_trx_out<=current_time
             if has_packet_arrived_inter:
+                print('INTER connection arrived to TOR='+str(self.id)+',pack='+str(pack.show_mini()))
                 list_of_sent_packs.append(pack)
                 self.meta_buffer_S.remove(pack)
         for pack in self.meta_buffer_N:
             has_packet_arrived_inter=pack.time_tor_trx_in<pack.time_tor_trx_out and pack.time_tor_trx_out<=current_time
             if has_packet_arrived_inter:
+                print('INTER connection arrived to TOR='+str(self.id)+',pack='+str(pack.show_mini()))
                 list_of_sent_packs.append(pack)
                 self.meta_buffer_N.remove(pack)
         for pack in self.meta_buffer_W:
             has_packet_arrived_inter=pack.time_tor_trx_in<pack.time_tor_trx_out and pack.time_tor_trx_out<=current_time
             if has_packet_arrived_inter:
+                print('INTER connection arrived to TOR='+str(self.id)+',pack='+str(pack.show_mini()))
                 list_of_sent_packs.append(pack)
                 self.meta_buffer_W.remove(pack)
         for pack in self.meta_buffer_E:
             has_packet_arrived_inter=pack.time_tor_trx_in<pack.time_tor_trx_out and pack.time_tor_trx_out<=current_time
             if has_packet_arrived_inter:
+                print('INTER connection arrived to TOR='+str(self.id)+',pack='+str(pack.show_mini()))
                 list_of_sent_packs.append(pack)
                 self.meta_buffer_E.remove(pack)
         return list_of_sent_packs
@@ -527,10 +582,12 @@ class Tor:
         for pack in total_intra_packet_arrived_list:
             if pack.destination_tor != self.id:
                 self.add_pack_to_outgoing_buffers(pack,current_time)
+            else:
+                print('*********** ERROR for pack '+str(pack.show_mini)+' at tor'+str(self.id))
 
     def process_new_cycle(self,current_time):
-        self.nodes.process_new_cycle(current_time)
-
+        new_cycle=self.nodes.process_new_cycle(current_time)
+        return new_cycle
     def transmit_WAA(self, current_time):
         self.nodes.transmit_WAA(current_time)
 
@@ -571,8 +628,10 @@ class Tor:
                 if pack.destination_tor==outgoing_buffer.destination_tor:
                     is_in_buffer = outgoing_buffer.add(pack, current_time)
         if not is_in_buffer:
-            print('Dropped INTER pack in outgoing TOR=' + str(pack.packet_id) + ' in node=' + str(self.id))
+            print('Dropping to interconnection buffers from TOR=' + str(self.id) + ',pack=' + str(pack.show_mini()))
             self.data_dropped.append(pack)
+        else:
+            print('Adding to interconnection buffers from TOR=' + str(self.id) + ',pack=' + str(pack.show_mini()))
 
 class Torus_Matrix:
     def __init__(self):
@@ -587,30 +646,30 @@ class Torus_Matrix:
                 self.db.append(new_rec)
 
     def get_4_lamda_request_from_rx_list(self,rx_list,tx):
-        potentials=[]
-        for quatro in itertools.combinations(rx_list, 4):
-            # check if 4 different ports with 4 different channels
-            out=[]
-            for rx in quatro:
-                for rec in self.db:
-                    if rec.tx==tx and rec.rx==rx:
-                        out.append(rec)
-            out_lamdas=[]
-            out_ports=[]
-            for el in out:
-                out_lamdas.append(el.lamda)
-                out_ports.append(el.out_dir)
-            out_lamdas=list(set(out_lamdas))
-            out_ports=list(set(out_ports))
-            if len(out_lamdas)==4 and len(out_ports)==4:
-                return out
-            if len(out_lamdas)<=4 and len(out_ports)<=4:
-                potentials.append(out)
-        if len(potentials)>0:
-            random.shuffle(potentials)
-            return potentials[0]
-        else:
-            return potentials
+        ports=4
+        while ports>0:
+            potentials=[]
+            for quatro in itertools.combinations(rx_list, ports):
+                # check if 4 different ports with 4 different channels
+                out=[]
+                for rx in quatro:
+                    for rec in self.db:
+                        if rec.tx==tx and rec.rx==rx:
+                            out.append(rec)
+                out_lamdas=[]
+                out_ports=[]
+                for el in out:
+                    out_lamdas.append(el.lamda)
+                    out_ports.append(el.out_dir)
+                out_lamdas=list(set(out_lamdas))
+                out_ports=list(set(out_ports))
+                if len(out_lamdas)==ports and len(out_ports)==ports:
+                    potentials.append(out)
+            if len(potentials)>0:
+                random.shuffle(potentials)
+                return potentials[0]
+            ports=ports-1
+        return []
 
     ############
 

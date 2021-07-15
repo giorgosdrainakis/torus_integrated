@@ -190,6 +190,7 @@ class Nodes:
                                        self.current_cycle,self.channels,self.control_channel,total_nodes)
 
             self.current_cycle=self.current_cycle+1
+        return entered_new_cycle
 
 
     def build_new_control_message(self):
@@ -255,11 +256,11 @@ class Nodes:
                     continue
             decoder.db.append(decoded_node)
 
-            print('I decoded for node '+str(decoded_node.node_id)+' buff len h-m-l='+
-                  str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
-                  ','+str(db_med_1500)+')'+'-'+
-                  str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
-                  ',minipacklist='+str(len(control_pack.minipack_list)))
+            #print('I decoded for node '+str(decoded_node.node_id)+' buff len h-m-l='+
+           #       str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
+            #      ','+str(db_med_1500)+')'+'-'+
+            #      str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
+             #     ',minipacklist='+str(len(control_pack.minipack_list)))
 
         return decoder
 
@@ -385,10 +386,10 @@ class Nodes:
                     newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
                     low_str.append(newstr)
 
-            print(str(mystr)+' high slots:'+str(high_str)+' med slots:'+str(med_str)+' low slots:'+str(low_str))
-            total_str=total_str+high_str+med_str+low_str
-        total_str=sorted(total_str)
-        print(str(total_str))
+            #print(str(mystr)+' high slots:'+str(high_str)+' med slots:'+str(med_str)+' low slots:'+str(low_str))
+            #total_str=total_str+high_str+med_str+low_str
+        #total_str=sorted(total_str)
+        #print(str(total_str))
         return decoder
 
     def get_s_p_params(self,control_msg,break_position):
@@ -469,16 +470,17 @@ class Node:
         is_in_buffer = False
         if pack.packet_qos == 'low':
             is_in_buffer = self.intra_buffer_low.add(pack, current_time)
-            # ('Added packet=' + str(packet.packet_id) + ' in low buffer node=' + str(self.id))
         elif pack.packet_qos == 'med':
             is_in_buffer = self.intra_buffer_med.add(pack, current_time)
-            # print('Added packet=' + str(packet.packet_id) + ' in  med buffer node=' + str(self.id))
         elif pack.packet_qos == 'high':
             is_in_buffer = self.intra_buffer_high.add(pack, current_time)
-            # print('Added packet=' + str(packet.packet_id) + ' in high buffer node=' + str(self.id))
         if not is_in_buffer:
-            print('Dropped INTER packet=' + str(pack.packet_id) + ' in node=' + str(self.id))
+            print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER drop localTOR pack:' + str(
+                pack.show_mini()))
             self.data_dropped.append(pack)
+        else:
+            print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER add localTOR pack:' + str(
+                pack.show_mini()))
 
     def decode_previous_cycle(self, decoder, cycle_time, cycle_slot_time, current_cycle, data_channels):
         if decoder is None:
@@ -501,12 +503,12 @@ class Node:
                 exit(-1)
             new_pack.channel_id = decoded_node.high_buffer[i].channel
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
-            if new_pack.destination_tor == self.parent_tor_id:
-                new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.high_buffer[i].slot*cycle_slot_time
-                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
-            else:
+            if new_pack.destination_tor == self.parent_tor_id and new_pack.destination_id==myglobal.INTER_DESTINATION_SERVER_ID:
                 new_pack.time_inter_trx_in=(current_cycle+0)*cycle_time+decoded_node.high_buffer[i].slot*cycle_slot_time
                 new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
+            else:
+                new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.high_buffer[i].slot*cycle_slot_time
+                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
             self.data_meta_buffer.append(new_pack)
             i=i+1
 
@@ -515,12 +517,12 @@ class Node:
             new_pack=self.intra_buffer_med.get_next_packet()
             new_pack.channel_id = decoded_node.med_buffer[i].channel
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
-            if new_pack.destination_tor == self.parent_tor_id:
-                new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.med_buffer[i].slot*cycle_slot_time
-                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
-            else:
+            if new_pack.destination_tor == self.parent_tor_id and new_pack.destination_id==myglobal.INTER_DESTINATION_SERVER_ID:
                 new_pack.time_inter_trx_in=(current_cycle+0)*cycle_time+decoded_node.med_buffer[i].slot*cycle_slot_time
                 new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
+            else:
+                new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.med_buffer[i].slot*cycle_slot_time
+                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
             self.data_meta_buffer.append(new_pack)
             i=i+1
 
@@ -529,12 +531,12 @@ class Node:
             new_pack=self.intra_buffer_low.get_next_packet()
             new_pack.channel_id = decoded_node.low_buffer[i].channel
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
-            if new_pack.destination_tor == self.parent_tor_id:
-                new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.low_buffer[i].slot*cycle_slot_time
-                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
-            else:
+            if new_pack.destination_tor == self.parent_tor_id and new_pack.destination_id==myglobal.INTER_DESTINATION_SERVER_ID:
                 new_pack.time_inter_trx_in=(current_cycle+0)*cycle_time+decoded_node.low_buffer[i].slot*cycle_slot_time
                 new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
+            else:
+                new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.low_buffer[i].slot*cycle_slot_time
+                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
             self.data_meta_buffer.append(new_pack)
             i=i+1
 
@@ -601,9 +603,6 @@ class Node:
         mymsg.is_bonus_packet=False
         self.control_meta_buffer.append(mymsg)
 
-        print('nodes send info with id='+str(self.id)+' and high-med-low-total='+str(mydbg_high)+'-'+str(mydbg_med)+'-'+str(mydbg_low)+'-'+str(len(minipack_list)))
-
-
     def build_bonus_msg(self,current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
 
@@ -639,22 +638,51 @@ class Node:
     def transmit_control(self,current_time):
         for control_pack in self.control_meta_buffer:
             if control_pack.time_intra_trx_in<=current_time and (not control_pack.annotated):
-                #print('Transmitting control packet from node=' + str(self.id))
                 control_pack.annotated=True
 
     def transmit_data(self,current_time):
         for data_pack in self.data_meta_buffer:
-            if data_pack.time_intra_trx_in<=current_time and (not data_pack.annotated):
-                print('Transmitting data packet with ID='+str(data_pack.packet_id)+' from node=' + str(self.id))
-                data_pack.annotated = True
+            if data_pack.destination_tor == self.parent_tor_id and data_pack.destination_id == myglobal.INTER_DESTINATION_SERVER_ID:
+                if data_pack.time_inter_trx_in<=current_time and (not data_pack.annotated):
+                    data_pack.annotated = True
+                    print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER-tx pack:' + str(
+                        data_pack.show_mini()))
+            else:
+                if data_pack.time_intra_trx_in<=current_time and (not data_pack.annotated):
+                    data_pack.annotated = True
+                    print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-tx pack:' + str(
+                        data_pack.show_mini()))
 
     def check_data_arrival_WAA(self,current_time):
         total_intra_packet_arrived_list=[]
         for pack in self.data_meta_buffer:
-            if pack.destination_tor == self.parent_tor_id:
-                has_packet_arrived=pack.time_intra_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
+            if pack.destination_id == myglobal.INTER_DESTINATION_SERVER_ID:
+                if pack.destination_tor == self.parent_tor_id:
+                    has_packet_arrived=pack.time_inter_trx_in<pack.time_inter_trx_out and pack.time_inter_trx_out<=current_time
+                    if has_packet_arrived:
+                        pack.time_inter_trx_out=current_time
+                        #total_intra_packet_arrived_list.append(pack)
+                        self.data_sent.append(pack)
+                        self.data_meta_buffer.remove(pack)
+                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTER-rx pack:' + str(
+                            pack.show_mini()))
+                    else: #packet has not arrived
+                        pass
+                else:
+                    has_packet_arrived=pack.time_intra_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
+                    if has_packet_arrived:
+                        pack.time_intra_trx_out=current_time
+                        total_intra_packet_arrived_list.append(pack)
+                        #self.data_sent.append(pack)
+                        self.data_meta_buffer.remove(pack)
+                        print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-rx pack:' + str(
+                            pack.show_mini()))
+                    else: #packet has not arrived
+                        pass
+            else:
+                has_packet_arrived = pack.time_intra_trx_in < pack.time_intra_trx_out and pack.time_intra_trx_out <= current_time
                 if has_packet_arrived:
-                    pack.time_intra_trx_out=current_time
+                    pack.time_intra_trx_out = current_time
                     pack.time_tor_buffer_in = 0
                     pack.time_tor_buffer_out = 0
                     pack.time_tor_trx_in = 0
@@ -665,20 +693,12 @@ class Node:
                     pack.time_inter_trx_out = 0
                     self.data_sent.append(pack)
                     self.data_meta_buffer.remove(pack)
-                    total_intra_packet_arrived_list.append(pack)
-                    print('Received data packet with ID='+str(pack.packet_id)+' from node=' + str(pack.source_id))
-                else: #packet has not arrived
-                    pass
-            else:
-                has_packet_arrived=pack.time_inter_trx_in<pack.time_inter_trx_out and pack.time_inter_trx_out<=current_time
-                if has_packet_arrived:
-                    pack.time_inter_trx_out=current_time
-                    self.data_sent.append(pack)
-                    self.data_meta_buffer.remove(pack)
-                    print('Consumed INTER packet with ID='+str(pack.packet_id)+' from node=' + str(pack.source_id))
-                else: #packet has not arrived
+                    print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-rx pack:' + str(
+                        pack.show_mini()))
+                else:  # packet has not arrived
                     pass
         return total_intra_packet_arrived_list
+
     def check_control_arrival_WAA(self, current_time):
         for pack in self.control_meta_buffer:
             has_packet_arrived=pack.time_intra_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
@@ -686,7 +706,6 @@ class Node:
                 pack.time_intra_trx_out=current_time
                 self.control_sent.append(pack)
                 self.control_meta_buffer.remove(pack)
-                #print('Received control packet from node=' + str(pack.source_id))
             else: #packet has not arrived
                 pass
 
@@ -703,17 +722,17 @@ class Node:
             is_in_buffer=False
             if packet.packet_qos=='low':
                 is_in_buffer=self.intra_buffer_low.add(packet,current_time)
-                #('Added packet=' + str(packet.packet_id) + ' in low buffer node=' + str(self.id))
             elif packet.packet_qos=='med':
                 is_in_buffer=self.intra_buffer_med.add(packet,current_time)
-                #print('Added packet=' + str(packet.packet_id) + ' in  med buffer node=' + str(self.id))
             elif packet.packet_qos=='high':
                 is_in_buffer=self.intra_buffer_high.add(packet,current_time)
-                #print('Added packet=' + str(packet.packet_id) + ' in high buffer node=' + str(self.id))
             if not is_in_buffer:
-                print('Dropped packet='+str(packet.packet_id)+' in node='+str(self.id))
+                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(
+                    packet.show_mini()))
                 self.data_dropped.append(packet)
-
+            else:
+                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(
+                    packet.show_mini()))
     def get_next_packet(self):
         if self.intra_buffer_high.has_packets():
             return self.intra_buffer_high.get_next_packet()

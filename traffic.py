@@ -29,13 +29,20 @@ class Packet:
         self.channel_id=0
         self.annotated=False
 
+    def show_mini(self):
+        outp='id='+str(self.packet_id)+',source='+str(self.tor_id)+'-'+str(self.source_id)+',dest='+\
+             str(self.destination_tor)+'-'+str(self.destination_id)
+        return outp
+
     def show(self):
         outp=str(self.packet_id)+','+\
              str(self.time) + ','+\
             str(self.packet_size) + ',' +\
                 str(self.packet_qos) + ',' +\
-                str(self.source_id) + ','+ \
-                str(self.destination_id) + ','+ \
+             str(self.source_id) + ',' + \
+             str(self.tor_id) + ',' + \
+             str(self.destination_id) + ','+ \
+             str(self.destination_tor) + ',' + \
              str(self.time_intra_buffer_in) + ',' + \
              str(self.time_intra_buffer_out) + ',' + \
              str(self.time_intra_trx_in) + ',' + \

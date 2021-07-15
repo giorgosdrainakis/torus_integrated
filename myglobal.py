@@ -49,14 +49,15 @@ INTER_CHANNEL_ID_LIST = [1000, 2000, 3000, 4000,5000,6000,7000,8000]  # 4 data c
 INTER_TOR_HIGH_BUFFER_SIZE = 1e6 # bytes
 INTER_TOR_MED_BUFFER_SIZE = 1e6 # bytes
 INTER_TOR_LOW_BUFFER_SIZE = 1e6 # bytes
-
+INTER_DESTINATION_SERVER_ID=0
 # Simulation (traffic dataset) settings
 T_BEGIN = 0
 T_END = 0.01
 
 
 # logging
-OUTPUT_TABLE_TITLE='packet_id,time,packet_size,packet_qos,source_id,destination_id,' \
+OUTPUT_TABLE_TITLE='packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,' \
                     'time_intra_buffer_in,time_intra_buffer_out,time_intra_trx_in,time_intra_trx_out,' \
                    'time_tor_buffer_in,time_tor_buffer_out,time_tor_trx_in,time_tor_trx_out,' \
                    'time_inter_buffer_in,time_inter_buffer_out,time_inter_trx_in,time_inter_trx_out\n'
+

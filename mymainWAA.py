@@ -55,13 +55,15 @@ def main():
 
     # run simulation
     CURRENT_TIME=myglobal.T_BEGIN
-    while CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets():
+    while CURRENT_TIME<=0.001:
+    #while CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets():
         if CURRENT_TIME<=myglobal.T_END:
             tors.add_new_packets_to_buffers(CURRENT_TIME)
         tors.check_arrival_WAA(CURRENT_TIME)
-        tors.process_new_cycle(CURRENT_TIME)
+        new_cycle=tors.process_new_cycle(CURRENT_TIME)
         tors.transmit_WAA(CURRENT_TIME)
-        tors.inter_transmit(CURRENT_TIME)
+        if new_cycle:
+            tors.inter_transmit(CURRENT_TIME)
         tors.inter_check_arrival(CURRENT_TIME)
         # guard band
         CURRENT_TIME=CURRENT_TIME+myglobal.CYCLE_GUARD_BAND*8/myglobal.INTRA_CHANNEL_BITRATE

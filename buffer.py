@@ -25,7 +25,7 @@ class Intra_Buffer():
     def add(self,packet,current_time):
         current_buffer_size=self.get_current_size()
         if current_buffer_size+packet.packet_size<=self.size:
-            if packet.source_id==self.parent_tor_id:
+            if packet.destination_tor==self.parent_tor_id:
                 packet.time_intra_buffer_in=current_time
             else:
                 packet.time_inter_buffer_in = current_time

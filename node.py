@@ -506,16 +506,19 @@ class Node:
 
             if new_pack.is_intra():
                 new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.high_buffer[i].slot*cycle_slot_time
+                new_pack.time_intra_buffer_out=new_pack.time_intra_trx_in
                 new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
             else: # inter
                 if self.parent_tor_id == new_pack.tor_id:  # packet is still in source Tor
                     new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time + decoded_node.high_buffer[
                         i].slot * cycle_slot_time
+                    new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
                     new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
                         new_pack.packet_size)
                 else: # packet is still in dest Tor
                     new_pack.time_inter_trx_in = (current_cycle + 0) * cycle_time + decoded_node.high_buffer[
                         i].slot * cycle_slot_time
+                    new_pack.time_inter_buffer_out = new_pack.time_inter_trx_in
                     new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(
                         new_pack.packet_size)
 
@@ -529,16 +532,19 @@ class Node:
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
             if new_pack.is_intra():
                 new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.med_buffer[i].slot*cycle_slot_time
+                new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
                 new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
             else: # inter
                 if self.parent_tor_id == new_pack.tor_id:  # packet is still in source Tor
                     new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time + decoded_node.med_buffer[
                         i].slot * cycle_slot_time
+                    new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
                     new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
                         new_pack.packet_size)
                 else: # packet is still in dest Tor
                     new_pack.time_inter_trx_in = (current_cycle + 0) * cycle_time + decoded_node.med_buffer[
                         i].slot * cycle_slot_time
+                    new_pack.time_inter_buffer_out = new_pack.time_inter_trx_in
                     new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(
                         new_pack.packet_size)
             self.data_meta_buffer.append(new_pack)
@@ -551,16 +557,19 @@ class Node:
             mych=data_channels.get_channel_from_id(new_pack.channel_id)
             if new_pack.is_intra():
                 new_pack.time_intra_trx_in=(current_cycle+0)*cycle_time+decoded_node.low_buffer[i].slot*cycle_slot_time
+                new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
                 new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(new_pack.packet_size)
             else: # inter
                 if self.parent_tor_id == new_pack.tor_id:  # packet is still in source Tor
                     new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time + decoded_node.low_buffer[
                         i].slot * cycle_slot_time
+                    new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
                     new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
                         new_pack.packet_size)
                 else: # packet is still in dest Tor
                     new_pack.time_inter_trx_in = (current_cycle + 0) * cycle_time + decoded_node.low_buffer[
                         i].slot * cycle_slot_time
+                    new_pack.time_inter_buffer_out = new_pack.time_inter_trx_in
                     new_pack.time_inter_trx_out = new_pack.time_inter_trx_in + mych.get_total_time_to_tx(
                         new_pack.packet_size)
             self.data_meta_buffer.append(new_pack)

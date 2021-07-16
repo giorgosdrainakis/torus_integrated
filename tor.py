@@ -107,10 +107,16 @@ class Tor:
 
     def check_per_tor_requests(self):
         # Check which outgoing buffers can fill up a 1500 message
-        rx_1500_list=self.get_potential_rx_1500_list()
-        print('Tor ID='+str(self.id)+'potentialrxlist='+str(len(rx_1500_list)))
-        # Build max 4 lamda request
-        return self.build_4_lamda_request(rx_1500_list)
+        rx_1500_list=self.get_potential_inter_trx_list(max_policy=True)
+        print('Tor ID='+str(self.id)+'potentialrxlist1='+str(len(rx_1500_list)))
+        
+        if len(rx_1500_list)>0:
+            # Build max 4 lamda request
+            return self.build_4_lamda_request(rx_1500_list)
+        else: # if very few packets so that no 1500 can be filled
+            minimal_rx_list=self.get_potential_inter_trx_list(max_policy=False)
+            print('Tor ID=' + str(self.id) + 'potentia_minimal_list=' + str(len(minimal_rx_list)))
+            return self.build_4_lamda_request(minimal_rx_list)
 
     def build_4_lamda_request(self,rx_list):
         mylist=rx_list
@@ -118,10 +124,10 @@ class Tor:
         tx=self.id
         return self.torus_list.get_4_lamda_request_from_rx_list(rx_list,tx)
 
-
-    def get_potential_rx_1500_list(self):
+    def get_potential_inter_trx_list(self,max_policy=True):
         # Check which outgoing buffers can fill up a 1500 message
         rx_1500_list=[]
+        rx_minimal_list=[]
         for rx_id in range(1,myglobal.TOTAL_TORS+1):
             can_fill_with_bigs=False
             for out_buffer in self.outgoing_buffers_med_list:
@@ -162,7 +168,11 @@ class Tor:
                         fill_with_smalls_size=fill_with_smalls_size+1
             if can_fill_with_bigs or fill_with_smalls_size>=int(myglobal.MAX_PACKET_SIZE/myglobal.MIN_PACKET_SIZE):
                 rx_1500_list.append(rx_id)
-        return rx_1500_list
+            rx_minimal_list.append(rx_id)
+        if max_policy:
+            return rx_1500_list
+        else:
+            return rx_minimal_list
 
     def get_meta_buffer_S_size(self):
         size=0

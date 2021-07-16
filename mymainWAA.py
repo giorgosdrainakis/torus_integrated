@@ -55,8 +55,7 @@ def main():
 
     # run simulation
     CURRENT_TIME=myglobal.T_BEGIN
-    while CURRENT_TIME<=0.001:
-    #while CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets():
+    while CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets():
         if CURRENT_TIME<=myglobal.T_END:
             tors.add_new_packets_to_buffers(CURRENT_TIME)
         tors.check_arrival_intra(CURRENT_TIME)

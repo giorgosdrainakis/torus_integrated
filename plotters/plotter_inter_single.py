@@ -17,13 +17,13 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 avgg=True
-filename= 'test.csv'
+filename= 'logtoday_everything.csv'
 my_tbegin=0
-my_tend=0.001
-my_samples=100 # 500
+my_tend=0.01
+my_samples=500 # 500
 # Grouping params
 start_group_value=0
-end_group_value=300000
+end_group_value=1.3e6
 grouping_points=25
 
 class Record():
@@ -51,7 +51,12 @@ class Record():
         self.time_inter_buffer_out = float(time_inter_buffer_out)
         self.time_inter_trx_in = float(time_inter_trx_in)
         self.time_inter_trx_out = float(time_inter_trx_out)
-
+    def is_intra(self):
+        return (self.tor_id==self.destination_tor)
+    def show_mini(self):
+        outp='id='+str(self.packet_id)+',source='+str(self.tor_id)+'-'+str(self.source_id)+',dest='+\
+             str(self.destination_tor)+'-'+str(self.destination_id)
+        return outp
 class My_Group:
     def __init__(self,timestep):
         self.nominal_load=None
@@ -1546,7 +1551,6 @@ class My_Group:
             return mylist[0], 0
         else:
             return statistics.mean(mylist), statistics.stdev(mylist)
-
 class My_Group_List():
     def __init__(self,tbegin,tend,samples, start_group_value,end_group_value,grouping_points):
         self.db = []
@@ -2663,200 +2667,207 @@ class My_Timeslot_List():
         for rec in record_db:
             print('B=' + str(debug_id))
             debug_id = debug_id + 1
-            for timeslot in self.db:
-                if timeslot.t_begin <= rec.time and rec.time <= timeslot.t_end:
-                    timeslot.load_total.append(rec.packet_size)
-
-                    if rec.source_id==1:
-                        timeslot.load_node1.append(rec.packet_size)
-                    elif rec.source_id==2:
-                        timeslot.load_node2.append(rec.packet_size)
-                    elif rec.source_id==3:
-                        timeslot.load_node3.append(rec.packet_size)
-                    elif rec.source_id==4:
-                        timeslot.load_node4.append(rec.packet_size)
-                    elif rec.source_id==5:
-                        timeslot.load_node5.append(rec.packet_size)
-                    elif rec.source_id==6:
-                        timeslot.load_node6.append(rec.packet_size)
-                    elif rec.source_id==7:
-                        timeslot.load_node7.append(rec.packet_size)
-                    elif rec.source_id==8:
-                        timeslot.load_node8.append(rec.packet_size)
-                    elif rec.source_id==9:
-                        timeslot.load_node9.append(rec.packet_size)
-                    elif rec.source_id==10:
-                        timeslot.load_node10.append(rec.packet_size)
-                    elif rec.source_id==11:
-                        timeslot.load_node11.append(rec.packet_size)
-                    elif rec.source_id==12:
-                        timeslot.load_node12.append(rec.packet_size)
-                    elif rec.source_id==13:
-                        timeslot.load_node13.append(rec.packet_size)
-                    elif rec.source_id==14:
-                        timeslot.load_node14.append(rec.packet_size)
-                    elif rec.source_id==15:
-                        timeslot.load_node15.append(rec.packet_size)
-                    elif rec.source_id==16:
-                        timeslot.load_node16.append(rec.packet_size)
-                    else:
-                        print('cannot find source for sourceid='+str(rec.source_id))
-
-                    if rec.packet_qos=='high':
-                        timeslot.load_high.append(rec.packet_size)
-                    elif rec.packet_qos=='med':
-                        timeslot.load_med.append(rec.packet_size)
-                    elif rec.packet_qos=='low':
-                        timeslot.load_low.append(rec.packet_size)
-
-                    if rec.time_intra_buffer_in > -1:
-                        timeslot.delay_total.append(rec.time_intra_trx_out - rec.time)
-                        timeslot.qdelay_total.append(rec.time_intra_trx_in - rec.time)
-                        if rec.packet_qos == 'high':
-                            timeslot.delay_high.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_high.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.packet_qos == 'med':
-                            timeslot.delay_med.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_med.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.packet_qos == 'low':
-                            timeslot.delay_low.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_low.append(rec.time_intra_trx_in - rec.time)
-                        if rec.source_id == 1:
-                            timeslot.delay_node1.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node1.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 2:
-                            timeslot.delay_node2.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node2.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 3:
-                            timeslot.delay_node3.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node3.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 4:
-                            timeslot.delay_node4.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node4.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 5:
-                            timeslot.delay_node5.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node5.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 6:
-                            timeslot.delay_node6.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node6.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 7:
-                            timeslot.delay_node7.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node7.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 8:
-                            timeslot.delay_node8.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node8.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 9:
-                            timeslot.delay_node9.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node9.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 10:
-                            timeslot.delay_node10.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node10.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 11:
-                            timeslot.delay_node11.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node11.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 12:
-                            timeslot.delay_node12.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node12.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 13:
-                            timeslot.delay_node13.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node13.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 14:
-                            timeslot.delay_node14.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node14.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 15:
-                            timeslot.delay_node15.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node15.append(rec.time_intra_trx_in - rec.time)
-                        elif rec.source_id == 16:
-                            timeslot.delay_node16.append(rec.time_intra_trx_out - rec.time)
-                            timeslot.qdelay_node16.append(rec.time_intra_trx_in - rec.time)
+            if not rec.is_intra():
+                _time_intra_birth=rec.time
+                _time_birth=rec.time_intra_trx_out
+                _source_id=rec.tor_id
+                _time_trx_in=rec.time_tor_trx_in
+                _time_trx_out=rec.time_tor_trx_out
+                _time_buffer_in=rec.time_tor_buffer_in
+                _time_buffer2_in=rec.time_inter_buffer_in
+                for timeslot in self.db:
+                    if timeslot.t_begin <= _time_birth and _time_birth < timeslot.t_end:
+                        timeslot.load_total.append(rec.packet_size)
+                        if _source_id==1:
+                            timeslot.load_node1.append(rec.packet_size)
+                        elif _source_id==2:
+                            timeslot.load_node2.append(rec.packet_size)
+                        elif _source_id==3:
+                            timeslot.load_node3.append(rec.packet_size)
+                        elif _source_id==4:
+                            timeslot.load_node4.append(rec.packet_size)
+                        elif _source_id==5:
+                            timeslot.load_node5.append(rec.packet_size)
+                        elif _source_id==6:
+                            timeslot.load_node6.append(rec.packet_size)
+                        elif _source_id==7:
+                            timeslot.load_node7.append(rec.packet_size)
+                        elif _source_id==8:
+                            timeslot.load_node8.append(rec.packet_size)
+                        elif _source_id==9:
+                            timeslot.load_node9.append(rec.packet_size)
+                        elif _source_id==10:
+                            timeslot.load_node10.append(rec.packet_size)
+                        elif _source_id==11:
+                            timeslot.load_node11.append(rec.packet_size)
+                        elif _source_id==12:
+                            timeslot.load_node12.append(rec.packet_size)
+                        elif _source_id==13:
+                            timeslot.load_node13.append(rec.packet_size)
+                        elif _source_id==14:
+                            timeslot.load_node14.append(rec.packet_size)
+                        elif _source_id==15:
+                            timeslot.load_node15.append(rec.packet_size)
+                        elif _source_id==16:
+                            timeslot.load_node16.append(rec.packet_size)
                         else:
-                            print('cannot find source for sourceid=' + str(rec.source_id))
-                    else:
-                        timeslot.drop_total.append(rec.packet_size)
-                        if rec.packet_qos == 'high':
-                            timeslot.drop_high.append(rec.packet_size)
-                        elif rec.packet_qos == 'med':
-                            timeslot.drop_med.append(rec.packet_size)
-                        elif rec.packet_qos == 'low':
-                            timeslot.drop_low.append(rec.packet_size)
-                        if rec.source_id == 1:
-                            timeslot.drop_node1.append(rec.packet_size)
-                        elif rec.source_id == 2:
-                            timeslot.drop_node2.append(rec.packet_size)
-                        elif rec.source_id == 3:
-                            timeslot.drop_node3.append(rec.packet_size)
-                        elif rec.source_id == 4:
-                            timeslot.drop_node4.append(rec.packet_size)
-                        elif rec.source_id == 5:
-                            timeslot.drop_node5.append(rec.packet_size)
-                        elif rec.source_id == 6:
-                            timeslot.drop_node6.append(rec.packet_size)
-                        elif rec.source_id == 7:
-                            timeslot.drop_node7.append(rec.packet_size)
-                        elif rec.source_id == 8:
-                            timeslot.drop_node8.append(rec.packet_size)
-                        elif rec.source_id == 9:
-                            timeslot.drop_node9.append(rec.packet_size)
-                        elif rec.source_id == 10:
-                            timeslot.drop_node10.append(rec.packet_size)
-                        elif rec.source_id == 11:
-                            timeslot.drop_node11.append(rec.packet_size)
-                        elif rec.source_id == 12:
-                            timeslot.drop_node12.append(rec.packet_size)
-                        elif rec.source_id == 13:
-                            timeslot.drop_node13.append(rec.packet_size)
-                        elif rec.source_id == 14:
-                            timeslot.drop_node14.append(rec.packet_size)
-                        elif rec.source_id == 15:
-                            timeslot.drop_node15.append(rec.packet_size)
-                        elif rec.source_id == 16:
-                            timeslot.drop_node16.append(rec.packet_size)
-                        else:
-                            print('cannot find source for sourceid=' + str(rec.source_id))
+                            print('cannot find source for sourceid='+str(_source_id))
 
-            for timeslot in self.db:
-                if timeslot.t_begin <= rec.time_intra_trx_out and rec.time_intra_trx_out <= timeslot.t_end:
-                    timeslot.thru_total.append(rec.packet_size)
-                    if rec.packet_qos == 'high':
-                        timeslot.thru_high.append(rec.packet_size)
-                    elif rec.packet_qos == 'med':
-                        timeslot.thru_med.append(rec.packet_size)
-                    elif rec.packet_qos == 'low':
-                        timeslot.thru_low.append(rec.packet_size)
-                    if rec.source_id==1:
-                        timeslot.thru_node1.append(rec.packet_size)
-                    elif rec.source_id==2:
-                        timeslot.thru_node2.append(rec.packet_size)
-                    elif rec.source_id==3:
-                        timeslot.thru_node3.append(rec.packet_size)
-                    elif rec.source_id==4:
-                        timeslot.thru_node4.append(rec.packet_size)
-                    elif rec.source_id==5:
-                        timeslot.thru_node5.append(rec.packet_size)
-                    elif rec.source_id==6:
-                        timeslot.thru_node6.append(rec.packet_size)
-                    elif rec.source_id==7:
-                        timeslot.thru_node7.append(rec.packet_size)
-                    elif rec.source_id==8:
-                        timeslot.thru_node8.append(rec.packet_size)
-                    elif rec.source_id==9:
-                        timeslot.thru_node9.append(rec.packet_size)
-                    elif rec.source_id==10:
-                        timeslot.thru_node10.append(rec.packet_size)
-                    elif rec.source_id==11:
-                        timeslot.thru_node11.append(rec.packet_size)
-                    elif rec.source_id==12:
-                        timeslot.thru_node12.append(rec.packet_size)
-                    elif rec.source_id==13:
-                        timeslot.thru_node13.append(rec.packet_size)
-                    elif rec.source_id==14:
-                        timeslot.thru_node14.append(rec.packet_size)
-                    elif rec.source_id==15:
-                        timeslot.thru_node15.append(rec.packet_size)
-                    elif rec.source_id==16:
-                        timeslot.thru_node16.append(rec.packet_size)
-                    else:
-                        print('cannot find source for sourceid='+str(rec.source_id))
+                        if rec.packet_qos=='high':
+                            timeslot.load_high.append(rec.packet_size)
+                        elif rec.packet_qos=='med':
+                            timeslot.load_med.append(rec.packet_size)
+                        elif rec.packet_qos=='low':
+                            timeslot.load_low.append(rec.packet_size)
+
+                        if _time_buffer_in > -1 and _time_buffer2_in>-1:
+                            timeslot.delay_total.append(_time_trx_out - _time_intra_birth)
+                            timeslot.qdelay_total.append(_time_trx_in - _time_intra_birth)
+                            if rec.packet_qos == 'high':
+                                timeslot.delay_high.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_high.append(_time_trx_in - _time_intra_birth)
+                            elif rec.packet_qos == 'med':
+                                timeslot.delay_med.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_med.append(_time_trx_in - _time_intra_birth)
+                            elif rec.packet_qos == 'low':
+                                timeslot.delay_low.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_low.append(_time_trx_in - _time_intra_birth)
+                            if _source_id == 1:
+                                timeslot.delay_node1.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node1.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 2:
+                                timeslot.delay_node2.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node2.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 3:
+                                timeslot.delay_node3.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node3.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 4:
+                                timeslot.delay_node4.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node4.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 5:
+                                timeslot.delay_node5.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node5.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 6:
+                                timeslot.delay_node6.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node6.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 7:
+                                timeslot.delay_node7.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node7.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 8:
+                                timeslot.delay_node8.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node8.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 9:
+                                timeslot.delay_node9.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node9.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 10:
+                                timeslot.delay_node10.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node10.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 11:
+                                timeslot.delay_node11.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node11.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 12:
+                                timeslot.delay_node12.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node12.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 13:
+                                timeslot.delay_node13.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node13.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 14:
+                                timeslot.delay_node14.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node14.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 15:
+                                timeslot.delay_node15.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node15.append(_time_trx_in - _time_intra_birth)
+                            elif _source_id == 16:
+                                timeslot.delay_node16.append(_time_trx_out - _time_intra_birth)
+                                timeslot.qdelay_node16.append(_time_trx_in - _time_intra_birth)
+                            else:
+                                print('cannot find source for sourceid=' + str(_source_id))
+                        else:
+                            timeslot.drop_total.append(rec.packet_size)
+                            if rec.packet_qos == 'high':
+                                timeslot.drop_high.append(rec.packet_size)
+                            elif rec.packet_qos == 'med':
+                                timeslot.drop_med.append(rec.packet_size)
+                            elif rec.packet_qos == 'low':
+                                timeslot.drop_low.append(rec.packet_size)
+                            if _source_id == 1:
+                                timeslot.drop_node1.append(rec.packet_size)
+                            elif _source_id == 2:
+                                timeslot.drop_node2.append(rec.packet_size)
+                            elif _source_id == 3:
+                                timeslot.drop_node3.append(rec.packet_size)
+                            elif _source_id == 4:
+                                timeslot.drop_node4.append(rec.packet_size)
+                            elif _source_id == 5:
+                                timeslot.drop_node5.append(rec.packet_size)
+                            elif _source_id == 6:
+                                timeslot.drop_node6.append(rec.packet_size)
+                            elif _source_id == 7:
+                                timeslot.drop_node7.append(rec.packet_size)
+                            elif _source_id == 8:
+                                timeslot.drop_node8.append(rec.packet_size)
+                            elif _source_id == 9:
+                                timeslot.drop_node9.append(rec.packet_size)
+                            elif _source_id == 10:
+                                timeslot.drop_node10.append(rec.packet_size)
+                            elif _source_id == 11:
+                                timeslot.drop_node11.append(rec.packet_size)
+                            elif _source_id == 12:
+                                timeslot.drop_node12.append(rec.packet_size)
+                            elif _source_id == 13:
+                                timeslot.drop_node13.append(rec.packet_size)
+                            elif _source_id == 14:
+                                timeslot.drop_node14.append(rec.packet_size)
+                            elif _source_id == 15:
+                                timeslot.drop_node15.append(rec.packet_size)
+                            elif _source_id == 16:
+                                timeslot.drop_node16.append(rec.packet_size)
+                            else:
+                                print('cannot find source for sourceid=' + str(_source_id))
+
+                for timeslot in self.db:
+                    if timeslot.t_begin <= _time_trx_out and _time_trx_out < timeslot.t_end:
+                        timeslot.thru_total.append(rec.packet_size)
+                        if rec.packet_qos == 'high':
+                            timeslot.thru_high.append(rec.packet_size)
+                        elif rec.packet_qos == 'med':
+                            timeslot.thru_med.append(rec.packet_size)
+                        elif rec.packet_qos == 'low':
+                            timeslot.thru_low.append(rec.packet_size)
+                        if _source_id==1:
+                            timeslot.thru_node1.append(rec.packet_size)
+                        elif _source_id==2:
+                            timeslot.thru_node2.append(rec.packet_size)
+                        elif _source_id==3:
+                            timeslot.thru_node3.append(rec.packet_size)
+                        elif _source_id==4:
+                            timeslot.thru_node4.append(rec.packet_size)
+                        elif _source_id==5:
+                            timeslot.thru_node5.append(rec.packet_size)
+                        elif _source_id==6:
+                            timeslot.thru_node6.append(rec.packet_size)
+                        elif _source_id==7:
+                            timeslot.thru_node7.append(rec.packet_size)
+                        elif _source_id==8:
+                            timeslot.thru_node8.append(rec.packet_size)
+                        elif _source_id==9:
+                            timeslot.thru_node9.append(rec.packet_size)
+                        elif _source_id==10:
+                            timeslot.thru_node10.append(rec.packet_size)
+                        elif _source_id==11:
+                            timeslot.thru_node11.append(rec.packet_size)
+                        elif _source_id==12:
+                            timeslot.thru_node12.append(rec.packet_size)
+                        elif _source_id==13:
+                            timeslot.thru_node13.append(rec.packet_size)
+                        elif _source_id==14:
+                            timeslot.thru_node14.append(rec.packet_size)
+                        elif _source_id==15:
+                            timeslot.thru_node15.append(rec.packet_size)
+                        elif _source_id==16:
+                            timeslot.thru_node16.append(rec.packet_size)
+                        else:
+                            print('cannot find source for sourceid='+str(_source_id))
 
 
     def get_list_load_total(self):

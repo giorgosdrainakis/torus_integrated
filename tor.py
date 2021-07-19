@@ -5,6 +5,7 @@ from torus_integrated import myglobal
 from torus_integrated.channel import *
 from torus_integrated.traffic import Control_Packet
 import datetime
+import pandas as pd
 
 class Tors:
     def __init__(self):
@@ -27,6 +28,10 @@ class Tors:
                     can_enter=False
             if can_enter:
                 filtered_recs.append(pot_rec)
+        if len(filtered_recs)<16:
+            print('******* 16 NOT')
+        else:
+            filtered_recs = random.sample(filtered_recs, 16)
         # debug
         for el in filtered_recs:
             el.show()
@@ -76,9 +81,25 @@ class Tors:
         real_time = real_time.replace(' ', '_')
         real_time = real_time.replace(':', '_')
         real_time = real_time.replace('.', '_')
+        tor_names=[]
         # log for each tor
         for tor in self.db:
-            tor.write_log(real_time)
+            tor_names.append(tor.write_log(real_time))
+
+        combined_csv = pd.concat([pd.read_csv(f) for f in tor_names])
+        combined_name = myglobal.ROOT + myglobal.LOGS_FOLDER + 'log' + str(real_time) + '_everything.csv'
+        combined_csv.to_csv(combined_name, index=False)
+
+        #print('Sorting ALL:')
+        #with open(combined_name, 'r', newline='') as f_input:
+        #    csv_input = csv.DictReader(f_input)
+        #    data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
+
+        #print('Rewriting ALL:')
+        #with open(combined_name, 'w', newline='') as f_output:
+        #    csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
+        #    csv_output.writeheader()
+        #    csv_output.writerows(data)
 
     def add_new(self,node):
         self.db.append(node)
@@ -640,6 +661,7 @@ class Tor:
             csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
             csv_output.writeheader()
             csv_output.writerows(data)
+        return combined_name
 
     def add_pack_to_outgoing_buffers(self,pack,current_time):
         is_in_buffer = False

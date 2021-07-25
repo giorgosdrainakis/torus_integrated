@@ -16,8 +16,8 @@ from torus_integrated.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=True
-filename= 'logtoday_everything.csv'
+avgg=False
+filename= 'log2021_07_19_10_36_16_893231_everything.csv'
 my_tbegin=0
 my_tend=0.01
 my_samples=500 # 500
@@ -2668,15 +2668,23 @@ class My_Timeslot_List():
             print('B=' + str(debug_id))
             debug_id = debug_id + 1
             if not rec.is_intra():
-                _time_intra_birth=rec.time
-                _time_birth=rec.time_intra_trx_out
+                #_time_intra_birth=rec.time
+
+                #_time_trx_in=rec.time_tor_trx_in
+                #_time_trx_out=rec.time_tor_trx_out
+                #_time_buffer_in=rec.time_tor_buffer_in
+                #_time_buffer2_in=rec.time_inter_buffer_in
                 _source_id=rec.tor_id
-                _time_trx_in=rec.time_tor_trx_in
-                _time_trx_out=rec.time_tor_trx_out
-                _time_buffer_in=rec.time_tor_buffer_in
-                _time_buffer2_in=rec.time_inter_buffer_in
+                _time_load = rec.time_intra_trx_out
+                _source_id = rec.tor_id
+                _thru_out = rec.time_inter_trx_out
+                _time_buffer1_in = rec.time_intra_buffer_in
+                _time_buffer2_in = rec.time_tor_buffer_in
+                _time_buffer3_in = rec.time_inter_buffer_in
+                _qdelay=(rec.time_intra_buffer_out-rec.time_intra_buffer_in)+(rec.time_tor_buffer_out-rec.time_tor_buffer_in)+(rec.time_inter_buffer_out-rec.time_inter_buffer_in)
+                _delay=rec.time_inter_trx_out-rec.time
                 for timeslot in self.db:
-                    if timeslot.t_begin <= _time_birth and _time_birth < timeslot.t_end:
+                    if timeslot.t_begin <= _time_load and _time_load < timeslot.t_end:
                         timeslot.load_total.append(rec.packet_size)
                         if _source_id==1:
                             timeslot.load_node1.append(rec.packet_size)
@@ -2720,66 +2728,66 @@ class My_Timeslot_List():
                         elif rec.packet_qos=='low':
                             timeslot.load_low.append(rec.packet_size)
 
-                        if _time_buffer_in > -1 and _time_buffer2_in>-1:
-                            timeslot.delay_total.append(_time_trx_out - _time_intra_birth)
-                            timeslot.qdelay_total.append(_time_trx_in - _time_intra_birth)
+                        if _time_buffer1_in > -1 and _time_buffer2_in>-1 and _time_buffer3_in>-1:
+                            timeslot.delay_total.append(_delay)
+                            timeslot.qdelay_total.append(_qdelay)
                             if rec.packet_qos == 'high':
-                                timeslot.delay_high.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_high.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_high.append(_delay)
+                                timeslot.qdelay_high.append(_qdelay)
                             elif rec.packet_qos == 'med':
-                                timeslot.delay_med.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_med.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_med.append(_delay)
+                                timeslot.qdelay_med.append(_qdelay)
                             elif rec.packet_qos == 'low':
-                                timeslot.delay_low.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_low.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_low.append(_delay)
+                                timeslot.qdelay_low.append(_qdelay)
                             if _source_id == 1:
-                                timeslot.delay_node1.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node1.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node1.append(_delay)
+                                timeslot.qdelay_node1.append(_qdelay)
                             elif _source_id == 2:
-                                timeslot.delay_node2.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node2.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node2.append(_delay)
+                                timeslot.qdelay_node2.append(_qdelay)
                             elif _source_id == 3:
-                                timeslot.delay_node3.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node3.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node3.append(_delay)
+                                timeslot.qdelay_node3.append(_qdelay)
                             elif _source_id == 4:
-                                timeslot.delay_node4.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node4.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node4.append(_delay)
+                                timeslot.qdelay_node4.append(_qdelay)
                             elif _source_id == 5:
-                                timeslot.delay_node5.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node5.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node5.append(_delay)
+                                timeslot.qdelay_node5.append(_qdelay)
                             elif _source_id == 6:
-                                timeslot.delay_node6.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node6.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node6.append(_delay)
+                                timeslot.qdelay_node6.append(_qdelay)
                             elif _source_id == 7:
-                                timeslot.delay_node7.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node7.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node7.append(_delay)
+                                timeslot.qdelay_node7.append(_qdelay)
                             elif _source_id == 8:
-                                timeslot.delay_node8.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node8.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node8.append(_delay)
+                                timeslot.qdelay_node8.append(_qdelay)
                             elif _source_id == 9:
-                                timeslot.delay_node9.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node9.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node9.append(_delay)
+                                timeslot.qdelay_node9.append(_qdelay)
                             elif _source_id == 10:
-                                timeslot.delay_node10.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node10.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node10.append(_delay)
+                                timeslot.qdelay_node10.append(_qdelay)
                             elif _source_id == 11:
-                                timeslot.delay_node11.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node11.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node11.append(_delay)
+                                timeslot.qdelay_node11.append(_qdelay)
                             elif _source_id == 12:
-                                timeslot.delay_node12.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node12.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node12.append(_delay)
+                                timeslot.qdelay_node12.append(_qdelay)
                             elif _source_id == 13:
-                                timeslot.delay_node13.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node13.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node13.append(_delay)
+                                timeslot.qdelay_node13.append(_qdelay)
                             elif _source_id == 14:
-                                timeslot.delay_node14.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node14.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node14.append(_delay)
+                                timeslot.qdelay_node14.append(_qdelay)
                             elif _source_id == 15:
-                                timeslot.delay_node15.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node15.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node15.append(_delay)
+                                timeslot.qdelay_node15.append(_qdelay)
                             elif _source_id == 16:
-                                timeslot.delay_node16.append(_time_trx_out - _time_intra_birth)
-                                timeslot.qdelay_node16.append(_time_trx_in - _time_intra_birth)
+                                timeslot.delay_node16.append(_delay)
+                                timeslot.qdelay_node16.append(_qdelay)
                             else:
                                 print('cannot find source for sourceid=' + str(_source_id))
                         else:

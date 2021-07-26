@@ -21,11 +21,11 @@ filename= 'log2021_07_19_10_36_16_893231_everything.csv'
 parent_tor=1
 my_tbegin=0
 my_tend=0.01
-my_samples=5000 # 500
+my_samples=500 # 500
 # Grouping params
 start_group_value=0
-end_group_value=100000
-grouping_points=50
+end_group_value=3.5e6
+grouping_points=25
 
 class Record():
     def __init__(self,packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,

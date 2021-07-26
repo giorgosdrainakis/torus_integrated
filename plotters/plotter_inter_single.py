@@ -16,14 +16,14 @@ from torus_integrated.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=False
+avgg=True
 filename= 'log2021_07_19_10_36_16_893231_everything.csv'
 my_tbegin=0
 my_tend=0.01
 my_samples=500 # 500
 # Grouping params
 start_group_value=0
-end_group_value=1.3e6
+end_group_value=500000
 grouping_points=25
 
 class Record():
@@ -2834,7 +2834,7 @@ class My_Timeslot_List():
                                 print('cannot find source for sourceid=' + str(_source_id))
 
                 for timeslot in self.db:
-                    if timeslot.t_begin <= _time_trx_out and _time_trx_out < timeslot.t_end:
+                    if timeslot.t_begin <= _thru_out and _thru_out < timeslot.t_end:
                         timeslot.thru_total.append(rec.packet_size)
                         if rec.packet_qos == 'high':
                             timeslot.thru_high.append(rec.packet_size)

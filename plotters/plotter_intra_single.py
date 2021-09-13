@@ -16,15 +16,15 @@ from torus_integrated.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=True
-filename= 'log2021_07_19_10_36_16_893231_everything.csv'
+avgg=False
+filename= 'log2021_09_11_19_15_01_816092_everything.csv'
 parent_tor=1
 my_tbegin=0
-my_tend=0.01
-my_samples=500 # 500
+my_tend=0.010
+my_samples=100 # 500
 # Grouping params
 start_group_value=0
-end_group_value=600000
+end_group_value=1.6e6
 grouping_points=25
 
 class Record():
@@ -1568,7 +1568,7 @@ class My_Group_List():
         self.end_group_value=end_group_value
         self.grouping_point=grouping_points
         self.nominal_rates = np.linspace(self.start_group_value, self.end_group_value, self.grouping_point)
-        print('(debug): Nominal Rates'+str(self.nominal_rates))
+        print('DBG: Nominal Rates'+str(self.nominal_rates))
         timestep=(self.tend-self.tbegin)/self.samples
         for nomrate in self.nominal_rates:
             mygroup=My_Group(timestep)
@@ -2669,13 +2669,18 @@ class My_Timeslot_List():
             self.db.append(new_timeslot)
 
     def init_with_db(self,record_db):
-        print('Entered init with db')
+        print('DBG: Entered init with db')
         debug_id=0
+        total_packets_ids=[]
         for rec in record_db:
-            print('B=' + str(debug_id))
+            #print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             if rec.is_intra_for_tor(parent_tor) or rec.is_outgoing_for_tor(parent_tor) or rec.is_incoming_for_tor(parent_tor):
+                if rec.packet_id in total_packets_ids:
+                    print('ERROR: This is a dublicate packet' + str(rec.packet_id))
+                total_packets_ids.append(rec.packet_id)
+
                 if rec.is_intra_for_tor(parent_tor):  # intra
                     _time_birth=rec.time
                     _source_id=rec.source_id
@@ -2695,10 +2700,10 @@ class My_Timeslot_List():
                     _time_trx_in = rec.time_inter_trx_in
                     _time_trx_out = rec.time_inter_trx_out
                 else:
-                    print('Unknown packet, =' + str(rec.show_mini()))
+                    print('ERROR: Unknown packet, =' + str(rec.show_mini()))
 
                 for timeslot in self.db:
-                    if timeslot.t_begin <= _time_birth and _time_birth <= timeslot.t_end:
+                    if timeslot.t_begin <= _time_birth and _time_birth < timeslot.t_end:
                         timeslot.load_total.append(rec.packet_size)
 
                         if _source_id==1:
@@ -2734,7 +2739,7 @@ class My_Timeslot_List():
                         elif _source_id==16:
                             timeslot.load_node16.append(rec.packet_size)
                         else:
-                            print('cannot find source for sourceid='+str(_source_id))
+                            print('ERROR: cannot find source for sourceid='+str(_source_id))
 
                         if rec.packet_qos=='high':
                             timeslot.load_high.append(rec.packet_size)
@@ -2804,7 +2809,7 @@ class My_Timeslot_List():
                                 timeslot.delay_node16.append(_time_trx_out - _time_birth)
                                 timeslot.qdelay_node16.append(_time_trx_in - _time_birth)
                             else:
-                                print('cannot find source for sourceid=' + str(_source_id))
+                                print('ERROR: cannot find source for sourceid=' + str(_source_id))
                         else:
                             timeslot.drop_total.append(rec.packet_size)
                             if rec.packet_qos == 'high':
@@ -2846,10 +2851,10 @@ class My_Timeslot_List():
                             elif _source_id == 16:
                                 timeslot.drop_node16.append(rec.packet_size)
                             else:
-                                print('cannot find source for sourceid=' + str(_source_id))
+                                print('ERROR: cannot find source for sourceid=' + str(_source_id))
 
                 for timeslot in self.db:
-                    if timeslot.t_begin <= _time_trx_out and _time_trx_out <= timeslot.t_end:
+                    if timeslot.t_begin <= _time_trx_out and _time_trx_out < timeslot.t_end:
                         timeslot.thru_total.append(rec.packet_size)
                         if rec.packet_qos == 'high':
                             timeslot.thru_high.append(rec.packet_size)
@@ -2890,7 +2895,7 @@ class My_Timeslot_List():
                         elif _source_id==16:
                             timeslot.thru_node16.append(rec.packet_size)
                         else:
-                            print('cannot find source for sourceid='+str(_source_id))
+                            print('ERROR: cannot find source for sourceid='+str(_source_id))
 
 
     def get_list_load_total(self):
@@ -3753,7 +3758,7 @@ with open(myglobal.ROOT+myglobal.LOGS_FOLDER+filename) as csv_file:
                        row['time_inter_buffer_in'], row['time_inter_buffer_out'], row['time_inter_trx_in'], row['time_inter_trx_out']
                        )
         my_db.append(new_rec)
-        print(str(debug_id))
+        #print(str(debug_id/len(csv_reader)))
         debug_id=debug_id+1
 
 timeslot_list=My_Timeslot_List(my_tbegin,my_tend,my_samples)
@@ -3761,7 +3766,7 @@ timeslot_list.init_with_db(my_db)
 
 
 if not avgg:
-    LOAD=timeslot_list.get_list_drop_total()
+    LOAD=timeslot_list.get_list_load_total()
     THRU=timeslot_list.get_list_thru_total()
     DROP=timeslot_list.get_list_drop_total()
     print(str(LOAD))

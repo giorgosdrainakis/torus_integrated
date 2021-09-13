@@ -771,11 +771,11 @@ class Node:
             elif packet.packet_qos=='high':
                 is_in_buffer=self.intra_buffer_high.add(packet,current_time)
             if not is_in_buffer:
-                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(
+                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(
                     packet.show_mini()))
                 self.data_dropped.append(packet)
             else:
-                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(
+                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(
                     packet.show_mini()))
     def get_next_packet(self):
         if self.intra_buffer_high.has_packets():

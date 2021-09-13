@@ -133,17 +133,17 @@ class Tor:
         
         if len(rx_1500_list)>0:
             # Build max 4 lamda request
-            return self.build_4_lamda_request(rx_1500_list)
+            return self.build_15_lamda_request(rx_1500_list)
         else: # if very few packets so that no 1500 can be filled
             minimal_rx_list=self.get_potential_inter_trx_list(max_policy=False)
             print('Tor ID=' + str(self.id) + 'potentia_minimal_list=' + str(len(minimal_rx_list)))
-            return self.build_4_lamda_request(minimal_rx_list)
+            return self.build_15_lamda_request(minimal_rx_list)
 
-    def build_4_lamda_request(self,rx_list):
+    def build_15_lamda_request(self,rx_list):
         mylist=rx_list
         random.shuffle(mylist)
         tx=self.id
-        return self.torus_list.get_4_lamda_request_from_rx_list(rx_list,tx)
+        return self.torus_list.get_15_lamda_request_from_rx_list(rx_list,tx)
 
     def get_potential_inter_trx_list(self,max_policy=True):
         # Check which outgoing buffers can fill up a 1500 message
@@ -695,8 +695,8 @@ class Torus_Matrix:
                 new_rec=Torus_Record(row['rx'],row['tx'],row['out_dir'],row['in_dir'],row['lamda'])
                 self.db.append(new_rec)
 
-    def get_4_lamda_request_from_rx_list(self,rx_list,tx):
-        ports=4
+    def get_15_lamda_request_from_rx_list(self,rx_list,tx):
+        ports=15
         while ports>0:
             potentials=[]
             for quatro in itertools.combinations(rx_list, ports):
@@ -720,9 +720,6 @@ class Torus_Matrix:
                 return potentials[0]
             ports=ports-1
         return []
-
-    ############
-
 
 class Torus_Record:
     def __init__(self, rx,tx,out_dir,in_dir,lamda):

@@ -5,6 +5,8 @@ from torus_integrated.traffic import *
 from torus_integrated.buffer import *
 from torus_integrated.channel import *
 from torus_integrated.tor import *
+import sys
+
 
 def main():
     # init tors and torus_list
@@ -77,7 +79,14 @@ def main():
     print('FINISH! Have buffers in packets?='+str(tors.have_buffers_packets()))
     tors.write_log()
 
+
+
 ### params and run
+if myglobal.SAVE_LOGS:
+    real_time = str(datetime.datetime.now())
+    file=myglobal.ROOT + myglobal.LOGS_FOLDER + 'tmplogger' + str('geo')+".log"
+    sys.stdout = open(file, "w")
+
 if myglobal.TOTAL_NODES_PER_TOR==4:
     # total packets that will be printed per buff
     myglobal.CONTROL_MSG_PACKS_PER_BUFF = 46

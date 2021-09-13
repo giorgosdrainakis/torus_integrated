@@ -1,8 +1,9 @@
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\'
-TRAFFIC_DATASETS_FOLDER='traffic_datasets\\'
+TRAFFIC_DATASETS_FOLDER='traffic_datasets\\2021_09_07_18_23_14_827425\\'
 INTER_TRANSMISSION_INFO_FOLDER='transmission_info\\'
 TORUS_FILE='torus_matrix.txt'
 LOGS_FOLDER='logs\\'
+SAVE_LOGS=True
 PROPAGATION_TIME=10/(2e8) #PROPAGATION_TIME=0 10/(2e8)
 ID_DIFF=1
 MAX_PACKET_SIZE=1500 #bytes

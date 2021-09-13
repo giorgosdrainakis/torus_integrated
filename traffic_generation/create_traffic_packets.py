@@ -166,10 +166,10 @@ def generate_packets_high_qos(packet_id,t_begin,t_end,avg_throughput,source_id,d
         print('node ' + str(source_id) + ',high progress %=' + str((packet_id - first_packet_id) * 100 / total_len))
     return csv_reader,packet_id
 def export_traffic_dataset_single(nodeid,intralist,torid,interlist,t_begin,t_end,avg_throughput,qos,hasHeader,
-                                  low_thru_param,med_thru_param,high_thru_param,intra_traffic_perc):
-    packet_id=0
-    sigma_lognormal_low = 5
-    sigma_lognormal_med = 2
+                                  low_thru_param,med_thru_param,high_thru_param,intra_traffic_perc,init_packet_id):
+    packet_id=init_packet_id
+    sigma_lognormal_low = 6
+    sigma_lognormal_med = 3
     alpha_weibull = 0.1
     c_pareto = 0.5
     csv_content = ''
@@ -243,6 +243,7 @@ def export_traffic_dataset_single(nodeid,intralist,torid,interlist,t_begin,t_end
         csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
         csv_output.writeheader()
         csv_output.writerows(data)
+    return packet_id
 def get_timestamp_to_string():
     mytime = str(datetime.datetime.now())
     mytime = mytime.replace('-', '_')
@@ -251,6 +252,7 @@ def get_timestamp_to_string():
     mytime = mytime.replace('.', '_')
     return mytime
 def run_with_params(): # main
+    new_packet_id=0
     for tor in inter_tor_list:
         for node in intra_nodes_list:
             my_tor=[tor]
@@ -259,20 +261,20 @@ def run_with_params(): # main
             inter_dest_list=[item for item in inter_tor_list if item not in my_tor]
             hasHeader=True
             intra_traffic_perc = intra_perc
-            export_traffic_dataset_single(node,intra_dest_list,tor,inter_dest_list,t_begin,t_end,avg_throughput_per_node,
+            new_packet_id=export_traffic_dataset_single(node,intra_dest_list,tor,inter_dest_list,t_begin,t_end,avg_throughput_per_node,
                                 qos,hasHeader,low_thru_shape_param,med_thru_shape_param,
-                                          high_thru_shape_param,intra_traffic_perc)
+                                          high_thru_shape_param,intra_traffic_perc,new_packet_id)
 
 #############  params  ###############
 t_begin=0 #sec (float)
-t_end=0.010 #sec (float)
-avg_throughput=100e9 # mean bytes per sec being generated
+t_end=0.01 #sec (float)
+avg_throughput=300e9 # mean bytes per sec being generated
 qos='all'# choose qos packets allowed {'low','med','high','all'}
 intra_nodes_list=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 inter_tor_list=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 low_thru_shape_param=3 # (float)
 med_thru_shape_param=5 # (float)
-high_thru_shape_param=0.04 # (float)
+high_thru_shape_param=0.02 # (float)
 avg_throughput_per_node=avg_throughput/len(intra_nodes_list)
 intra_perc=0.8
 

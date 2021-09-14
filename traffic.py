@@ -86,8 +86,11 @@ class Traffic_per_packet():
         for packet in self.db:
             #if math.isclose(current_time,packet.time,abs_tol=myglobal.TOLERANCE): # legacy
             if packet.time<=current_time:
-                packet_list.append(packet)
-                #packet.time_intra_buffer_in=current_time
+                # if not account for inter traffic and come up with inter packet, remove it
+                if myglobal.INTRA_REMOVE_INTER and (not packet.is_intra()):
+                    pass
+                else:
+                    packet_list.append(packet)
                 self.db.remove(packet)
             else:
                 break

@@ -267,14 +267,14 @@ def run_with_params(): # main
 
 #############  params  ###############
 t_begin=0 #sec (float)
-t_end=0.01 #sec (float)
-avg_throughput=300e9 # mean bytes per sec being generated
+t_end=0.05 #sec (float)
+avg_throughput=4*75e9 # mean bytes per sec being generated
 qos='all'# choose qos packets allowed {'low','med','high','all'}
-intra_nodes_list=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-inter_tor_list=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+intra_nodes_list=[x for x in range(1,81)]
+inter_tor_list=[1,2]
 low_thru_shape_param=3 # (float)
 med_thru_shape_param=5 # (float)
-high_thru_shape_param=0.02 # (float)
+high_thru_shape_param=0.005 # (float)
 avg_throughput_per_node=avg_throughput/len(intra_nodes_list)
 intra_perc=0.8
 

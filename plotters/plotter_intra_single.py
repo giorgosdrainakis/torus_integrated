@@ -16,15 +16,15 @@ from torus_integrated.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=False
-filename= 'log2021_09_11_19_15_01_816092_everything.csv'
+avgg=True
+filename= 'log2021_10_08_18_57_16_466325_everything.csv'
 parent_tor=1
 my_tbegin=0
-my_tend=0.010
+my_tend=0.05
 my_samples=100 # 500
 # Grouping params
 start_group_value=0
-end_group_value=1.6e6
+end_group_value=1.2e7
 grouping_points=25
 
 class Record():
@@ -2673,7 +2673,7 @@ class My_Timeslot_List():
         debug_id=0
         total_packets_ids=[]
         for rec in record_db:
-            #print('DBG: B=' + str(debug_id/len(record_db)))
+            print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             if rec.is_intra_for_tor(parent_tor) or rec.is_outgoing_for_tor(parent_tor) or rec.is_incoming_for_tor(parent_tor):
@@ -2739,7 +2739,8 @@ class My_Timeslot_List():
                         elif _source_id==16:
                             timeslot.load_node16.append(rec.packet_size)
                         else:
-                            print('ERROR: cannot find source for sourceid='+str(_source_id))
+                            pass
+                            #print('ERROR: cannot find source for sourceid='+str(_source_id))
 
                         if rec.packet_qos=='high':
                             timeslot.load_high.append(rec.packet_size)
@@ -2809,7 +2810,8 @@ class My_Timeslot_List():
                                 timeslot.delay_node16.append(_time_trx_out - _time_birth)
                                 timeslot.qdelay_node16.append(_time_trx_in - _time_birth)
                             else:
-                                print('ERROR: cannot find source for sourceid=' + str(_source_id))
+                                pass
+                                #print('ERROR: cannot find source for sourceid=' + str(_source_id))
                         else:
                             timeslot.drop_total.append(rec.packet_size)
                             if rec.packet_qos == 'high':
@@ -2851,7 +2853,8 @@ class My_Timeslot_List():
                             elif _source_id == 16:
                                 timeslot.drop_node16.append(rec.packet_size)
                             else:
-                                print('ERROR: cannot find source for sourceid=' + str(_source_id))
+                                pass
+                                #print('ERROR: cannot find source for sourceid=' + str(_source_id))
 
                 for timeslot in self.db:
                     if timeslot.t_begin <= _time_trx_out and _time_trx_out < timeslot.t_end:
@@ -2895,7 +2898,8 @@ class My_Timeslot_List():
                         elif _source_id==16:
                             timeslot.thru_node16.append(rec.packet_size)
                         else:
-                            print('ERROR: cannot find source for sourceid='+str(_source_id))
+                            pass
+                            #print('ERROR: cannot find source for sourceid='+str(_source_id))
 
 
     def get_list_load_total(self):
@@ -3782,8 +3786,9 @@ if not avgg:
     plt.show()
 else: #Group stage
     group_list = My_Group_List(my_tbegin, my_tend, my_samples, start_group_value, end_group_value, grouping_points)
+    print('Start1')
     group_list.assign_timeslots_to_groups(timeslot_list)
-
+    print('Start2')
     avg, err = group_list.get_groups_load_total_bps()
     prLOAD_BIT = avg
     print('waa_load_total_bps' + '_avg=' + str(avg))

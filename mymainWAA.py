@@ -146,9 +146,11 @@ elif myglobal.TOTAL_NODES_PER_TOR==12:
     # define number of lucky/unlucky nodes per cycle
     myglobal.TOTAL_UNLUCKY_NODES=1
     myglobal.TOTAL_LUCKY_NODES=myglobal.TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-elif myglobal.TOTAL_NODES_PER_TOR==16:
+elif myglobal.TOTAL_NODES_PER_TOR==16 and myglobal.INTRA_CHANNEL_BITRATE==40e9:
+    print('Running with 16 Servers - 16 tors at 40 Gbps')
+    time.sleep(3)
     # total packets that will be printed per buff
-    myglobal.CONTROL_MSG_PACKS_PER_BUFF = 17
+    myglobal.CONTROL_MSG_PACKS_PER_BUFF = 1
     # node description string
     myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
     # define minipack
@@ -163,8 +165,12 @@ elif myglobal.TOTAL_NODES_PER_TOR==16:
     myglobal.LUCKY_SLOT_LEN = 2
     myglobal.UNLUCKY_SLOT_LEN = 1
     # define number of lucky/unlucky nodes per cycle
-    myglobal.TOTAL_UNLUCKY_NODES=9
+    if myglobal.INTRA_GUARD_BAND: #
+        myglobal.TOTAL_UNLUCKY_NODES=11 # 5*2+11*1
+    else:
+        myglobal.TOTAL_UNLUCKY_NODES=9 # 7*2+9*1
     myglobal.TOTAL_LUCKY_NODES=myglobal.TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+    myglobal.CYCLE_GUARD_BAND=9 #byte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 elif myglobal.TOTAL_NODES_PER_TOR==64: #
     print('Running with 64 Servers')
     # total packets that will be printed per buff

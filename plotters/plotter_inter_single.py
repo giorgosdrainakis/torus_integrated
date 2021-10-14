@@ -17,13 +17,13 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 avgg=True
-filename= 'log2021_09_06_23_55_28_539656_everything.csv'
+filename= 'log2021_10_11_23_58_17_502196_everything.csv'
 my_tbegin=0
 my_tend=0.01
 my_samples=500 # 500
 # Grouping params
 start_group_value=0
-end_group_value=1.3e6
+end_group_value=1.2e6
 grouping_points=25
 
 class Record():

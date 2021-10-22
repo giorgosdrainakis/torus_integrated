@@ -4755,6 +4755,45 @@ def plot_thruput_DYO():
                               32337874285.714287, 31819264000.0, 33977813333.333332, 0, 34280064000.0, 0, 0,
                               35642112000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38594496000.0]
 
+    # case 5 1 channel me allagi kai xwris guard band
+    #DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
+    #                          62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+    #                          0, 0, 0, 0, 191648128000.0]
+    #DYO_80_thru_40 = [39864128000.0, 0, 0, 0, 39768789333.333336, 39781128648.64865, 39788118068.965515,
+    #                          39800032000.0, 39794956800.0, 39804096000.0, 0, 39799488000.0, 0, 0, 39822976000.0, 0, 0,
+    #                          0, 0, 0, 0, 0, 0, 0, 39763968000.0]
+
+    # case 4 1 channel me allagi
+    DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
+                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 191648128000.0]
+    DYO_80_thru_40 = [39008320000.0, 0, 0, 0, 37977989333.333336, 38001356108.10811, 38068089379.31035,
+                              38147008000.0, 38163289600.0, 38273429333.333336, 0, 38431040000.0, 0, 0, 38340160000.0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 38479424000.0]
+
+    # case 6 new algo with 2 channels
+    DYO_80_load_40 = [0.0, 0, 0, 0, 34389397333.333336, 40483334918.91892, 46970359172.413795, 55462982400.0,
+                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 191648128000.0]
+    DYO_80_thru_40 = [39367488000.0, 0, 0, 0, 38609706666.666664, 38642127567.567566, 38692718344.82758,
+                              38731993600.0, 38731302400.0, 38799850666.666664, 0, 38810752000.0, 0, 0, 38993088000.0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 38897216000.0]
+    # case 7 new algo with 4 channels
+    DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
+                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 191648128000.0]
+    DYO_80_thru_40 = [39379968000.0, 0, 0, 0, 39275733333.333336, 39294083459.45946, 39340738206.89655,
+                              39378764800.0, 39433152000.0, 39331989333.333336, 0, 39466368000.0, 0, 0, 39502080000.0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 39280640000.0]
+    # case 8 new algo with 8 channels
+    DYO_80_load_40 = [0.0, 0, 0, 0, 33674270315.789474, 40381635878.78788, 46884701538.46154, 55462982400.0,
+                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 191648128000.0]
+
+    DYO_80_thru_40 = [39748736000.0, 0, 0, 0, 39845342315.789474, 39864482909.09091, 39877819076.92308,
+                              39869728000.0, 39879257600.0, 39827200000.0, 0, 39973056000.0, 0, 0, 39775680000.0, 0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 39448512000.0]
+
     # Enemy
     DYO_80_load_enemy=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
     DYO_80_thru_enemy_10=[0,8,10,10,10,10,10,10,10,10,10]
@@ -4776,7 +4815,7 @@ def plot_thruput_DYO():
     #down_x_lim_end=1.1
     up_x_label='Intra Traffic Absolute Load (Gbps)'
     y_label='Throughput (Gbps)'
-    legend_loc='upper left'
+    legend_loc='lower right'
 
     # Clean my loads
     selected_i=[]
@@ -4851,6 +4890,129 @@ def plot_thruput_DYO():
     except:
         pass
     secax.tick_params(axis='both', which='major', labelsize=20)
+    plt.title('Updated algorithm',fontsize=25)
+    plt.show()
+
+
+def plot_thruput_DYO_to_delete():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    DYO_80_load_10=[0.0, 4687701333.333333, 6860776421.052631, 10380824888.88889, 13544588800.0, 16624160000.0, 20337152000.0, 24392256000.0, 28833248000.0, 0, 0, 37047552000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81476800000.0]
+    DYO_80_thru_10=[8509888000.0, 8409664000.0, 8598451649.122807, 8498016000.0, 8729446400.0, 9372544000.0, 9484074666.666666, 9637088000.0, 9779552000.0, 0, 0, 9903168000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9832704000.0]
+
+    # case 4 1 channel me allagi
+    DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
+                      62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 191648128000.0]
+    DYO_80_thru_40 = [39008320000.0, 0, 0, 0, 37977989333.333336, 38001356108.10811, 38068089379.31035,
+                      38147008000.0, 38163289600.0, 38273429333.333336, 0, 38431040000.0, 0, 0, 38340160000.0,
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 38479424000.0]
+    mytitle='1 channel @ 40 Giga'
+
+
+
+    # Enemy
+    DYO_80_load_enemy = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    DYO_80_thru_enemy_10 = [0, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+    DYO_80_thru_enemy_40 = [0, 8, 13, 18, 25, 35, 38, 40, 39, 40, 40]
+
+    # settingssssssssssssssssssssssssssssssssssssss
+    waa_load_total_bps_avg = DYO_80_load_10
+    waa_thru_total_bps_avg = DYO_80_thru_10
+    waa_load_total_bps_avg2 = DYO_80_load_40
+    waa_thru_total_bps_avg2 = DYO_80_thru_40
+    enemy_load = DYO_80_load_enemy
+    enemy_thru1 = DYO_80_thru_enemy_10
+    enemy_thru2 = DYO_80_thru_enemy_40
+
+    PERCENT_INTRA = 0.8
+    OFFERED_LOAD_GIGA = 100  # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
+    down_x_label = 'Total Normalized Load'
+    # down_x_lim_begin=0
+    # down_x_lim_end=1.1
+    up_x_label = 'Intra Traffic Absolute Load (Gbps)'
+    y_label = 'Throughput (Gbps)'
+    legend_loc = 'lower right'
+
+    # Clean my loads
+    selected_i = []
+    for i in range(0, len(waa_load_total_bps_avg)):
+        if waa_load_total_bps_avg[i] != 0:
+            if waa_thru_total_bps_avg[i] > waa_load_total_bps_avg[i]:
+                waa_thru_total_bps_avg[i] = waa_load_total_bps_avg[i]
+            selected_i.append(i)
+
+    waa_load_total_bps_avg = [waa_load_total_bps_avg[i] / (OFFERED_LOAD_GIGA * 1e9 * PERCENT_INTRA) for i in selected_i]
+    waa_load_total_bps_avg.insert(0, 0)
+    waa_thru_total_bps_avg = [waa_thru_total_bps_avg[i] / 1e9 for i in selected_i]
+    waa_thru_total_bps_avg.insert(0, 0)
+
+    try:
+        selected_i = []
+        for i in range(0, len(waa_load_total_bps_avg2)):
+            if waa_load_total_bps_avg2[i] != 0:
+                if waa_thru_total_bps_avg2[i] > waa_load_total_bps_avg2[i]:
+                    waa_thru_total_bps_avg2[i] = waa_load_total_bps_avg2[i]
+                selected_i.append(i)
+
+        waa_load_total_bps_avg2 = [waa_load_total_bps_avg2[i] / (OFFERED_LOAD_GIGA * 1e9 * PERCENT_INTRA) for i in
+                                   selected_i]
+        waa_load_total_bps_avg2.insert(0, 0)
+        waa_thru_total_bps_avg2 = [waa_thru_total_bps_avg2[i] / 1e9 for i in selected_i]
+        waa_thru_total_bps_avg2.insert(0, 0)
+    except:
+        pass
+
+    fig, ax1 = plt.subplots(constrained_layout=True)
+
+    ax1.plot(enemy_load, enemy_thru1, 'b', label="SD-MAC (SD-POIRN) 10 Gbps", linewidth=4, marker='X', markersize=15,
+             markeredgewidth=3, markeredgecolor='b', markerfacecolor='b')
+    try:
+        ax1.plot(enemy_load, enemy_thru2, 'b', label="SD-MAC (SD-POIRN) 40 Gbps", linewidth=4, marker='X',
+                 markersize=15, markeredgewidth=3, markeredgecolor='b', markerfacecolor='w')
+    except:
+        pass
+    ax1.plot(waa_load_total_bps_avg, waa_thru_total_bps_avg, 'k', label="Intra-MAC 10 Gbps", linewidth=4, marker='o',
+             markersize=15, markeredgecolor='k', markerfacecolor='k')
+    try:
+        ax1.plot(waa_load_total_bps_avg2, waa_thru_total_bps_avg2, 'k', label="Intra-MAC 40 Gbps", linewidth=4,
+                 marker='o', markersize=15, markeredgecolor='k', markerfacecolor='w')
+    except:
+        pass
+
+    try:
+        ax1.set_xlabel(down_x_label, fontsize=25)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_label, fontsize=25)
+    except:
+        pass
+    try:
+        ax1.set_xlim(down_x_lim_begin, down_x_lim_end)
+    except:
+        pass
+    try:
+        ax1.legend(loc=legend_loc, fontsize=15)
+    except:
+        ax1.legend(loc='upper left', fontsize=15)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=20)
+    ax1.tick_params(axis='both', which='minor', labelsize=8)
+
+    def down_to_up(x):
+        return OFFERED_LOAD_GIGA * 1e9 * x * PERCENT_INTRA / 1e9
+
+    def up_to_down(x):
+        return x * 1e9 / (OFFERED_LOAD_GIGA * 1e9 * PERCENT_INTRA)
+
+    secax = ax1.secondary_xaxis('top', functions=(down_to_up, up_to_down))
+    try:
+        secax.set_xlabel(up_x_label, fontsize=25)
+    except:
+        pass
+    secax.tick_params(axis='both', which='major', labelsize=20)
+    plt.title(mytitle, fontsize=25)
     plt.show()
 
 
@@ -4882,7 +5044,7 @@ normload=160e9
 #plot1_thru_per_server()
 
 # conf plots
-plot2_thru_vs_norm_load()
+#plot2_thru_vs_norm_load()
 #plot2_drop_vs_norm_load()
 #plot2_delay_vs_thru()
 #plot2_queuing()
@@ -4897,3 +5059,4 @@ plot2_thru_vs_norm_load()
 plot_thruput_ENA()
 plot_delay_ENA()
 plot_thruput_DYO()
+plot_thruput_DYO_to_delete()

@@ -1,5 +1,5 @@
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\'
-TRAFFIC_DATASETS_FOLDER='traffic_datasets\\torus_10ms_160g_3_5_5milli_08intra\\'
+TRAFFIC_DATASETS_FOLDER='traffic_datasets\\Dyo_80B_1st\\'
 INTER_TRANSMISSION_INFO_FOLDER='transmission_info\\'
 TORUS_FILE='torus_matrix.txt'
 LOGS_FOLDER='logs\\'
@@ -34,17 +34,17 @@ ASSIGN_CHANNEL_POLICY='ALL_BIG'
 CYCLE_GUARD_BAND=3 # bytes
 
 ####################################################### Architecure Settings
-TOTAL_NODES_PER_TOR = 16
-TOTAL_TORS=16
+TOTAL_NODES_PER_TOR = 80
+TOTAL_TORS=2
 # Intra Protocol Settings
-INTRA_CHANNEL_BITRATE = 40e9
-INTRA_CHANNEL_ID_LIST = [100, 200,300,400]  # 4 data channel
+INTRA_CHANNEL_BITRATE = 5e9
+INTRA_CHANNEL_ID_LIST = [100,200,300,400,500,600,700,800]  # 4 data channel
 INTRA_CONTROL_CHANNEL_ID = 500  # 1 control channel
 INTRA_NODE_INPUT_HIGH_BUFFER_SIZE = 1e6 # bytes
 INTRA_NODE_INPUT_MED_BUFFER_SIZE = 1e6 # bytes
 INTRA_NODE_INPUT_LOW_BUFFER_SIZE = 1e6 # bytes
-INTRA_GUARD_BAND=True
-INTRA_REMOVE_INTER=False # True if not proturs experiments
+INTRA_GUARD_BAND=True ##
+INTRA_REMOVE_INTER=True # True if not proturs experiments
 # Inter Protocol Settings
 INTER_CHANNEL_BITRATE = 10e9
 INTER_CHANNEL_ID_LIST = [1000, 2000, 3000, 4000,5000,6000,7000,8000]  # 8 data channel
@@ -53,7 +53,7 @@ INTER_TOR_MED_BUFFER_SIZE = 1e6 # bytes
 INTER_TOR_LOW_BUFFER_SIZE = 1e6 # bytes
 # Simulation (traffic dataset) settings
 T_BEGIN = 0
-T_END = 0.01
+T_END = 0.050
 ##########################################################################################################
 
 # logging

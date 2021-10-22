@@ -302,15 +302,19 @@ class Nodes:
                     i = i + 1
                 if not is_big_filled:
                     start_slot = 0
+                    empty_seats=0
                     for i in range(0, len(ch.trx_matrix)):
                         node_id = ch.trx_matrix[i]
                         # check if current node belongs in lucky or unlucky family
                         if node_id in ch.get_unlucky_list():
-                            max_pack_num = myglobal.UNLUCKY_SLOT_LEN
+                            original_assigned_seats = myglobal.UNLUCKY_SLOT_LEN
                         else:
-                            max_pack_num = myglobal.LUCKY_SLOT_LEN
+                            original_assigned_seats = myglobal.LUCKY_SLOT_LEN
+
+                        max_pack_num=original_assigned_seats+empty_seats
                         packs_filled = decoder.fill_with_small_packs(node_id, ch.id, max_pack_num, start_slot,
                                                                      lucky_number)
+                        empty_seats=max_pack_num-packs_filled
                         if packs_filled > 0:
                             start_slot = start_slot + packs_filled
                 else:
@@ -386,10 +390,10 @@ class Nodes:
                     newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
                     low_str.append(newstr)
 
-            #print(str(mystr)+' high slots:'+str(high_str)+' med slots:'+str(med_str)+' low slots:'+str(low_str))
-            #total_str=total_str+high_str+med_str+low_str
-        #total_str=sorted(total_str)
-        #print(str(total_str))
+            print(str(mystr)+' high slots:'+str(high_str)+' med slots:'+str(med_str)+' low slots:'+str(low_str))
+            total_str=total_str+high_str+med_str+low_str
+        total_str=sorted(total_str)
+        print(str(total_str))
         return decoder
 
     def get_s_p_params(self,control_msg,break_position):

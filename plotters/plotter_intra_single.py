@@ -17,7 +17,7 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 avgg=True
-filename= 'log2021_10_08_18_57_16_466325_everything.csv'
+filename= 'intra_check_with_new_algo_with_8_ch.csv'
 parent_tor=1
 my_tbegin=0
 my_tend=0.05

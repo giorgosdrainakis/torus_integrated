@@ -60,8 +60,8 @@ def main():
     # run simulation
     quatro=1
     CURRENT_TIME=myglobal.T_BEGIN
-    while (CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets()) and CURRENT_TIME<=myglobal.T_END*1.2:
-        if CURRENT_TIME<=myglobal.T_END:
+    while (CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets()): #and CURRENT_TIME<=myglobal.T_END*1.5:
+        if CURRENT_TIME<=myglobal.T_END*1.01:
             tors.add_new_packets_to_buffers(CURRENT_TIME)
         tors.check_arrival_intra(CURRENT_TIME)
         new_cycle=tors.process_new_cycle(CURRENT_TIME)

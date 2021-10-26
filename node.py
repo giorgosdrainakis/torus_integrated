@@ -181,7 +181,7 @@ class Nodes:
         control_cycle_slot_time=control_bitsize_per_node/self.channels.get_common_bitrate()
         entered_new_cycle=(current_time>=cycle_time*self.current_cycle)
         if entered_new_cycle:
-            print('-----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
+            print('TOR:'+str(self.tor_id)+' -----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
             control_msg = self.build_new_control_message()
             decoder=self.run_distributed_algo(control_msg)
 
@@ -256,11 +256,11 @@ class Nodes:
                     continue
             decoder.db.append(decoded_node)
 
-            #print('I decoded for node '+str(decoded_node.node_id)+' buff len h-m-l='+
-           #       str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
-            #      ','+str(db_med_1500)+')'+'-'+
-            #      str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
-             #     ',minipacklist='+str(len(control_pack.minipack_list)))
+            print('I decoded for node '+str(decoded_node.node_id)+' buff len h-m-l='+
+                  str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
+                  ','+str(db_med_1500)+')'+'-'+
+                  str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
+                  ',minipacklist='+str(len(control_pack.minipack_list)))
 
         return decoder
 
@@ -283,6 +283,7 @@ class Nodes:
 
     def run_distributed_algo(self,control_msg):
         if len(control_msg)==0:
+            print('Control msg is zero-zero')
             return None
         lucky_node_bit_id, lucky_number=self.get_s_p_params(control_msg,break_position=myglobal.BREAK_POSITION)
         lucky_node=lucky_node_bit_id+myglobal.ID_DIFF
@@ -775,12 +776,10 @@ class Node:
             elif packet.packet_qos=='high':
                 is_in_buffer=self.intra_buffer_high.add(packet,current_time)
             if not is_in_buffer:
-                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(
-                    packet.show_mini()))
+                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(packet.show_mini()))
                 self.data_dropped.append(packet)
             else:
-                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(
-                    packet.show_mini()))
+                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(packet.show_mini()))
     def get_next_packet(self):
         if self.intra_buffer_high.has_packets():
             return self.intra_buffer_high.get_next_packet()

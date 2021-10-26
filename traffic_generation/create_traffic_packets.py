@@ -267,7 +267,7 @@ def run_with_params(): # main
 
 #############  params  ###############
 t_begin=0 #sec (float)
-t_end=0.01 #sec (float)
+t_end=0.05 #sec (float)
 avg_throughput=150e9 # 300avg=75intra+170inter, 640avg=140intra+200inter
 qos='all'# choose qos packets allowed {'low','med','high','all'}
 intra_nodes_list=[x for x in range(1,17)]

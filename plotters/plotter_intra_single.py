@@ -17,10 +17,10 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 avgg=True
-filename= 'intra_check_with_new_algo_with_8_ch.csv'
+filename= '2peirama_10_koble.csv'
 parent_tor=1
 my_tbegin=0
-my_tend=0.05
+my_tend=0.050
 my_samples=100 # 500
 # Grouping params
 start_group_value=0

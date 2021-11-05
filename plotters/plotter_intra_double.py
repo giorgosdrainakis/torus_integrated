@@ -4537,9 +4537,11 @@ def plot_thruput_ENA():
     ENA_64_load = [0.0, 0, 0, 0, 24043654400.0, 27969367111.11111, 33678850782.608696, 39638677333.333336,
                               45563993600.0, 50711125333.333336, 58397312000.0, 0, 65683648000.0, 0, 77878080000.0, 0,
                               0, 0, 0, 0, 0, 0, 0, 0, 135018560000.0]
-    ENA_64_thru = [1421504000.0, 0, 0, 0, 24525651200.0, 28845153777.77778, 34242651826.086956,
-                              39657841777.77778, 46377932800.0, 54315434666.666664, 58707968000.0, 0, 65956864000.0, 0,
-                              70881664000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 75105024000.0]
+
+    ENA_64_thru = [459200000.0, 0, 0, 0, 24323001600.0, 28000224000.0, 33749690434.782608,
+                              39420903111.111115, 46058969600.0, 58873578666.666664, 69139264000.0, 0, 79096384000.0, 0,
+                              79270592000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 78818944000.0]
+
     # Enemy
     load_enemy=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
     thru_sdmac=[0,8,12,18,25,30,37,45,50,53,60]
@@ -4567,7 +4569,9 @@ def plot_thruput_ENA():
     # Clean my loads
     selected_i=[]
     for i in range(0,len(waa_load_total_bps_avg)):
-        if waa_load_total_bps_avg[i]!=0 and waa_thru_total_bps_avg[i]<=waa_load_total_bps_avg[i]:
+        if waa_load_total_bps_avg[i]!=0:
+            if waa_thru_total_bps_avg[i] > waa_load_total_bps_avg[i]:
+                waa_thru_total_bps_avg[i]=waa_load_total_bps_avg[i]
             selected_i.append(i)
 
     waa_load_total_bps_avg = [waa_load_total_bps_avg[i]/(OFFERED_LOAD_GIGA*1e9*PERCENT_INTRA) for i in selected_i]
@@ -4622,36 +4626,34 @@ def plot_delay_ENA():
 
     # Mine
     ENA_64_load = [0.0, 0, 0, 0, 24043654400.0, 27969367111.11111, 33678850782.608696, 39638677333.333336,
-                   45563993600.0, 50711125333.333336, 58397312000.0, 0, 65683648000.0, 0, 77878080000.0, 0,
-                   0, 0, 0, 0, 0, 0, 0, 0, 135018560000.0]
+                              45563993600.0, 50711125333.333336, 58397312000.0, 0, 65683648000.0, 0, 77878080000.0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 135018560000.0]
 
-    ENA_64_total_delay = [0, 0, 0, 0, 7.820109719626747e-06, 1.2091573665022391e-05, 1.8625775554025296e-05,
-                          2.0138921614666e-05, 6.927080739411179e-05, 0.0001090757427831198, 0.00024855119952983754, 0,
-                          0.0003171686372484218, 0, 0.0002819680333983359, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                          0.00031763685695682293]
-    ENA_64_high_delay = [0, 0, 0, 0, 4.627273631736997e-06, 4.749692951272259e-06, 4.954650800618672e-06,
-                         5.09063223869366e-06, 5.5598590445773495e-06, 6.508201346606148e-06, 7.0818672474117175e-06,
-                         0, 8.19699735070493e-06, 0, 1.625962315562882e-05, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                         2.1724653496067353e-05]
-    ENA_64_med_delay = [0, 0, 0, 0, 1.2127181238714233e-05, 1.3184604630515185e-05, 1.5366076457821318e-05,
-                        1.5174949420936227e-05, 2.7683503619197695e-05, 4.183608521194836e-05, 5.4295534647717315e-05,
-                        0, 0.0001326218245896634, 0, 0.0002150003818088592, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0.00018762859697586022]
-    ENA_64_low_delay = [0, 0, 0, 0, 5.0042025438631276e-05, 7.94259848973126e-05, 0.0001074652823664844,
-                        9.645943522422305e-05, 0.00032556170995203134, 0.00045198346247413726, 0.0009744821653936049,
-                        0, 0.0009418569078823625, 0, 0.0007134352016790409, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0.0005847458303724308]
+    ENA_64_total_delay = [0, 0, 0, 0, 3.2479768860631055e-06, 4.225716400113275e-06, 5.554980510945853e-06,
+                           6.164345130898186e-06, 8.863404951157552e-06, 2.3930667732082188e-05, 2.1604820373678727e-05,
+                           0, 0.00012573879079734782, 0, 0.00017974382739621104, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                           0.0002638831105209973]
+
+    ENA_64_high_delay = [0, 0, 0, 0, 2.344383977491e-06, 2.347403702993524e-06, 2.3596430019120417e-06,
+                          2.3752888370476634e-06, 2.398885960203029e-06, 2.9636824508373837e-06, 3.001077991872858e-06,
+                          0, 7.293433622105042e-06, 0, 2.2966292030882027e-05, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                          3.889618144786958e-05]
+
+    ENA_64_med_delay = [0, 0, 0, 0, 4.234154076463063e-06, 4.257316212812978e-06, 4.287161447269123e-06,
+                         4.2816011125578995e-06, 4.414178260099798e-06, 6.189909659316076e-06, 5.935695329814283e-06, 0,
+                         4.141110420887454e-05, 0, 0.0001321257192354855, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                         0.000146190233130888]
+
+    ENA_64_low_delay = [0, 0, 0, 0, 1.6390836852511483e-05, 2.1882100386979082e-05, 2.7536427259585105e-05,
+                         2.642779063740465e-05, 3.426688612405013e-05, 9.781157060330332e-05, 7.822794097413186e-05, 0,
+                         0.0003740771449079714, 0, 0.00044057705086435173, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                         0.0004764036439920763]
+
     # Enemy
     enemy_load = [0, 0.4, 0.6, 0.8, 1]
     delay_sdmac = [0, 0.2, 0.22, 0.25, 0.7]
     delay_lfvf = [0, 1.1, 3.3, 4.5, 5.2]
     delay_lf = [0, 1.4, 3.6, 4.85, 5.5]
-
-    waa_load_total_bps_avg = ENA_64_load
-    waa_delay_total_avg = ENA_64_total_delay
-    waa_delay_high_avg = ENA_64_high_delay
-    waa_delay_med_avg = ENA_64_med_delay
-    waa_delay_low_avg = ENA_64_low_delay
 
     # settingssssssssssssssssssssssssssssssssssssss
     PERCENT_INTRA=0.8
@@ -4670,9 +4672,13 @@ def plot_delay_ENA():
     waa_delay_med_avg = ENA_64_med_delay
     waa_delay_low_avg = ENA_64_low_delay
 
+
+    # Clean my loads
     selected_i=[]
     for i in range(0,len(waa_load_total_bps_avg)):
-        if waa_load_total_bps_avg[i]!=0 and waa_delay_total_avg[i]!=0 and waa_delay_high_avg[i]!=0 and waa_delay_med_avg[i]!=0 and waa_delay_low_avg[i]!=0:
+        if waa_load_total_bps_avg[i]!=0:
+            if waa_thru_total_bps_avg[i] > waa_load_total_bps_avg[i]:
+                waa_thru_total_bps_avg[i]=waa_load_total_bps_avg[i]
             selected_i.append(i)
 
     waa_load_total_bps_avg = [waa_load_total_bps_avg[i]/(OFFERED_LOAD_GIGA*1e9*PERCENT_INTRA) for i in selected_i]
@@ -4735,72 +4741,34 @@ def plot_thruput_DYO():
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
-    # Mine
-    #DYO_80_mikro_load = [0.0, 0, 3872112000.0, 5629323636.363636, 7038752969.69697, 8755301647.058823,10406354285.714285, 0, 13910592000.0, 15954368000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,, 0, 43221184000.0]
-    #DYO_80_mikro_thru = [767680000.0, 0, 5523680000.0, 7009947151.515152, 7524340363.636364, 8505464470.588235,8776649142.857143, 0, 9018176000.0, 9712960000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 9836864000.0]
-    DYO_80_load_10=[0.0, 4687701333.333333, 6860776421.052631, 10380824888.88889, 13544588800.0, 16624160000.0, 20337152000.0, 24392256000.0, 28833248000.0, 0, 0, 37047552000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81476800000.0]
-    DYO_80_thru_10=[8509888000.0, 8409664000.0, 8598451649.122807, 8498016000.0, 8729446400.0, 9372544000.0, 9484074666.666666, 9637088000.0, 9779552000.0, 0, 0, 9903168000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9832704000.0]
-
-    # 1st try with new algo sta 10giga
-    DYO_80_load_10 = [0.0, 0, 0, 0, 0, 0, 14689536000.0, 17774344000.0, 20517610666.666668, 22924988000.0,
-                              25340298666.666668, 27568325333.333332, 30389380571.42857, 32569742222.22222,
-                              35035673600.0, 36869184000.0, 39625152000.0, 0, 0, 0, 0, 0, 0, 0, 60760448000.0]
-    DYO_80_thru_10 = [9976384000.0, 0, 0, 0, 0, 0, 9896320000.0, 9894528000.0, 9895322666.666666, 9896712000.0,
-                              9888736000.0, 9887226666.666666, 9897773714.285715, 9892480000.0, 9890880000.0,
-                              9887104000.0, 9924096000.0, 0, 0, 0, 0, 0, 0, 0, 9801984000.0]
-    ###########################################################################
-    # case 1: simple run 1 channel twn 40
-    DYO_80_load_40=[0.0, 0, 0, 26794488000.0, 32450295466.666668, 40221255384.61539, 47948197647.05882, 56349832000.0, 63054000000.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 191648128000.0]
-    DYO_80_thru_40=[34594112000.0, 0, 0, 30978728000.0, 31706961066.666668, 31747276307.692307, 31784357647.058823, 32374512000.0, 31142800000.0, 33577557333.333332, 0, 35096256000.0, 0, 0, 35947776000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38525312000.0]
-    # case 2: with 2 channels of 40/2 (80ara_2ch_40giga_dia2)
-    #DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,0, 0, 0, 0, 191648128000.0]
-    #DYO_80_thru_40 = [5148736000.0, 0, 0, 0, 36556042666.666664, 42566514162.16216, 49183973517.24138,57160601600.0, 62750937600.0, 67202282666.666664, 0, 69214016000.0, 0, 0, 67883968000.0,0, 0, 0, 0, 0, 0, 0, 0, 0, 75225088000.0]
-    # case 3: 2 channels twn 20
-    DYO_80_load_40 = [0.0, 0, 0, 27356757333.333332, 32273271466.666668, 40505182720.0, 48114454588.23529,
-                              56068763428.57143, 62495628800.0, 71849856000.0, 0, 86696896000.0, 0, 0, 110858880000.0,
-                              0, 0, 0, 0, 0, 0, 0, 0, 0, 191648128000.0]
-    DYO_80_thru_40 = [34805056000.0, 0, 0, 31540664888.88889, 31498041600.0, 31940275200.0, 32037598117.64706,
-                              32337874285.714287, 31819264000.0, 33977813333.333332, 0, 34280064000.0, 0, 0,
-                              35642112000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38594496000.0]
-
-    # case 5 1 channel me allagi kai xwris guard band
-    #DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
-    #                          62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
-    #                          0, 0, 0, 0, 191648128000.0]
-    #DYO_80_thru_40 = [39864128000.0, 0, 0, 0, 39768789333.333336, 39781128648.64865, 39788118068.965515,
-    #                          39800032000.0, 39794956800.0, 39804096000.0, 0, 39799488000.0, 0, 0, 39822976000.0, 0, 0,
-    #                          0, 0, 0, 0, 0, 0, 0, 39763968000.0]
-
-    # case 4 1 channel me allagi
-    DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
+    DYO_80_load_10_big = [0.0, 0, 0, 0, 34389226666.666664, 40483390270.27027, 46970359172.413795, 55462982400.0,
                               62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 191648128000.0]
-    DYO_80_thru_40 = [39008320000.0, 0, 0, 0, 37977989333.333336, 38001356108.10811, 38068089379.31035,
-                              38147008000.0, 38163289600.0, 38273429333.333336, 0, 38431040000.0, 0, 0, 38340160000.0,
-                              0, 0, 0, 0, 0, 0, 0, 0, 0, 38479424000.0]
 
-    # case 6 new algo with 2 channels
+    DYO_80_thru_10_big = [9935168000.0, 0, 0, 0, 9895029333.333334, 9893424432.432432, 9894316137.931034,
+                              9885523200.0, 9895244800.0, 9896618666.666666, 0, 9908224000.0, 0, 0, 9882752000.0, 0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 9795712000.0]
+
+    DYO_80_load_10_small = [0.0, 0, 0, 10894675200.0, 13233079547.169811, 16881024000.0, 20222445714.285713,
+                              22658090666.666668, 26465664000.0, 31037248000.0, 0, 37301888000.0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 0, 81476800000.0]
+
+    DYO_80_thru_10_small = [9955776000.0, 0, 0, 9954566400.0, 9945694188.679245, 9948773052.631578, 9946212571.428572,
+                              9959104000.0, 9936789333.333334, 9989440000.0, 0, 9926592000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 9865600000.0]
+    DYO_80_load_10=DYO_80_load_10_small[:10]
+    DYO_80_thru_10=DYO_80_thru_10_small[:10]
+    DYO_80_load_10.extend(DYO_80_load_10_big)
+    DYO_80_thru_10.extend(DYO_80_thru_10_big)
+
+    ###########################################################################
+    # case 6 new algo with 2 channels of 20G
     DYO_80_load_40 = [0.0, 0, 0, 0, 34389397333.333336, 40483334918.91892, 46970359172.413795, 55462982400.0,
                               62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 191648128000.0]
     DYO_80_thru_40 = [39367488000.0, 0, 0, 0, 38609706666.666664, 38642127567.567566, 38692718344.82758,
                               38731993600.0, 38731302400.0, 38799850666.666664, 0, 38810752000.0, 0, 0, 38993088000.0,
                               0, 0, 0, 0, 0, 0, 0, 0, 0, 38897216000.0]
-    # case 7 new algo with 4 channels
-    DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
-                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
-                              0, 0, 0, 0, 191648128000.0]
-    DYO_80_thru_40 = [39379968000.0, 0, 0, 0, 39275733333.333336, 39294083459.45946, 39340738206.89655,
-                              39378764800.0, 39433152000.0, 39331989333.333336, 0, 39466368000.0, 0, 0, 39502080000.0,
-                              0, 0, 0, 0, 0, 0, 0, 0, 0, 39280640000.0]
-    # case 8 new algo with 8 channels
-    DYO_80_load_40 = [0.0, 0, 0, 0, 33674270315.789474, 40381635878.78788, 46884701538.46154, 55462982400.0,
-                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
-                              0, 0, 0, 0, 191648128000.0]
-
-    DYO_80_thru_40 = [39748736000.0, 0, 0, 0, 39845342315.789474, 39864482909.09091, 39877819076.92308,
-                              39869728000.0, 39879257600.0, 39827200000.0, 0, 39973056000.0, 0, 0, 39775680000.0, 0, 0,
-                              0, 0, 0, 0, 0, 0, 0, 39448512000.0]
 
     # Enemy
     DYO_80_load_enemy=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
@@ -4819,8 +4787,8 @@ def plot_thruput_DYO():
     PERCENT_INTRA=0.8
     OFFERED_LOAD_GIGA=100   # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
     down_x_label='Total Normalized Load'
-    #down_x_lim_begin=0
-    #down_x_lim_end=1.1
+    down_x_lim_begin=0
+    down_x_lim_end=0.63
     up_x_label='Intra Traffic Absolute Load (Gbps)'
     y_label='Throughput (Gbps)'
     legend_loc='lower right'
@@ -4855,14 +4823,14 @@ def plot_thruput_DYO():
 
     fig, ax1 = plt.subplots(constrained_layout=True)
 
-    ax1.plot(enemy_load, enemy_thru1,'b', label="SD-MAC (SD-POIRN) 10 Gbps",linewidth=4,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='b')
+    ax1.plot(enemy_load, enemy_thru1,'b--', label="SD-MAC (SD-POIRN) 10 Gbps",linewidth=4)#,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='b')
     try:
-        ax1.plot(enemy_load, enemy_thru2,'b', label="SD-MAC (SD-POIRN) 40 Gbps",linewidth=4,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='w')
+        ax1.plot(enemy_load, enemy_thru2,'b', label="SD-MAC (SD-POIRN) 40 Gbps",linewidth=4)#,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='w')
     except:
         pass
-    ax1.plot(waa_load_total_bps_avg, waa_thru_total_bps_avg,'k', label="Intra-MAC 10 Gbps",linewidth=4,marker='o',markersize=15,markeredgecolor='k',markerfacecolor='k')
+    ax1.plot(waa_load_total_bps_avg, waa_thru_total_bps_avg,'k--', label="Intra-MAC 10 Gbps",linewidth=4)#,marker='o',markersize=15,markeredgecolor='k',markerfacecolor='k')
     try:
-        ax1.plot(waa_load_total_bps_avg2, waa_thru_total_bps_avg2,'k', label="Intra-MAC 40 Gbps",linewidth=4,marker='o',markersize=15,markeredgecolor='k',markerfacecolor='w')
+        ax1.plot(waa_load_total_bps_avg2, waa_thru_total_bps_avg2,'k', label="Intra-MAC 40 Gbps",linewidth=4)#,marker='o',markersize=15,markeredgecolor='k',markerfacecolor='w')
     except:
         pass
 
@@ -4898,95 +4866,133 @@ def plot_thruput_DYO():
     except:
         pass
     secax.tick_params(axis='both', which='major', labelsize=20)
-    plt.title('Updated algorithm',fontsize=25)
+    #plt.title('Updated algorithm',fontsize=25)
     plt.show()
 
 
-def plot_thruput_DYO_to_delete():
+def plot_thru_delay_TRIA(choice):
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-    DYO_80_load_10=[0.0, 4687701333.333333, 6860776421.052631, 10380824888.88889, 13544588800.0, 16624160000.0, 20337152000.0, 24392256000.0, 28833248000.0, 0, 0, 37047552000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81476800000.0]
-    DYO_80_thru_10=[8509888000.0, 8409664000.0, 8598451649.122807, 8498016000.0, 8729446400.0, 9372544000.0, 9484074666.666666, 9637088000.0, 9779552000.0, 0, 0, 9903168000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9832704000.0]
 
-    # case 4 1 channel me allagi
-    DYO_80_load_40 = [0.0, 0, 0, 0, 34389312000.0, 40483390270.27027, 46970359172.413795, 55462982400.0,
-                      62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
-                      0, 0, 0, 0, 191648128000.0]
-    DYO_80_thru_40 = [39008320000.0, 0, 0, 0, 37977989333.333336, 38001356108.10811, 38068089379.31035,
-                      38147008000.0, 38163289600.0, 38273429333.333336, 0, 38431040000.0, 0, 0, 38340160000.0,
-                      0, 0, 0, 0, 0, 0, 0, 0, 0, 38479424000.0]
-    mytitle='1 channel @ 40 Giga'
+    # Mine
+    intra_load = [0.0, 0, 3485712000.0, 4471668000.0, 5893701565.217391, 7249952000.0, 8641075200.0,
+                              10153964307.692308, 11861504000.0, 12823440000.0, 14627434666.666666, 15598016000.0,
+                              17496256000.0, 0, 20291072000.0, 22035840000.0, 0, 0, 0, 0, 0, 0, 0, 33834752000.0, 0]
 
+    intra_thru = [188480000.0, 0, 5209280000.0, 5692684000.0, 8472762434.782609, 8349448000.0, 9075155200.0,
+                              9636027076.923077, 9881392000.0, 9845328000.0, 9900032000.0, 9907648000.0, 9927392000.0,
+                              0, 9971456000.0, 9914240000.0, 0, 0, 0, 0, 0, 0, 0, 9827456000.0, 0]
 
+    intra_delay_total = [0, 0, 7.368411959787689e-06, 5.428969616201588e-05, 0.00015948537759624952,
+                           0.00022302999861090233, 0.00037867515616334926, 0.00048004508943208914,
+                           0.0009687377317130105, 0.0008731541529130167, 0.0011250211491367688, 0.0021220822957420085,
+                           0.0013413238730731923, 0, 0.0017107658175388658, 0.0017370920621521627, 0, 0, 0, 0, 0, 0, 0,
+                           0.0007910047708144005, 0]
+
+    intra_delay_high = [0, 0, 5.069802228961652e-06, 5.719651859194194e-06, 8.028498534009627e-06,
+                          8.403678829698218e-06, 8.898751528532927e-06, 9.536267541162466e-06, 1.0748396431317863e-05,
+                          1.0574781257053085e-05, 1.1603940288979134e-05, 1.179107427679767e-05, 1.1155675955563449e-05,
+                          0, 1.2083622181395684e-05, 1.1685215578489551e-05, 0, 0, 0, 0, 0, 0, 0,
+                          1.1151393273401251e-05, 0]
+
+    intra_delay_med = [0, 0, 1.9833204612086258e-05, 0.00023965718898378598, 0.0005463928869804814,
+                         0.0007019457578723979, 0.000735632087815566, 0.001099061588302399, 0.0013448133866934523,
+                         0.0010150640993504012, 0.0014399330501511979, 0.001293717364295029, 0.0010915910849725533, 0,
+                         0.0007941878448826661, 0.001056918231436224, 0, 0, 0, 0, 0, 0, 0, 0.0003734868680918189, 0]
+    intra_delay_low = [0, 0, 1.5185145540607978e-05, 0.0007495567413160987, 0.0013818433085312145,
+                         0.0005902484335937733, 0.0022846211419403992, 0.0013263172604528902, 0.003945284171912349,
+                         0.0030541036883788325, 0.0029378806840727406, 0.0060647005659796045, 0.0034549950512785194, 0,
+                         0.003631779595762713, 0.004199189047396738, 0, 0, 0, 0, 0, 0, 0, 0.001470760884363431, 0]
+
+    dual_load = [0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3493248000.0, 3766416000.0, 3898112000.0,
+                                      4162432000.0, 4569280000.0, 4770816000.0, 5054730666.666667, 5326240000.0,
+                                      5587824000.0, 5804584000.0, 6180842666.666667, 10429500852.459017]
+    dual_thru = [6640448000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6232464000.0, 5900112000.0,
+                                      6700608000.0, 6416832000.0, 5825578666.666667, 6304416000.0, 5828042666.666667,
+                                      6182944000.0, 6146112000.0, 6160408000.0, 6086613333.333333, 6140256524.590164]
+    dual_delay = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0013985533948240518, 0.001412553971442913,
+                                   0.0013303633570225409, 0.00146597736986462, 0.0024611178617447832,
+                                   0.001731615209044914, 0.002125501804870594, 0.0033345437636813817,
+                                   0.0026933005284373165, 0.0027481468969896973, 0.002258857036295807,
+                                   0.00451380358506857]
 
     # Enemy
-    DYO_80_load_enemy = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-    DYO_80_thru_enemy_10 = [0, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10]
-    DYO_80_thru_enemy_40 = [0, 8, 13, 18, 25, 35, 38, 40, 39, 40, 40]
-
+    poxn_load = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85]
+    poxn_delay=[0,4e-5,4.75e-5,5.5e-5,6e-5,7.5e-5,9e-5,1.5e-4,2e-4,1e-3]
+    poxn_thru=[x*0.85 for x in poxn_load]
     # settingssssssssssssssssssssssssssssssssssssss
-    waa_load_total_bps_avg = DYO_80_load_10
-    waa_thru_total_bps_avg = DYO_80_thru_10
-    waa_load_total_bps_avg2 = DYO_80_load_40
-    waa_thru_total_bps_avg2 = DYO_80_thru_40
-    enemy_load = DYO_80_load_enemy
-    enemy_thru1 = DYO_80_thru_enemy_10
-    enemy_thru2 = DYO_80_thru_enemy_40
-
-    PERCENT_INTRA = 0.8
-    OFFERED_LOAD_GIGA = 100  # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
-    down_x_label = 'Total Normalized Load'
-    # down_x_lim_begin=0
-    # down_x_lim_end=1.1
+    POXN_TRAFFIC_CONSTANT=9.8e9 # in poxn normalized_load=real_load/POXN_TRAFFIC_CONSTANT
+    down_x_label = 'Intra Traffic Normalized Load'
+    down_x_lim_begin=0
+    down_x_lim_end=1.1
     up_x_label = 'Intra Traffic Absolute Load (Gbps)'
-    y_label = 'Throughput (Gbps)'
-    legend_loc = 'lower right'
+    if choice=='thru':
+        y_label = 'Throughput (Gbps)'
+    elif choice=='delay':
+        y_label='Packet Delay (ms)'
 
-    # Clean my loads
+    legend_loc = 'upper left'
+
+    # Clean loads INTRA
     selected_i = []
-    for i in range(0, len(waa_load_total_bps_avg)):
-        if waa_load_total_bps_avg[i] != 0:
-            if waa_thru_total_bps_avg[i] > waa_load_total_bps_avg[i]:
-                waa_thru_total_bps_avg[i] = waa_load_total_bps_avg[i]
+    for i in range(0, len(intra_load)):
+        if intra_load[i] != 0:
+            if intra_thru[i] > intra_load[i]:
+                intra_thru[i] = intra_load[i]
             selected_i.append(i)
+    intra_load = [intra_load[i] / (POXN_TRAFFIC_CONSTANT) for i in selected_i]
+    intra_load.insert(0, 0)
+    intra_thru = [intra_thru[i] / 1e9 for i in selected_i]
+    intra_thru.insert(0, 0)
+    intra_delay_total=[intra_delay_total[i]/1000 for i in selected_i]
+    intra_delay_total.insert(0,0)
+    intra_delay_high=[intra_delay_high[i]/1000 for i in selected_i]
+    intra_delay_high.insert(0,0)
+    intra_delay_med=[intra_delay_med[i]/1000 for i in selected_i]
+    intra_delay_med.insert(0,0)
+    intra_delay_low=[intra_delay_low[i]/1000 for i in selected_i]
+    intra_delay_low.insert(0,0)
 
-    waa_load_total_bps_avg = [waa_load_total_bps_avg[i] / (OFFERED_LOAD_GIGA * 1e9 * PERCENT_INTRA) for i in selected_i]
-    waa_load_total_bps_avg.insert(0, 0)
-    waa_thru_total_bps_avg = [waa_thru_total_bps_avg[i] / 1e9 for i in selected_i]
-    waa_thru_total_bps_avg.insert(0, 0)
+    # Clean loads DUAL
+    selected_i = []
+    for i in range(0, len(dual_load)):
+        if dual_load[i] != 0:
+            if dual_thru[i] > dual_load[i]:
+                dual_thru[i] = dual_load[i]
+            selected_i.append(i)
+    dual_load = [dual_load[i] / (POXN_TRAFFIC_CONSTANT) for i in selected_i]
+    dual_load.insert(0, 0)
+    dual_thru = [dual_thru[i] / 1e9 for i in selected_i]
+    dual_thru.insert(0, 0)
+    dual_delay=[dual_delay[i]/1000 for i in selected_i]
+    dual_delay.insert(0,0)
 
-    try:
-        selected_i = []
-        for i in range(0, len(waa_load_total_bps_avg2)):
-            if waa_load_total_bps_avg2[i] != 0:
-                if waa_thru_total_bps_avg2[i] > waa_load_total_bps_avg2[i]:
-                    waa_thru_total_bps_avg2[i] = waa_load_total_bps_avg2[i]
-                selected_i.append(i)
-
-        waa_load_total_bps_avg2 = [waa_load_total_bps_avg2[i] / (OFFERED_LOAD_GIGA * 1e9 * PERCENT_INTRA) for i in
-                                   selected_i]
-        waa_load_total_bps_avg2.insert(0, 0)
-        waa_thru_total_bps_avg2 = [waa_thru_total_bps_avg2[i] / 1e9 for i in selected_i]
-        waa_thru_total_bps_avg2.insert(0, 0)
-    except:
-        pass
+    # Clean loads POXN
+    poxn_thru = [x*POXN_TRAFFIC_CONSTANT / 1e9 for x in poxn_thru]
+    poxn_delay=[x/1000 for x in poxn_delay]
+    # PLOTTTTTTTTTTTT
 
     fig, ax1 = plt.subplots(constrained_layout=True)
 
-    ax1.plot(enemy_load, enemy_thru1, 'b', label="SD-MAC (SD-POIRN) 10 Gbps", linewidth=4, marker='X', markersize=15,
-             markeredgewidth=3, markeredgecolor='b', markerfacecolor='b')
-    try:
-        ax1.plot(enemy_load, enemy_thru2, 'b', label="SD-MAC (SD-POIRN) 40 Gbps", linewidth=4, marker='X',
-                 markersize=15, markeredgewidth=3, markeredgecolor='b', markerfacecolor='w')
-    except:
-        pass
-    ax1.plot(waa_load_total_bps_avg, waa_thru_total_bps_avg, 'k', label="Intra-MAC 10 Gbps", linewidth=4, marker='o',
-             markersize=15, markeredgecolor='k', markerfacecolor='k')
-    try:
-        ax1.plot(waa_load_total_bps_avg2, waa_thru_total_bps_avg2, 'k', label="Intra-MAC 40 Gbps", linewidth=4,
-                 marker='o', markersize=15, markeredgecolor='k', markerfacecolor='w')
-    except:
-        pass
+    if choice=='thru':
+        ax1.plot(intra_load, intra_thru, 'b', label="Intra-MAC", linewidth=4, marker='X', markersize=15,
+                 markeredgewidth=3, markeredgecolor='b', markerfacecolor='w')
+        ax1.plot(dual_load, dual_thru, 'r', label="LSDM (Dual- MAC)", linewidth=4, marker='s', markersize=15,
+                 markeredgewidth=3, markeredgecolor='r', markerfacecolor='w')
+        ax1.plot(poxn_load, poxn_thru, 'g', label="POXN", linewidth=4, marker='D', markersize=15,
+                 markeredgewidth=3, markeredgecolor='g', markerfacecolor='w')
+    elif choice=='delay':
+        #ax1.plot(intra_load, intra_delay_total, 'k', label="Intra-MAC: Mean", linewidth=4, marker='X', markersize=15,
+        #         markeredgewidth=3, markeredgecolor='k', markerfacecolor='w')
+        ax1.plot(dual_load, dual_delay, 'k', label="LSDM (Dual- MAC): Mean", linewidth=4, marker='s', markersize=15,
+                 markeredgewidth=3, markeredgecolor='k', markerfacecolor='w')
+        ax1.plot(poxn_load, poxn_delay, 'k', label="POXN: Mean", linewidth=4, marker='D', markersize=15,
+                 markeredgewidth=3, markeredgecolor='k', markerfacecolor='w')
+        ax1.plot(intra_load, intra_delay_total, 'gray', label="Intra-MAC: Mean", linewidth=4)
+        ax1.plot(intra_load, intra_delay_high, 'r', label="Intra-MAC: High", linewidth=4)
+        ax1.plot(intra_load, intra_delay_med, 'g', label="Intra-MAC: Med", linewidth=4)
+        ax1.plot(intra_load, intra_delay_low, 'b', label="Intra-MAC: Low", linewidth=4)
+
 
     try:
         ax1.set_xlabel(down_x_label, fontsize=25)
@@ -5009,10 +5015,10 @@ def plot_thruput_DYO_to_delete():
     ax1.tick_params(axis='both', which='minor', labelsize=8)
 
     def down_to_up(x):
-        return OFFERED_LOAD_GIGA * 1e9 * x * PERCENT_INTRA / 1e9
+        return x*POXN_TRAFFIC_CONSTANT/1e9
 
     def up_to_down(x):
-        return x * 1e9 / (OFFERED_LOAD_GIGA * 1e9 * PERCENT_INTRA)
+        return x*1e9/POXN_TRAFFIC_CONSTANT
 
     secax = ax1.secondary_xaxis('top', functions=(down_to_up, up_to_down))
     try:
@@ -5020,10 +5026,7 @@ def plot_thruput_DYO_to_delete():
     except:
         pass
     secax.tick_params(axis='both', which='major', labelsize=20)
-    plt.title(mytitle, fontsize=25)
     plt.show()
-
-
 
 
 # Common
@@ -5067,4 +5070,6 @@ normload=160e9
 plot_thruput_ENA()
 plot_delay_ENA()
 plot_thruput_DYO()
-plot_thruput_DYO_to_delete()
+#plot_thruput_DYO_to_delete()
+plot_thru_delay_TRIA(choice='thru')
+plot_thru_delay_TRIA(choice='delay')

@@ -16,15 +16,15 @@ from torus_integrated.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=True
-filename= '2peirama_10_koble.csv'
+avgg=False
+filename= 'log2021_11_01_19_25_03_929019_everything.csv'
 parent_tor=1
 my_tbegin=0
 my_tend=0.050
 my_samples=100 # 500
 # Grouping params
 start_group_value=0
-end_group_value=1.2e7
+end_group_value=2.2e6#Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
 grouping_points=25
 
 class Record():

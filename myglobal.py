@@ -1,5 +1,5 @@
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\'
-TRAFFIC_DATASETS_FOLDER='traffic_datasets\\Dyo_80B_1st\\'
+TRAFFIC_DATASETS_FOLDER='traffic_datasets\\Pente\\'
 INTER_TRANSMISSION_INFO_FOLDER='transmission_info\\'
 TORUS_FILE='torus_matrix.txt'
 LOGS_FOLDER='logs\\'
@@ -13,7 +13,7 @@ TOTAL_BUFFS_PER_NODE=3
 DEFAULT_UNLUCKY_NODE_ID=1
 DEFAULT_LUCKY_NUM=10
 TOLERANCE = 1e-9
-timestep = (0.8)*(1e-9) #timestep = 0.8e-9 -> NEED TOTAL_TIME MOD timestep=0 (sync!)
+timestep = 0.8e-9 #-> NEED TOTAL_TIME MOD timestep=0 (sync!)
 WAITING=timestep
 timeslot=(10)*(1e-9) #timeslot=(51.2)*(1e-9)
 
@@ -34,11 +34,11 @@ ASSIGN_CHANNEL_POLICY='ALL_BIG'
 CYCLE_GUARD_BAND=3 # bytes
 
 ####################################################### Architecure Settings
-TOTAL_NODES_PER_TOR = 80
+TOTAL_NODES_PER_TOR = 20
 TOTAL_TORS=2
 # Intra Protocol Settings
-INTRA_CHANNEL_BITRATE = 5e9
-INTRA_CHANNEL_ID_LIST = [100,200]  # 4 data channel
+INTRA_CHANNEL_BITRATE = 100e9
+INTRA_CHANNEL_ID_LIST = [100,200,300,400]  # 4 data channel
 INTRA_CONTROL_CHANNEL_ID = 500  # 1 control channel
 INTRA_NODE_INPUT_HIGH_BUFFER_SIZE = 1e6 # bytes
 INTRA_NODE_INPUT_MED_BUFFER_SIZE = 1e6 # bytes

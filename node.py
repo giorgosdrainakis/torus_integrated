@@ -184,14 +184,12 @@ class Nodes:
             print('TOR:'+str(self.tor_id)+' -----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
             control_msg = self.build_new_control_message()
             decoder=self.run_distributed_algo(control_msg)
-
             for node in self.db:
                 node.process_new_cycle(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
                                        self.current_cycle,self.channels,self.control_channel,total_nodes)
 
             self.current_cycle=self.current_cycle+1
         return entered_new_cycle
-
 
     def build_new_control_message(self):
         msg=[]
@@ -202,6 +200,8 @@ class Nodes:
             elif len(node.control_sent)==2:
                 msg.append(node.control_sent[0])
                 bonus=node.control_sent[1]
+            else:
+                print('Cannot find built message for '+str(node.id))
         if bonus is not None:
             msg.append(bonus)
         for node in self.db:
@@ -256,11 +256,11 @@ class Nodes:
                     continue
             decoder.db.append(decoded_node)
 
-            print('I decoded for node '+str(decoded_node.node_id)+' buff len h-m-l='+
-                  str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
-                  ','+str(db_med_1500)+')'+'-'+
-                  str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
-                  ',minipacklist='+str(len(control_pack.minipack_list)))
+            #print('I decoded for node '+str(decoded_node.node_id)+' buff len h-m-l='+
+            #      str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
+            #      ','+str(db_med_1500)+')'+'-'+
+            #      str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
+            #      ',minipacklist='+str(len(control_pack.minipack_list)))
 
         return decoder
 
@@ -289,6 +289,8 @@ class Nodes:
         lucky_node=lucky_node_bit_id+myglobal.ID_DIFF
         decoder=self.decode_control_msg(control_msg,cut1=myglobal.CUT_1,cut2=myglobal.CUT_2,cut3=myglobal.CUT_3,
                                         node_id_diff=myglobal.ID_DIFF)
+
+        #print('Finito decode control msg')
         self.build_trx_matrices(lucky_node)
 
         #Assign all channels to big packets first!
@@ -643,6 +645,7 @@ class Node:
         mymsg.is_bonus_packet=False
         self.control_meta_buffer.append(mymsg)
 
+
     def build_bonus_msg(self,current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
 
@@ -685,8 +688,7 @@ class Node:
             if data_pack.is_intra:
                 if data_pack.time_intra_trx_in<=current_time and (not data_pack.annotated):
                     data_pack.annotated = True
-                    print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-tx pack:' + str(
-                        data_pack.show_mini()))
+                    #print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-tx pack:' + str(data_pack.show_mini()))
             else: # inter packet
                 if self.parent_tor_id==data_pack.tor_id: # packet is still in source Tor
                     if data_pack.time_intra_trx_in<=current_time and (not data_pack.annotated):
@@ -717,8 +719,7 @@ class Node:
                     copy_pack.time_inter_trx_in = 0
                     copy_pack.time_inter_trx_out = 0
                     self.data_sent.append(copy_pack)
-                    print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-rx pack:' + str(
-                        copy_pack.show_mini()))
+                    #print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-rx pack:' + str(copy_pack.show_mini()))
                 else:  # packet has not arrived
                     pass
             else: # packet is inter packet
@@ -750,12 +751,15 @@ class Node:
 
     def check_control_arrival_intra(self, current_time):
         for pack in self.control_meta_buffer:
+            #print('Node='+str(pack.source_id)+',Check control arrival intra: currtime='+str(current_time)+',time_intra_trx_out='+str(pack.time_intra_trx_out))
             has_packet_arrived=pack.time_intra_trx_in<pack.time_intra_trx_out and pack.time_intra_trx_out<=current_time
             if has_packet_arrived:
                 pack.time_intra_trx_out=current_time
+                #print('New control pack arrived from source='+str(pack.source_id))
                 self.control_sent.append(pack)
                 self.control_meta_buffer.remove(pack)
             else: #packet has not arrived
+                #print('Still on my way from source='+str(pack.source_id)+',with='+str(pack.time_intra_trx_out-current_time))
                 pass
 
     def print_buff(self):
@@ -776,10 +780,11 @@ class Node:
             elif packet.packet_qos=='high':
                 is_in_buffer=self.intra_buffer_high.add(packet,current_time)
             if not is_in_buffer:
-                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(packet.show_mini()))
+                #print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(packet.show_mini()))
                 self.data_dropped.append(packet)
             else:
-                print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(packet.show_mini()))
+                #print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(packet.show_mini()))
+                pass
     def get_next_packet(self):
         if self.intra_buffer_high.has_packets():
             return self.intra_buffer_high.get_next_packet()

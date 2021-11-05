@@ -16,11 +16,11 @@ from torus_integrated.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=True
-filename= 'log2021_10_11_23_58_17_502196_everything.csv'
+avgg=False
+filename= 'dual.csv'
 my_tbegin=0
-my_tend=0.01
-my_samples=500 # 500
+my_tend=0.05
+my_samples=100 # 500
 # Grouping params
 start_group_value=0
 end_group_value=1.2e6

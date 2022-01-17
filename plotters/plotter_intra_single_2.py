@@ -17,16 +17,17 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 avgg=True
-filename='4b3_v2.csv'
-
-servers=20
+filename= 'exp5.csv'
+filename='polydiavlika_new_logs\\02_exp\\80_servers_10giga\\2peirama_10Giga_2pentaria_small.csv'
+servers=80
 parent_tor=1
 my_tbegin=0
 my_tend=0.050
 my_samples=100 # 500
 # Grouping params
 start_group_value=0
-end_group_value=3.4e7#Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
+end_group_value=3.44e7#Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
+end_group_value=5.1e6
 grouping_points=25
 
 class Record():
@@ -399,7 +400,7 @@ class My_Group:
             return final_list[0],0
         else:
             return statistics.mean(final_list),statistics.stdev(final_list)
-    def get_stats_thru_node_bps(self,node):
+    def get_stats_thru_node_bps(self):
         mylist = []
         for tslot in self.timeslots:
             mylist.append(tslot.get_agg_thru_node(node))
@@ -423,7 +424,7 @@ class My_Group:
             return final_list[0], 0
         else:
             return statistics.mean(final_list), statistics.stdev(final_list)
-    def get_stats_drop_prob_node(self,node):
+    def get_stats_drop_prob_node(self):
         mylist=[]
         for tslot in self.timeslots:
             if tslot.get_agg_load_node(node)==0:
@@ -736,7 +737,7 @@ class My_Group_List():
             err_list.append(err)
         return avg_list, err_list
 
-    def get_groups_drop_node_bps(self,node):
+    def get_groups_drop_node1_bps(self,node):
         avg_list = []
         err_list = []
         for gr in self.db:
@@ -745,7 +746,7 @@ class My_Group_List():
             err_list.append(err)
         return avg_list, err_list
 
-    def get_groups_drop_prob_node(self,node):
+    def get_groups_drop_prob_node1(self,node):
         avg_list = []
         err_list = []
         for gr in self.db:
@@ -754,7 +755,7 @@ class My_Group_List():
             err_list.append(err)
         return avg_list, err_list
 
-    def get_groups_delay_node(self,node):
+    def get_groups_delay_node1(self,node):
         avg_list = []
         err_list = []
         for gr in self.db:
@@ -788,17 +789,15 @@ class My_Timeslot_List():
     def init_with_db(self,record_db):
         print('DBG: Entered init with db')
         debug_id=0
-
         total_packets_ids=[]
-        record_db_len=len(record_db)
         for rec in record_db:
             print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             if rec.is_intra_for_tor(parent_tor) or rec.is_outgoing_for_tor(parent_tor) or rec.is_incoming_for_tor(parent_tor):
-                #if rec.packet_id in total_packets_ids:
-                #    print('ERROR: This is a dublicate packet' + str(rec.packet_id))
-                #total_packets_ids.append(rec.packet_id)
+                if rec.packet_id in total_packets_ids:
+                    print('ERROR: This is a dublicate packet' + str(rec.packet_id))
+                total_packets_ids.append(rec.packet_id)
 
                 if rec.is_intra_for_tor(parent_tor):  # intra
                     _time_birth=rec.time

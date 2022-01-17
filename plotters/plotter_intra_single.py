@@ -17,7 +17,7 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 avgg=False
-filename= 'log2021_11_01_19_25_03_929019_everything.csv'
+filename= 'exp5.csv'
 parent_tor=1
 my_tbegin=0
 my_tend=0.050

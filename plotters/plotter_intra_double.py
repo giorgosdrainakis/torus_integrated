@@ -4560,8 +4560,8 @@ def plot_thruput_ENA():
     PERCENT_INTRA=0.8
     OFFERED_LOAD_GIGA=80   # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
     down_x_label='Total Normalized Load'
-    #down_x_lim_begin=0
-    #down_x_lim_end=1.1
+    down_x_lim_begin=-0.01
+    down_x_lim_end=1.01
     up_x_label='Intra Traffic Absolute Load (Gbps)'
     y_label='Throughput (Gbps)'
     legend_loc='upper left'
@@ -4588,11 +4588,11 @@ def plot_thruput_ENA():
 
 
     try:
-        ax1.set_xlabel(down_x_label, fontsize=25)
+        ax1.set_xlabel(down_x_label, fontsize=35)
     except:
         pass
     try:
-        ax1.set_ylabel(y_label, fontsize=25)
+        ax1.set_ylabel(y_label, fontsize=35)
     except:
         pass
     try:
@@ -4600,12 +4600,12 @@ def plot_thruput_ENA():
     except:
         pass
     try:
-        ax1.legend(loc=legend_loc, fontsize=15)
+        ax1.legend(loc=legend_loc, fontsize=35)
     except:
-        ax1.legend(loc='upper left', fontsize=15)
+        ax1.legend(loc='upper left', fontsize=35)
     ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=20)
-    ax1.tick_params(axis='both', which='minor', labelsize=8)
+    ax1.tick_params(axis='both', which='major', labelsize=35)
+    ax1.tick_params(axis='both', which='minor', labelsize=35)
 
     def down_to_up(x):
         return OFFERED_LOAD_GIGA*1e9*x*PERCENT_INTRA/1e9
@@ -4615,10 +4615,10 @@ def plot_thruput_ENA():
 
     secax = ax1.secondary_xaxis('top', functions=(down_to_up, up_to_down))
     try:
-        secax.set_xlabel(up_x_label, fontsize=25)
+        secax.set_xlabel(up_x_label, fontsize=35)
     except:
         pass
-    secax.tick_params(axis='both', which='major', labelsize=20)
+    secax.tick_params(axis='both', which='major', labelsize=35)
     plt.show()
 def plot_delay_ENA():
     plt.rcParams["font.weight"] = "bold"
@@ -4659,8 +4659,10 @@ def plot_delay_ENA():
     PERCENT_INTRA=0.8
     OFFERED_LOAD_GIGA=80   # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
     down_x_label='Total Normalized Load'
-    #down_x_lim_begin=0
-    #down_x_lim_end=1.1
+    down_x_lim_begin=-0.01
+    down_x_lim_end=1.01
+    y_lim_begin=-0.01
+    y_lim_end=2
     up_x_label='Intra Traffic Absolute Load (Gbps)'
     y_label='Average Packet Delay ($10^{3}$ μsec)'
     legend_loc='upper left'
@@ -4705,11 +4707,11 @@ def plot_delay_ENA():
 
 
     try:
-        ax1.set_xlabel(down_x_label, fontsize=25)
+        ax1.set_xlabel(down_x_label, fontsize=35)
     except:
         pass
     try:
-        ax1.set_ylabel(y_label, fontsize=25)
+        ax1.set_ylabel(y_label, fontsize=35)
     except:
         pass
     try:
@@ -4717,12 +4719,16 @@ def plot_delay_ENA():
     except:
         pass
     try:
-        ax1.legend(loc=legend_loc, fontsize=15)
+        ax1.set_ylim(y_lim_begin,y_lim_end)
     except:
-        ax1.legend(loc='upper left', fontsize=15)
+        pass
+    try:
+        ax1.legend(loc=legend_loc, fontsize=22)
+    except:
+        ax1.legend(loc='upper left', fontsize=22)
     ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=20)
-    ax1.tick_params(axis='both', which='minor', labelsize=8)
+    ax1.tick_params(axis='both', which='major', labelsize=35)
+    ax1.tick_params(axis='both', which='minor', labelsize=35)
 
     def down_to_up(x):
         return OFFERED_LOAD_GIGA*1e9*x*PERCENT_INTRA/1e9
@@ -4732,10 +4738,10 @@ def plot_delay_ENA():
 
     secax = ax1.secondary_xaxis('top', functions=(down_to_up, up_to_down))
     try:
-        secax.set_xlabel(up_x_label, fontsize=25)
+        secax.set_xlabel(up_x_label, fontsize=35)
     except:
         pass
-    secax.tick_params(axis='both', which='major', labelsize=20)
+    secax.tick_params(axis='both', which='major', labelsize=35)
     plt.show()
 def plot_thruput_DYO():
     plt.rcParams["font.weight"] = "bold"
@@ -4835,11 +4841,11 @@ def plot_thruput_DYO():
         pass
 
     try:
-        ax1.set_xlabel(down_x_label, fontsize=25)
+        ax1.set_xlabel(down_x_label, fontsize=35)
     except:
         pass
     try:
-        ax1.set_ylabel(y_label, fontsize=25)
+        ax1.set_ylabel(y_label, fontsize=35)
     except:
         pass
     try:
@@ -4847,12 +4853,12 @@ def plot_thruput_DYO():
     except:
         pass
     try:
-        ax1.legend(loc=legend_loc, fontsize=15)
+        ax1.legend(loc=legend_loc, fontsize=35)
     except:
-        ax1.legend(loc='upper left', fontsize=15)
+        ax1.legend(loc='upper left', fontsize=35)
     ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=20)
-    ax1.tick_params(axis='both', which='minor', labelsize=8)
+    ax1.tick_params(axis='both', which='major', labelsize=35)
+    ax1.tick_params(axis='both', which='minor', labelsize=35)
 
     def down_to_up(x):
         return OFFERED_LOAD_GIGA*1e9*x*PERCENT_INTRA/1e9
@@ -4862,14 +4868,133 @@ def plot_thruput_DYO():
 
     secax = ax1.secondary_xaxis('top', functions=(down_to_up, up_to_down))
     try:
-        secax.set_xlabel(up_x_label, fontsize=25)
+        secax.set_xlabel(up_x_label, fontsize=35)
     except:
         pass
-    secax.tick_params(axis='both', which='major', labelsize=20)
+    secax.tick_params(axis='both', which='major', labelsize=35)
     #plt.title('Updated algorithm',fontsize=25)
     plt.show()
+def plot_thruput_DYO_oneaxis():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
 
+    DYO_80_load_10_big = [0.0, 0, 0, 0, 34389226666.666664, 40483390270.27027, 46970359172.413795, 55462982400.0,
+                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 191648128000.0]
 
+    DYO_80_thru_10_big = [9935168000.0, 0, 0, 0, 9895029333.333334, 9893424432.432432, 9894316137.931034,
+                              9885523200.0, 9895244800.0, 9896618666.666666, 0, 9908224000.0, 0, 0, 9882752000.0, 0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 9795712000.0]
+
+    DYO_80_load_10_small = [0.0, 0, 0, 10894675200.0, 13233079547.169811, 16881024000.0, 20222445714.285713,
+                              22658090666.666668, 26465664000.0, 31037248000.0, 0, 37301888000.0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 0, 81476800000.0]
+
+    DYO_80_thru_10_small = [9955776000.0, 0, 0, 9954566400.0, 9945694188.679245, 9948773052.631578, 9946212571.428572,
+                              9959104000.0, 9936789333.333334, 9989440000.0, 0, 9926592000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 9865600000.0]
+    DYO_80_load_10=DYO_80_load_10_small[:10]
+    DYO_80_thru_10=DYO_80_thru_10_small[:10]
+    DYO_80_load_10.extend(DYO_80_load_10_big)
+    DYO_80_thru_10.extend(DYO_80_thru_10_big)
+
+    ###########################################################################
+    # case 6 new algo with 2 channels of 20G
+    DYO_80_load_40 = [0.0, 0, 0, 0, 34389397333.333336, 40483334918.91892, 46970359172.413795, 55462982400.0,
+                              62711564800.0, 71926634666.66667, 0, 86696896000.0, 0, 0, 110858880000.0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 191648128000.0]
+    DYO_80_thru_40 = [39367488000.0, 0, 0, 0, 38609706666.666664, 38642127567.567566, 38692718344.82758,
+                              38731993600.0, 38731302400.0, 38799850666.666664, 0, 38810752000.0, 0, 0, 38993088000.0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 38897216000.0]
+
+    # Enemy
+    DYO_80_load_enemy=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    DYO_80_thru_enemy_10=[0,8,10,10,10,10,10,10,10,10,10]
+    DYO_80_thru_enemy_40=[0,8,13,18,25,35,38,40,39,40,40]
+
+    # settingssssssssssssssssssssssssssssssssssssss
+    waa_load_total_bps_avg=DYO_80_load_10
+    waa_thru_total_bps_avg=DYO_80_thru_10
+    waa_load_total_bps_avg2=DYO_80_load_40
+    waa_thru_total_bps_avg2=DYO_80_thru_40
+    enemy_load=DYO_80_load_enemy
+    enemy_thru1=DYO_80_thru_enemy_10
+    enemy_thru2=DYO_80_thru_enemy_40
+
+    PERCENT_INTRA=0.8
+    OFFERED_LOAD_GIGA=100   # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
+    x_label='Intra Traffic Absolute Load (Gbps)'
+    y_label='Throughput (Gbps)'
+    legend_loc='upper left'
+    x_lim_begin=-0.01
+    x_lim_end=50.01
+
+    # Clean my loads
+    # 1st mine
+    selected_i=[]
+    for i in range(0,len(waa_load_total_bps_avg)):
+        if waa_load_total_bps_avg[i]!=0:
+            if waa_thru_total_bps_avg[i] > waa_load_total_bps_avg[i]:
+                waa_thru_total_bps_avg[i]=waa_load_total_bps_avg[i]
+            selected_i.append(i)
+
+    waa_load_total_bps_avg = [waa_load_total_bps_avg[i]/1e9 for i in selected_i]
+    waa_load_total_bps_avg.insert(0,0)
+    waa_thru_total_bps_avg = [waa_thru_total_bps_avg[i]/1e9 for i in selected_i]
+    waa_thru_total_bps_avg.insert(0,0)
+    # 2nd mine
+    try:
+        selected_i = []
+        for i in range(0, len(waa_load_total_bps_avg2)):
+            if waa_load_total_bps_avg2[i] != 0:
+                if waa_thru_total_bps_avg2[i] > waa_load_total_bps_avg2[i]:
+                    waa_thru_total_bps_avg2[i]=waa_load_total_bps_avg2[i]
+                selected_i.append(i)
+
+        waa_load_total_bps_avg2 = [waa_load_total_bps_avg2[i]/1e9 for i in selected_i]
+        waa_load_total_bps_avg2.insert(0, 0)
+        waa_thru_total_bps_avg2 = [waa_thru_total_bps_avg2[i] / 1e9 for i in selected_i]
+        waa_thru_total_bps_avg2.insert(0, 0)
+    except:
+        pass
+    # enemy
+    enemy_load=[(x*OFFERED_LOAD_GIGA*1e9*PERCENT_INTRA/1e9) for x in enemy_load]
+
+    # plot
+    fig, ax1 = plt.subplots(constrained_layout=True)
+
+    ax1.plot(enemy_load, enemy_thru1,'b--', label="SD-MAC (SD-POIRN) 10 Gbps",linewidth=6)#,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='b')
+    try:
+        ax1.plot(enemy_load, enemy_thru2,'b', label="SD-MAC (SD-POIRN) 40 Gbps",linewidth=6)#,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='w')
+    except:
+        pass
+    ax1.plot(waa_load_total_bps_avg, waa_thru_total_bps_avg,'k--', label="Intra-MAC 10 Gbps",linewidth=6)#,marker='o',markersize=15,markeredgecolor='k',markerfacecolor='k')
+    try:
+        ax1.plot(waa_load_total_bps_avg2, waa_thru_total_bps_avg2,'k', label="Intra-MAC 40 Gbps",linewidth=6)#,marker='o',markersize=15,markeredgecolor='k',markerfacecolor='w')
+    except:
+        pass
+
+    try:
+        ax1.set_xlabel(x_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_xlim(x_lim_begin,x_lim_end)
+    except:
+        pass
+    try:
+        ax1.legend(loc=legend_loc, fontsize=30)
+    except:
+        ax1.legend(loc='upper left', fontsize=305)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=35)
+    ax1.tick_params(axis='both', which='minor', labelsize=35)
+    #plt.title('Updated algorithm',fontsize=25)
+    plt.show()
 def plot_thru_delay_TRIA(choice):
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
@@ -4923,7 +5048,7 @@ def plot_thru_delay_TRIA(choice):
     # settingssssssssssssssssssssssssssssssssssssss
     POXN_TRAFFIC_CONSTANT=9.8e9 # in poxn normalized_load=real_load/POXN_TRAFFIC_CONSTANT
     down_x_label = 'Intra Traffic Normalized Load'
-    down_x_lim_begin=0
+    down_x_lim_begin=-0.05
     down_x_lim_end=1.1
     up_x_label = 'Intra Traffic Absolute Load (Gbps)'
     if choice=='thru':
@@ -4944,13 +5069,13 @@ def plot_thru_delay_TRIA(choice):
     intra_load.insert(0, 0)
     intra_thru = [intra_thru[i] / 1e9 for i in selected_i]
     intra_thru.insert(0, 0)
-    intra_delay_total=[intra_delay_total[i]/1000 for i in selected_i]
+    intra_delay_total=[intra_delay_total[i]*1000 for i in selected_i]
     intra_delay_total.insert(0,0)
-    intra_delay_high=[intra_delay_high[i]/1000 for i in selected_i]
+    intra_delay_high=[intra_delay_high[i]*1000 for i in selected_i]
     intra_delay_high.insert(0,0)
-    intra_delay_med=[intra_delay_med[i]/1000 for i in selected_i]
+    intra_delay_med=[intra_delay_med[i]*1000 for i in selected_i]
     intra_delay_med.insert(0,0)
-    intra_delay_low=[intra_delay_low[i]/1000 for i in selected_i]
+    intra_delay_low=[intra_delay_low[i]*1000 for i in selected_i]
     intra_delay_low.insert(0,0)
 
     # Clean loads DUAL
@@ -4964,42 +5089,41 @@ def plot_thru_delay_TRIA(choice):
     dual_load.insert(0, 0)
     dual_thru = [dual_thru[i] / 1e9 for i in selected_i]
     dual_thru.insert(0, 0)
-    dual_delay=[dual_delay[i]/1000 for i in selected_i]
+    dual_delay=[dual_delay[i]*1000 for i in selected_i]
     dual_delay.insert(0,0)
 
     # Clean loads POXN
     poxn_thru = [x*POXN_TRAFFIC_CONSTANT / 1e9 for x in poxn_thru]
-    poxn_delay=[x/1000 for x in poxn_delay]
+    poxn_delay=[x*1000 for x in poxn_delay]
     # PLOTTTTTTTTTTTT
 
     fig, ax1 = plt.subplots(constrained_layout=True)
 
     if choice=='thru':
-        ax1.plot(intra_load, intra_thru, 'b', label="Intra-MAC", linewidth=4, marker='X', markersize=15,
+        ax1.plot(intra_load, intra_thru, 'b', label="Intra-MAC", linewidth=6, marker='X', markersize=15,
                  markeredgewidth=3, markeredgecolor='b', markerfacecolor='w')
-        ax1.plot(dual_load, dual_thru, 'r', label="LSDM (Dual- MAC)", linewidth=4, marker='s', markersize=15,
+        ax1.plot(dual_load, dual_thru, 'r', label="LSDM (Dual- MAC)", linewidth=6, marker='s', markersize=15,
                  markeredgewidth=3, markeredgecolor='r', markerfacecolor='w')
-        ax1.plot(poxn_load, poxn_thru, 'g', label="POXN", linewidth=4, marker='D', markersize=15,
+        ax1.plot(poxn_load, poxn_thru, 'g', label="POXN", linewidth=6, marker='D', markersize=15,
                  markeredgewidth=3, markeredgecolor='g', markerfacecolor='w')
     elif choice=='delay':
         #ax1.plot(intra_load, intra_delay_total, 'k', label="Intra-MAC: Mean", linewidth=4, marker='X', markersize=15,
         #         markeredgewidth=3, markeredgecolor='k', markerfacecolor='w')
-        ax1.plot(dual_load, dual_delay, 'k', label="LSDM (Dual- MAC): Mean", linewidth=4, marker='s', markersize=15,
+        ax1.plot(dual_load, dual_delay, 'k', label="LSDM (Dual- MAC): Mean", linewidth=5, marker='s', markersize=15,
                  markeredgewidth=3, markeredgecolor='k', markerfacecolor='w')
-        ax1.plot(poxn_load, poxn_delay, 'k', label="POXN: Mean", linewidth=4, marker='D', markersize=15,
+        ax1.plot(poxn_load, poxn_delay, 'k', label="POXN: Mean", linewidth=5, marker='D', markersize=15,
                  markeredgewidth=3, markeredgecolor='k', markerfacecolor='w')
-        ax1.plot(intra_load, intra_delay_total, 'gray', label="Intra-MAC: Mean", linewidth=4)
-        ax1.plot(intra_load, intra_delay_high, 'r', label="Intra-MAC: High", linewidth=4)
-        ax1.plot(intra_load, intra_delay_med, 'g', label="Intra-MAC: Med", linewidth=4)
-        ax1.plot(intra_load, intra_delay_low, 'b', label="Intra-MAC: Low", linewidth=4)
-
+        ax1.plot(intra_load, intra_delay_total, 'gray', label="Intra-MAC: Mean", linewidth=5)
+        ax1.plot(intra_load, intra_delay_high, 'r', label="Intra-MAC: High", linewidth=5)
+        ax1.plot(intra_load, intra_delay_med, 'g', label="Intra-MAC: Med", linewidth=5)
+        ax1.plot(intra_load, intra_delay_low, 'b', label="Intra-MAC: Low", linewidth=5)
 
     try:
-        ax1.set_xlabel(down_x_label, fontsize=25)
+        ax1.set_xlabel(down_x_label, fontsize=35)
     except:
         pass
     try:
-        ax1.set_ylabel(y_label, fontsize=25)
+        ax1.set_ylabel(y_label, fontsize=35)
     except:
         pass
     try:
@@ -5007,12 +5131,12 @@ def plot_thru_delay_TRIA(choice):
     except:
         pass
     try:
-        ax1.legend(loc=legend_loc, fontsize=15)
+        ax1.legend(loc=legend_loc, fontsize=28)
     except:
-        ax1.legend(loc='upper left', fontsize=15)
+        ax1.legend(loc='upper left', fontsize=28)
     ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=20)
-    ax1.tick_params(axis='both', which='minor', labelsize=8)
+    ax1.tick_params(axis='both', which='major', labelsize=35)
+    ax1.tick_params(axis='both', which='minor', labelsize=35)
 
     def down_to_up(x):
         return x*POXN_TRAFFIC_CONSTANT/1e9
@@ -5022,12 +5146,646 @@ def plot_thru_delay_TRIA(choice):
 
     secax = ax1.secondary_xaxis('top', functions=(down_to_up, up_to_down))
     try:
-        secax.set_xlabel(up_x_label, fontsize=25)
+        secax.set_xlabel(up_x_label, fontsize=35)
     except:
         pass
-    secax.tick_params(axis='both', which='major', labelsize=20)
+    secax.tick_params(axis='both', which='major', labelsize=35)
     plt.show()
+def plot_thru_drop_TESSERA_A():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
 
+    # Mine
+    load = [0.0, 0, 0, 0, 59790400000.0, 69992213333.33333, 78495968000.0, 93467768000.0,
+                              106379842782.60869, 119360582400.0, 134123818666.66667, 144931505777.77777,
+                              157042736000.0, 169126496000.0, 184134208000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 318732736000.0]
+    thru = [1606336000.0, 0, 0, 0, 59764352000.0, 69198570666.66667, 80511381333.33333,
+                              97621437333.33333, 110967065043.47826, 115443046400.0, 139324273777.77777,
+                              137606961777.77777, 144035168000.0, 152342528000.0, 151974720000.0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 153619136000.0]
+    drop = [0.0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 512372869.5652174, 0.0, 4309639111.111111,
+                              2436757333.3333335, 2683392000.0, 5953312000.0, 3476160000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                              17472256000.0]
+
+    # settingssssssssssssssssssssssssssssssssssssss
+    PERCENT_INTRA=0.8
+    OFFERED_LOAD_GIGA=80   # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
+    x_label='Load $L_{o}$ (Gbps)'
+    x_lim_begin=-5
+    x_lim_end=200
+    y_left_label='Throughput $S$ (Gbps)'
+    y_right_label='Dropping rate $S_{d}$ (Gbps)'
+    legend_loc='upper left'
+    left_color='b'
+    right_color = 'r'
+    y_lim_left_begin=-5
+    y_lim_left_end=160
+    y_lim_right_begin=-5
+    y_lim_right_end=160
+
+    # Clean my loads
+    selected_i=[]
+    for i in range(0,len(load)):
+        if load[i]!=0:
+            if thru[i] > load[i]:
+                thru[i]=load[i]
+            selected_i.append(i)
+
+    load = [load[i]/(1e9) for i in selected_i]
+    load.insert(0,0)
+    thru = [thru[i]/1e9 for i in selected_i]
+    thru.insert(0,0)
+    drop = [drop[i]/1e9 for i in selected_i]
+    drop.insert(0,0)
+
+    fig, ax1 = plt.subplots(constrained_layout=True)
+    ax2 = ax1.twinx()
+    ax1.plot(load, thru,left_color,linewidth=6,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='w')
+    ax2.plot(load, drop,right_color,linewidth=6,marker='s',markersize=15,markeredgewidth=3,markeredgecolor='r',markerfacecolor='w')
+
+    try:
+        ax1.set_xlabel(x_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_left_label, fontsize=35,color='blue')
+        ax2.set_ylabel(y_right_label, fontsize=35,color='red')
+    except:
+        pass
+    try:
+        ax1.set_xlim(x_lim_begin,x_lim_end)
+        ax2.set_xlim(x_lim_begin, x_lim_end)
+    except:
+        pass
+    try:
+        ax1.set_ylim(y_lim_left_begin,y_lim_left_end)
+        ax2.set_ylim(y_lim_right_begin, y_lim_right_end)
+    except:
+        pass
+    ax1.yaxis.label.set_color('blue')
+    ax2.yaxis.label.set_color(right_color)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='y', which='major', labelsize=35,colors='blue')
+    ax1.tick_params(axis='y', which='minor', labelsize=35,colors='blue')
+    ax1.tick_params(axis='x', which='major', labelsize=35)
+    ax1.tick_params(axis='x', which='minor', labelsize=35)
+    #ax2.grid(True, which='major', axis='both')
+    ax2.tick_params(axis='y', which='major', labelsize=35,colors='red')
+    ax2.tick_params(axis='y', which='minor', labelsize=35,colors='blue')
+
+    plt.show()
+def plot_qdelay_droprob_TESSERA_B():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+
+    # Mine
+    load = [0.0, 0, 0, 0, 59790400000.0, 69992213333.33333, 78495968000.0, 93467768000.0,
+                              106379842782.60869, 119360582400.0, 134123818666.66667, 144931505777.77777,
+                              157042736000.0, 169126496000.0, 184134208000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 318732736000.0]
+    thru = [1606336000.0, 0, 0, 0, 59764352000.0, 69198570666.66667, 80511381333.33333,
+                              97621437333.33333, 110967065043.47826, 115443046400.0, 139324273777.77777,
+                              137606961777.77777, 144035168000.0, 152342528000.0, 151974720000.0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 153619136000.0]
+    drop = [0.0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 512372869.5652174, 0.0, 4309639111.111111,
+                              2436757333.3333335, 2683392000.0, 5953312000.0, 3476160000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                              17472256000.0]
+    qdelay = [0, 0, 0, 0, 7.148815948721438e-07, 1.2173117088180662e-06, 2.02847724405632e-06,
+                            3.6305300415224303e-06, 9.272651344458334e-06, 7.994534913395345e-06,
+                            2.9703923053340963e-05, 2.7489047600356776e-05, 3.5313354977517106e-05,
+                            0.00011437109095861922, 6.986023667808684e-05, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                            0.0002461382454208002]
+
+    print(len(drop))
+    print(len(load))
+    print(len(thru))
+    # settingssssssssssssssssssssssssssssssssssssss
+    PERCENT_INTRA=0.8
+    OFFERED_LOAD_GIGA=80   # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
+    x_label='Load $L_{o}$ (Gbps)'
+    x_lim_begin=-5
+    x_lim_end=200
+    y_left_label='Queuing delay (ms)'
+    y_right_label='Dropping Probability $P_{d}$'
+    legend_loc='upper left'
+    left_color='b'
+    right_color = 'r'
+    y_lim_left_begin=-0.05
+    y_lim_left_end=0.5
+    y_lim_right_begin=-0.1
+    y_lim_right_end=1.1
+
+    # Clean my loads
+    selected_i=[]
+    for i in range(0,len(load)):
+        if load[i]!=0:
+            if thru[i] > load[i]:
+                thru[i]=load[i]
+            selected_i.append(i)
+    print(str(selected_i))
+
+    load = [load[i]/(1e9) for i in selected_i]
+    thru = [thru[i]/1e9 for i in selected_i]
+    drop = [drop[i]/1e9 for i in selected_i]
+    qdelay=[qdelay[i]*1e3 for i in selected_i]
+    droprob=[drop[i]/load[i] for i in range(0,len(load))]
+
+    load.insert(0,0)
+    thru.insert(0,0)
+    drop.insert(0,0)
+    qdelay.insert(0,0)
+    droprob.insert(0,0)
+
+    fig, ax1 = plt.subplots(constrained_layout=True)
+    ax2 = ax1.twinx()
+    ax1.plot(load, qdelay,left_color,linewidth=6,marker='X',markersize=15,markeredgewidth=3,markeredgecolor='b',markerfacecolor='w')
+    ax2.plot(load, droprob,right_color,linewidth=6,marker='s',markersize=15,markeredgewidth=3,markeredgecolor='r',markerfacecolor='w')
+
+    try:
+        ax1.set_xlabel(x_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_left_label, fontsize=35,color='blue')
+        ax2.set_ylabel(y_right_label, fontsize=35,color='red')
+    except:
+        pass
+    try:
+        ax1.set_xlim(x_lim_begin,x_lim_end)
+        ax2.set_xlim(x_lim_begin, x_lim_end)
+    except:
+        pass
+    try:
+        ax1.set_ylim(y_lim_left_begin,y_lim_left_end)
+        ax2.set_ylim(y_lim_right_begin, y_lim_right_end)
+    except:
+        pass
+    ax1.yaxis.label.set_color('blue')
+    ax2.yaxis.label.set_color(right_color)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='y', which='major', labelsize=35,colors='blue')
+    ax1.tick_params(axis='y', which='minor', labelsize=35,colors='blue')
+    ax1.tick_params(axis='x', which='major', labelsize=35)
+    ax1.tick_params(axis='x', which='minor', labelsize=35)
+    #ax2.grid(True, which='major', axis='both')
+    ax2.tick_params(axis='y', which='major', labelsize=35,colors='red')
+    ax2.tick_params(axis='y', which='minor', labelsize=35,colors='blue')
+
+    plt.show()
+def plot_delay_TESSERA_C_prepare():
+        plt.rcParams["font.weight"] = "bold"
+        plt.rcParams["axes.labelweight"] = "bold"
+
+        # Mine
+        load = [0.0, 0, 0, 0, 59790400000.0, 69992213333.33333, 78495968000.0, 93467768000.0,
+                106379842782.60869, 119360582400.0, 134123818666.66667, 144931505777.77777,
+                157042736000.0, 169126496000.0, 184134208000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 318732736000.0]
+        thru = [1606336000.0, 0, 0, 0, 59764352000.0, 69198570666.66667, 80511381333.33333,
+                97621437333.33333, 110967065043.47826, 115443046400.0, 139324273777.77777,
+                137606961777.77777, 144035168000.0, 152342528000.0, 151974720000.0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 153619136000.0]
+        drop = [0.0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 512372869.5652174, 0.0, 4309639111.111111,
+                2436757333.3333335, 2683392000.0, 5953312000.0, 3476160000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                17472256000.0]
+        qdelay = [0, 0, 0, 0, 7.148815948721438e-07, 1.2173117088180662e-06, 2.02847724405632e-06,
+                  3.6305300415224303e-06, 9.272651344458334e-06, 7.994534913395345e-06,
+                  2.9703923053340963e-05, 2.7489047600356776e-05, 3.5313354977517106e-05,
+                  0.00011437109095861922, 6.986023667808684e-05, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  0.0002461382454208002]
+        delay_total = [0, 0, 0, 0, 7.918217314554971e-07, 1.2972836170427953e-06, 2.1110960284745917e-06,
+                               3.7171902622086664e-06, 9.362619939783207e-06, 8.087807988666634e-06,
+                               2.9799503570734195e-05, 2.758729607304416e-05, 3.541415647158522e-05,
+                               0.00011447328622613893, 6.996608854868203e-05, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0.0002462587845738758]
+        delay_high = [0, 0, 0, 0, 6.052657059747636e-07, 6.090307908674469e-07, 6.240864580284498e-07,
+                              6.574739320539364e-07, 7.063079169162339e-07, 7.084017441198181e-07,
+                              8.865906212054851e-07, 8.393216091480591e-07, 9.316068531654627e-07,
+                              1.1458294933353243e-06, 1.0912635128554025e-06, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                              1.31587251995851e-06]
+        delay_med = [0, 0, 0, 0, 1.4272098680397806e-06, 1.5019525652393005e-06, 1.6629649423356725e-06,
+                             1.8703129210755383e-06, 7.121776549411312e-06, 2.292882624974241e-06,
+                             9.686238441768725e-06, 4.404372896420707e-06, 6.207818740712396e-06, 6.888303469295094e-05,
+                             1.391675156113237e-05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0001144098201169389]
+        delay_low = [0, 0, 0, 0, 9.642501472644677e-06, 2.6597574354384755e-05, 3.582920552038411e-05,
+                             4.561357586828373e-05, 8.35902855645889e-05, 6.0078577326032354e-05,
+                             0.00018247725083720014, 0.00014815526416949714, 0.000166413180214191,
+                             0.0005345593219239146, 0.00025645447294050125, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                             0.0006184813845754853]
+
+        # settingssssssssssssssssssssssssssssssssssssss
+        PERCENT_INTRA = 0.8
+        OFFERED_LOAD_GIGA = 80  # 80 server offered_load : 100giga x 0.8 = intra, 64 server offered_load : 80giga x 0.8 = intra
+        x_label = 'Load $L_{o}$ (Gbps)'
+        x_lim_begin = -5
+        x_lim_end = 200
+        y_label = 'Total delay (ms)'
+        #y_lim_begin = -0.05
+        #y_lim_end = 0.5
+        legend_loc = 'upper left'
+
+        # Clean my loads
+        selected_i = []
+        for i in range(0, len(load)):
+            if load[i] != 0:
+                if thru[i] > load[i]:
+                    thru[i] = load[i]
+                selected_i.append(i)
+        print(str(selected_i))
+
+        load = [load[i] / (1e9) for i in selected_i]
+        thru = [thru[i] / 1e9 for i in selected_i]
+        drop = [drop[i] / 1e9 for i in selected_i]
+        qdelay = [qdelay[i] * 1e3 for i in selected_i]
+        delay_total=[delay_total[i] * 1e3 for i in selected_i]
+        delay_high = [delay_high[i] * 1e3 for i in selected_i]
+        delay_med = [delay_med[i] * 1e3 for i in selected_i]
+        delay_low = [delay_low[i] * 1e3 for i in selected_i]
+
+        droprob = [drop[i] / load[i] for i in range(0, len(load))]
+
+        load.insert(0, 0)
+        thru.insert(0, 0)
+        drop.insert(0, 0)
+        qdelay.insert(0, 0)
+        droprob.insert(0, 0)
+        delay_total.insert(0,0)
+        delay_high.insert(0, 0)
+        delay_med.insert(0, 0)
+        delay_low.insert(0, 0)
+
+        fig, ax1 = plt.subplots(constrained_layout=True)
+
+        ax1.plot(load, delay_high, 'red', label="High QoS",linewidth=4, marker='X', markersize=15, markeredgewidth=3,
+                 markeredgecolor='r', markerfacecolor='w')
+        ax1.plot(load, delay_med, 'green',label="Med QoS", linewidth=4, marker='X', markersize=15, markeredgewidth=3,
+                 markeredgecolor='g', markerfacecolor='w')
+        ax1.plot(load, delay_low, 'blue', label="Low QoS",linewidth=4, marker='X', markersize=15, markeredgewidth=3,
+                 markeredgecolor='b', markerfacecolor='w')
+
+        try:
+            ax1.set_xlabel(x_label, fontsize=25)
+        except:
+            pass
+        try:
+            ax1.set_ylabel(y_label, fontsize=25, color='blue')
+        except:
+            pass
+        try:
+            ax1.set_xlim(x_lim_begin, x_lim_end)
+        except:
+            pass
+        try:
+            ax1.set_ylim(y_lim_begin, y_lim_end)
+        except:
+            pass
+
+        ax1.grid(True, which='major', axis='both')
+        ax1.tick_params(axis='both', which='major', labelsize=20)
+        ax1.tick_params(axis='both', which='minor', labelsize=8)
+
+        plt.show()
+def plot_delay_TESSERA_C():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+
+    # Mine
+    load = [0,40,80,120,160,200]
+    delay_high = [0, 0.00044,0.00064,0.00073,0.00086,0.0011]
+    delay_med = [0, 0.00096,0.00172,0.00256,0.02161,0.0261]
+    delay_low = [0,0.0064,0.0369,0.0650,0.2573,0.2992]
+
+    # settingssssssssssssssssssssssssssssssssssssss
+    x_label = 'Load $L_{o}$ (Gbps)'
+    x_lim_begin = -5
+    x_lim_end = 230
+    y_label = 'Total delay (ms)'
+    # y_lim_begin = -0.05
+    # y_lim_end = 0.5
+    legend_loc = 'upper left'
+
+    fig, ax1 = plt.subplots(constrained_layout=True)
+
+    x_med=load
+    x_high=[x-10 for x in x_med]
+    x_low = [x + 10 for x in x_med]
+
+    ax1.bar(x_high, delay_high, color='red', label="High QoS",width=8)
+    ax1.bar(x_med, delay_med, color='green', label="Med QoS",width=8)
+    ax1.bar(x_low, delay_low, color='blue', label="Low QoS",width=8)
+    ax1.set_xticks([0,40,80,120,160,200])
+    try:
+        ax1.set_xlabel(x_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_label, fontsize=35, color='k')
+    except:
+        pass
+    try:
+        ax1.legend(loc=legend_loc, fontsize=35)
+    except:
+        ax1.legend(loc='upper left', fontsize=35)
+    try:
+        ax1.set_xlim(x_lim_begin, x_lim_end)
+    except:
+        pass
+    try:
+        ax1.set_ylim(y_lim_begin, y_lim_end)
+    except:
+        pass
+
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=35,color='k')
+    ax1.tick_params(axis='both', which='minor', labelsize=35,color='k')
+
+    plt.show()
+def plot_var_TESSERA_D1():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+
+    # Mine
+    load_20 = [0.0, 0, 0, 0, 59790400000.0, 69992213333.33333, 78495968000.0, 93467768000.0,
+                              106379842782.60869, 119360582400.0, 134123818666.66667, 144931505777.77777,
+                              157042736000.0, 169126496000.0, 184134208000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 318732736000.0]
+    thru_20 = [1606336000.0, 0, 0, 0, 59764352000.0, 69198570666.66667, 80511381333.33333,
+                              97621437333.33333, 110967065043.47826, 115443046400.0, 139324273777.77777,
+                              137606961777.77777, 144035168000.0, 152342528000.0, 151974720000.0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 153619136000.0]
+
+    load_40 = [0.0, 0, 0, 0, 0, 0, 157377712000.0, 180582205440.0, 199484967529.41177,
+                              227280368941.17648, 250847866181.81818, 281828428800.0, 303147648000.0, 0, 365512704000.0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 611630208000.0]
+    thru_40 = [152467264000.0, 0, 0, 0, 0, 0, 150523280000.0, 150662359040.0, 150943215058.82352,
+                              151104719058.82352, 151169361454.54544, 151509900800.0, 151664000000.0, 0, 151726464000.0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 151310080000.0]
+    load_60 = [0.0, 0, 0, 0, 0, 0, 228088448000.0, 255120235428.57144, 288878749538.46155,
+                              326691264000.0, 357480167384.61536, 403242048000.0, 427684416000.0, 465398272000.0, 0,
+                              529211904000.0, 0, 0, 0, 0, 0, 0, 0, 0, 871637952000.0]
+    thru_60 = [151705856000.0, 0, 0, 0, 0, 0, 151140736000.0, 151617922285.7143, 152337051076.92307,
+                              152509408000.0, 152919315692.30768, 153007776000.0, 153685312000.0, 153768512000.0, 0,
+                              153631552000.0, 0, 0, 0, 0, 0, 0, 0, 0, 153648768000.0]
+
+    # settingssssssssssssssssssssssssssssssssssssss
+    x_label='Load $L_{o}$ (Gbps)'
+    x_lim_begin=-5
+    x_lim_end=250
+    y_label='Throughput per server $S_{m}$ (Gbps)'
+    legend_loc='upper left'
+    #y_lim_begin=-5
+    #y_lim_end=160
+
+
+    # Clean my loads
+    selected_i=[]
+    for i in range(0,len(load_20)):
+        if load_20[i]!=0:
+            if thru_20[i] > load_20[i]:
+                thru_20[i]=load_20[i]
+            selected_i.append(i)
+    load_20 = [load_20[i]/(1e9) for i in selected_i]
+    load_20.insert(0,0)
+    thru_20 = [thru_20[i]/(1e9*20) for i in selected_i]
+    thru_20.insert(0,0)
+
+    selected_i=[]
+    for i in range(0,len(load_40)):
+        if load_40[i]!=0:
+            if thru_40[i] > load_40[i]:
+                thru_40[i]=load_40[i]
+            selected_i.append(i)
+    load_40 = [load_40[i]/(1e9) for i in selected_i]
+    load_40.insert(0,0)
+    thru_40 = [thru_40[i]/(1e9*40) for i in selected_i]
+    thru_40.insert(0,0)
+
+    selected_i=[]
+    for i in range(0,len(load_60)):
+        if load_60[i]!=0:
+            if thru_60[i] > load_60[i]:
+                thru_60[i]=load_60[i]
+            selected_i.append(i)
+    load_60 = [load_60[i]/(1e9) for i in selected_i]
+    load_60.insert(0,0)
+    thru_60 = [thru_60[i]/(1e9*60) for i in selected_i]
+    thru_60.insert(0,0)
+
+
+    fig, ax1 = plt.subplots(constrained_layout=True)
+    ax1.plot(load_20, thru_20,color='b',label="Servers=20",linewidth=6)
+    ax1.plot(load_40, thru_40,color='g',label="Servers=40",linewidth=6)
+    ax1.plot(load_60, thru_60,color='r',label="Servers=60",linewidth=6)
+
+    try:
+        ax1.set_xlabel(x_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_label, fontsize=30,color='k')
+    except:
+        pass
+    try:
+        ax1.set_xlim(x_lim_begin,x_lim_end)
+    except:
+        pass
+    try:
+        ax1.legend(loc=legend_loc, fontsize=35)
+    except:
+        ax1.legend(loc='upper left', fontsize=35)
+    try:
+        ax1.set_ylim(y_lim_begin,y_lim_end)
+    except:
+        pass
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=35,colors='k')
+    ax1.tick_params(axis='both', which='minor', labelsize=35,colors='k')
+
+
+    plt.show()
+def plot_var_TESSERA_D2():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+
+    # Mine
+    load_4 = [0.0, 0, 0, 0, 59790400000.0, 69992213333.33333, 78495968000.0, 93467768000.0,
+                              106379842782.60869, 119360582400.0, 134123818666.66667, 144931505777.77777,
+                              157042736000.0, 169126496000.0, 184134208000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 318732736000.0]
+    thru_4 = [1606336000.0, 0, 0, 0, 59764352000.0, 69198570666.66667, 80511381333.33333,
+                              97621437333.33333, 110967065043.47826, 115443046400.0, 139324273777.77777,
+                              137606961777.77777, 144035168000.0, 152342528000.0, 151974720000.0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 153619136000.0]
+
+    load_6 = [0.0, 0, 0, 0, 0, 104816025600.0, 119641341629.62962, 137335218000.0, 157500168000.0,
+                              173090104888.8889, 204332522666.66666, 214780000000.0, 235611520000.0, 250607488000.0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 471719104000.0]
+
+    thru_6 = [11094016000.0, 0, 0, 0, 0, 106705100800.0, 122136957629.62962, 139512802000.0,
+                              157987836000.0, 169215765333.33334, 192668736000.0, 211971392000.0, 230391680000.0,
+                              230541440000.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 230474368000.0]
+    load_8 = [0.0, 0, 0, 0, 0, 0, 136094869333.33333, 161002844444.44446, 182423844571.42856,
+                              201444337454.54544, 224265624000.0, 245037641142.85715, 270729792000.0, 291622592000.0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 487830848000.0, 0, 0]
+
+    thru_8 = [261504000.0, 0, 0, 0, 0, 0, 140904277333.33334, 166438511407.4074, 182435924571.42856,
+                              196928893090.9091, 219263160000.0, 229693220571.42856, 301580288000.0, 269960800000.0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 306528512000.0, 0, 0]
+
+    # settingssssssssssssssssssssssssssssssssssssss
+    x_label='Load $L_{o}$ (Gbps)'
+    x_lim_begin=-5
+    x_lim_end=350
+    y_label='Throughput per server $S_{m}$ (Gbps)'
+    legend_loc='upper left'
+    #y_lim_begin=-5
+    #y_lim_end=160
+
+    # Clean my loads
+    selected_i=[]
+    for i in range(0,len(load_4)):
+        if load_4[i]!=0:
+            if thru_4[i] > load_4[i]:
+                thru_4[i]=load_4[i]
+            selected_i.append(i)
+    load_4 = [load_4[i]/(1e9) for i in selected_i]
+    load_4.insert(0,0)
+    thru_4 = [thru_4[i]/(1e9*20) for i in selected_i]
+    thru_4.insert(0,0)
+
+    selected_i=[]
+    for i in range(0,len(load_6)):
+        if load_6[i]!=0:
+            if thru_6[i] > load_6[i]:
+                thru_6[i]=load_6[i]
+            selected_i.append(i)
+    load_6 = [load_6[i]/(1e9) for i in selected_i]
+    load_6.insert(0,0)
+    thru_6 = [thru_6[i]/(1e9*20) for i in selected_i]
+    thru_6.insert(0,0)
+
+    selected_i=[]
+    for i in range(0,len(load_8)):
+        if load_8[i]!=0:
+            if thru_8[i] > load_8[i]:
+                thru_8[i]=load_8[i]
+            selected_i.append(i)
+    load_8 = [load_8[i]/(1e9) for i in selected_i]
+    load_8.insert(0,0)
+    thru_8 = [thru_8[i]/(1e9*20) for i in selected_i]
+    thru_8.insert(0,0)
+
+
+    fig, ax1 = plt.subplots(constrained_layout=True)
+    ax1.plot(load_4, thru_4,color='b',label="Wavelengths=4",linewidth=6)
+    ax1.plot(load_6, thru_6,color='g',label="Wavelengths=6",linewidth=6)
+    ax1.plot(load_8, thru_8,color='r',label="Wavelengths=8",linewidth=6)
+
+    try:
+        ax1.set_xlabel(x_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_label, fontsize=30,color='k')
+    except:
+        pass
+    try:
+        ax1.set_xlim(x_lim_begin,x_lim_end)
+    except:
+        pass
+    try:
+        ax1.legend(loc=legend_loc, fontsize=35)
+    except:
+        ax1.legend(loc='upper left', fontsize=35)
+    try:
+        ax1.set_ylim(y_lim_begin,y_lim_end)
+    except:
+        pass
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=35,colors='k')
+    ax1.tick_params(axis='both', which='minor', labelsize=35,colors='k')
+
+
+    plt.show()
+def plot_thru_delay_PENTE():
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+
+    # Mine
+    load = [0.0, 0, 0, 0, 0, 123213120000.0, 0, 163240718222.22223, 184448697600.0,
+                              203743947428.57144, 225194492800.0, 246372894117.64706, 270628928000.0, 296874176000.0, 0,
+                              338803477333.3333, 0, 396084864000.0, 0, 0, 0, 0, 500084800000.0, 0, 550397632000.0]
+    thru = [2563840000.0, 0, 0, 0, 0, 123255552000.0, 0, 163855466666.66666, 185542259200.0,
+                              202293174857.14285, 225583452800.0, 248201185882.35294, 269916608000.0, 307880896000.0, 0,
+                              337729472000.0, 0, 349861824000.0, 0, 0, 0, 0, 363070592000.0, 0, 362917120000.0]
+    delay = [0, 0, 0, 0, 0, 3.610924961222086e-07, 0, 6.785245918441565e-07, 1.239281287179194e-06,
+                           1.6874688262302197e-06, 2.3088259845278943e-06, 3.106524350082155e-06, 4.500323848282011e-06,
+                           1.0228277755632958e-05, 0, 2.0190072279922914e-05, 0, 2.6864720664921106e-05, 0, 0, 0, 0,
+                           9.085129907691186e-05, 0, 0.0001205966227144646]
+
+    # settingssssssssssssssssssssssssssssssssssssss
+    x_label = 'Load $L_{o}$ (Gbps)'
+    #x_lim_begin = -5
+    #x_lim_end = 200
+    y_left_label = 'Throughput $S$ (Gbps)'
+    y_right_label = 'Total delay (ms)'
+    legend_loc = 'upper left'
+    left_color = 'b'
+    right_color = 'r'
+    #y_lim_left_begin = -5
+    #y_lim_left_end = 400
+    #y_lim_right_begin = -5
+    #y_lim_right_end = 160
+
+    # Clean my loads
+    selected_i = []
+    for i in range(0, len(load)):
+        if load[i] != 0:
+            if thru[i] > load[i]:
+                thru[i] = load[i]
+            selected_i.append(i)
+
+    load = [load[i] / (1e9) for i in selected_i]
+    load.insert(0, 0)
+    thru = [thru[i] / 1e9 for i in selected_i]
+    thru.insert(0, 0)
+    delay = [delay[i]*1e3 for i in selected_i]
+    delay.insert(0, 0)
+
+    fig, ax1 = plt.subplots(constrained_layout=True)
+    ax2 = ax1.twinx()
+    ax1.plot(load, thru, left_color, linewidth=6, marker='X', markersize=15, markeredgewidth=3, markeredgecolor='b',
+             markerfacecolor='w')
+    ax2.plot(load, delay, right_color, linewidth=6, marker='s', markersize=15, markeredgewidth=3,
+             markeredgecolor='r', markerfacecolor='w')
+
+    try:
+        ax1.set_xlabel(x_label, fontsize=35)
+    except:
+        pass
+    try:
+        ax1.set_ylabel(y_left_label, fontsize=35, color='blue')
+        ax2.set_ylabel(y_right_label, fontsize=35, color='red')
+    except:
+        pass
+    try:
+        ax1.set_xlim(x_lim_begin, x_lim_end)
+        ax2.set_xlim(x_lim_begin, x_lim_end)
+    except:
+        pass
+    try:
+        ax1.set_ylim(y_lim_left_begin, y_lim_left_end)
+        ax2.set_ylim(y_lim_right_begin, y_lim_right_end)
+    except:
+        pass
+    ax1.yaxis.label.set_color('blue')
+    ax2.yaxis.label.set_color(right_color)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='y', which='major', labelsize=35, colors='blue')
+    ax1.tick_params(axis='y', which='minor', labelsize=35, colors='blue')
+    ax1.tick_params(axis='x', which='major', labelsize=35)
+    ax1.tick_params(axis='x', which='minor', labelsize=35)
+    # ax2.grid(True, which='major', axis='both')
+    ax2.tick_params(axis='y', which='major', labelsize=35, colors='red')
+    ax2.tick_params(axis='y', which='minor', labelsize=35, colors='blue')
+
+    plt.show()
 
 # Common
 cutdual=4
@@ -5069,7 +5827,12 @@ normload=160e9
 # Ptorus plots
 plot_thruput_ENA()
 plot_delay_ENA()
-plot_thruput_DYO()
-#plot_thruput_DYO_to_delete()
+plot_thruput_DYO_oneaxis() #plot_thruput_DYO() # old_version
 plot_thru_delay_TRIA(choice='thru')
 plot_thru_delay_TRIA(choice='delay')
+plot_thru_drop_TESSERA_A()
+plot_qdelay_droprob_TESSERA_B()
+plot_delay_TESSERA_C() #values taken from plot_delay_TESSERA_C_prepare()
+plot_var_TESSERA_D1()
+plot_var_TESSERA_D2()
+plot_thru_delay_PENTE()

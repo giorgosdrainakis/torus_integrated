@@ -151,8 +151,10 @@ class Tor:
         self.nodes.add_inter_packet_to_local_tor(pack,current_time)
 
     def check_per_tor_requests(self):
-        # Each TOR makes a (potential) request to transmit to all other TOR destinations
-        # Each sub-request must be targeted to one destination
+        # 1) Each TOR makes a total request to transmit (sub-requests) to all trx_directions.
+        # 2) Each sub-request (1500-message) must be targeted to one destination (rx). Cannot couple multiple.
+        # 3) Each sub-request has a maximum size of trx window (1500)
+        _total_trx_directions=4
         rx_torus_rec_list=[]
         for rx_id in range(1, myglobal.TOTAL_TORS + 1):
             if rx_id!=self.id:
@@ -202,6 +204,10 @@ class Tor:
                 else:
                     new_torus_rec.size=fill_with_smalls_size*myglobal.MIN_PACKET_SIZE
                 rx_torus_rec_list.append(new_torus_rec)
+
+                # Choose 4 max tx requests!
+                rx_torus_rec_list.sort(key=lambda x: x.size, reverse=True)
+                rx_torus_rec_list=rx_torus_rec_list[:_total_trx_directions]
 
         print('Tor ID='+str(self.id)+'potentia_rx_list='+str(len(rx_torus_rec_list)))
         return rx_torus_rec_list

@@ -58,21 +58,18 @@ def main():
         print('Initializing TOR id'+str(tor_id)+',found new nodes=' + str(len(nodes.db)))
 
     # run simulation
-    quatro=1
     CURRENT_TIME=myglobal.T_BEGIN
     while (CURRENT_TIME<=myglobal.T_END or tors.have_buffers_packets()): #and CURRENT_TIME<=myglobal.T_END*1.5:
+        # add packets to buffer
         if CURRENT_TIME<=myglobal.T_END*1.01:
             tors.add_new_packets_to_buffers(CURRENT_TIME)
+        # intra
         tors.check_arrival_intra(CURRENT_TIME)
-        new_cycle=tors.process_new_cycle(CURRENT_TIME)
+        tors.process_new_cycle(CURRENT_TIME)
         tors.transmit_intra(CURRENT_TIME)
-        if new_cycle:
-            if quatro==4:
-                tors.inter_transmit(CURRENT_TIME)
-                quatro=1
-            else:
-                quatro = quatro + 1
+        # inter
         tors.inter_check_arrival(CURRENT_TIME)
+        tors.inter_transmit(CURRENT_TIME)
         # guard band
         CURRENT_TIME=CURRENT_TIME+myglobal.CYCLE_GUARD_BAND*8/myglobal.INTRA_CHANNEL_BITRATE
         CURRENT_TIME=CURRENT_TIME+myglobal.timestep
@@ -150,7 +147,7 @@ elif myglobal.TOTAL_NODES_PER_TOR==16 and myglobal.INTRA_CHANNEL_BITRATE==40e9:
     print('Running with 16 Servers - 16 tors at 40 Gbps')
     time.sleep(3)
     # total packets that will be printed per buff
-    myglobal.CONTROL_MSG_PACKS_PER_BUFF = 1
+    myglobal.CONTROL_MSG_PACKS_PER_BUFF = 16
     # node description string
     myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
     # define minipack

@@ -1,8 +1,8 @@
-ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\'
-TRAFFIC_DATASETS_FOLDER='traffic_datasets\\torus1200\\'
-INTER_TRANSMISSION_INFO_FOLDER='transmission_info\\'
+ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
+TRAFFIC_DATASETS_FOLDER='traffic_datasets\\torus1200'
+INTER_TRANSMISSION_INFO_FOLDER='transmission_info'
 TORUS_FILE='torus_matrix.txt'
-LOGS_FOLDER='logs\\'
+LOGS_FOLDER='logs'
 SAVE_LOGS=False
 PROPAGATION_TIME=10/(2e8) #PROPAGATION_TIME=0 10/(2e8)
 ID_DIFF=1

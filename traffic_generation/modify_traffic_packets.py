@@ -1,5 +1,6 @@
 import csv
 import math
+import os
 import random
 
 from torus_integrated import myglobal
@@ -25,7 +26,12 @@ def modify(file_list,final_file_name,my_source_id,my_dest_list):
     packet_list = []
     packet_id=0
     for file in file_list:
-        with open(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER +folder_name+ file) as csv_file:
+
+        combined_name=os.path.join(myglobal.ROOT,myglobal.TRAFFIC_DATASETS_FOLDER)
+        combined_name = os.path.join(combined_name, folder_name)
+        combined_name = os.path.join(combined_name, file)
+
+        with open(combined_name) as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
                 source_id = random.choice(my_source_id)
@@ -42,16 +48,20 @@ def modify(file_list,final_file_name,my_source_id,my_dest_list):
             if packet.source_id==my_source_id[i]:
                 output_table = output_table + packet.show() + '\n'
 
-        with open(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER +folder_name+ final_file_name[i], mode='a') as file:
+        combined_name = os.path.join(myglobal.ROOT,myglobal.TRAFFIC_DATASETS_FOLDER)
+        combined_name = os.path.join(combined_name, folder_name)
+        combined_name = os.path.join(combined_name, final_file_name[i])
+
+        with open(combined_name, mode='a') as file:
             file.write(output_table)
 
         print('Sorting...')
-        with open(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER +folder_name+ final_file_name[i], 'r', newline='') as f_input:
+        with open(combined_name, 'r', newline='') as f_input:
             csv_input = csv.DictReader(f_input)
             data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
 
         print('Rewriting...')
-        with open(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER +folder_name+ final_file_name[i], 'w', newline='') as f_output:
+        with open(combined_name, 'w', newline='') as f_output:
             csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
             csv_output.writeheader()
             csv_output.writerows(data)

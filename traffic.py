@@ -1,5 +1,6 @@
 import csv
 import math
+import os
 
 from torus_integrated import myglobal
 
@@ -65,7 +66,10 @@ class Traffic_per_packet():
         self.load(file)
 
     def load(self,file):
-        with open(myglobal.ROOT+myglobal.TRAFFIC_DATASETS_FOLDER+file) as csv_file:
+        combined_name=os.path.join(myglobal.ROOT,myglobal.TRAFFIC_DATASETS_FOLDER)
+        combined_name = os.path.join(combined_name, file)
+
+        with open(combined_name) as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
                 new_packet = Packet(row['packet_id'], row['time'], row['packet_size'],row['packet_qos'],

@@ -1,3 +1,4 @@
+import os
 import math
 import random
 import pandas as pd
@@ -140,13 +141,17 @@ class Nodes:
             for packet in node.data_dropped:
                 output_table = output_table + packet.show() + '\n'
             print('Writing tor='+str(self.tor_id)+',node='+ str(node.id))
-            nodename = myglobal.ROOT + myglobal.LOGS_FOLDER + 'log' + str(real_time)+'_tor'+str(self.tor_id)+'node'+str(node.id) + ".csv"
+            mystr='log' + str(real_time)+'_tor'+str(self.tor_id)+'node'+str(node.id) + ".csv"
+            nodename=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
+            nodename = os.path.join(nodename, mystr)
             with open(nodename, mode='a') as file:
                 file.write(output_table)
                 filenames.append(nodename)
 
         combined_csv = pd.concat([pd.read_csv(f) for f in filenames])
-        combined_name = myglobal.ROOT + myglobal.LOGS_FOLDER + 'log' + str(real_time)+'_tor'+str(self.tor_id) + '_combo.csv'
+        mystr='log' + str(real_time)+'_tor'+str(self.tor_id) + '_combo.csv'
+        combined_name=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
+        combined_name = os.path.join(combined_name, mystr)
         combined_csv.to_csv(combined_name, index=False)
 
         print('Sorting TOR='+str(self.tor_id))

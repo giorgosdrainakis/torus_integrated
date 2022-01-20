@@ -1,6 +1,6 @@
 import datetime
 import time
-
+import os
 import pandas as pd
 from torus_integrated.node import *
 from torus_integrated.traffic import *
@@ -83,7 +83,9 @@ def main():
 ### params and run
 if myglobal.SAVE_LOGS:
     real_time = str(datetime.datetime.now())
-    file=myglobal.ROOT + myglobal.LOGS_FOLDER + 'tmplogger' + str('geo')+".log"
+    file=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
+    mystr='tmplogger.log'
+    file=os.path.join(file,mystr)
     sys.stdout = open(file, "w")
 
 if myglobal.TOTAL_NODES_PER_TOR==4:

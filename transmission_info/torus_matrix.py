@@ -1,4 +1,6 @@
 import csv
+import os
+
 from torus_integrated import myglobal
 class Torus_Matrix:
     def __init__(self):
@@ -6,7 +8,9 @@ class Torus_Matrix:
         self.load()
 
     def load(self):
-        with open(myglobal.ROOT + myglobal.INTER_TRANSMISSION_INFO_FOLDER + myglobal.TORUS_FILE) as csv_file:
+        combined_name=os.path.join(myglobal.ROOT,myglobal.INTER_TRANSMISSION_INFO_FOLDER)
+        combined_name = os.path.join(combined_name, myglobal.TORUS_FILE)
+        with open(combined_name) as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
                 new_rec=Torus_Record(row['rx'],row['tx'],row['out_dir'],row['in_dir'],row['lamda'])
@@ -53,4 +57,4 @@ class Torus_Record:
         self.size=0
 
     def show(self):
-        print('rx='+str(self.rx)+',indir='+str(self.in_dir))
+        print('tx='+str(self.tx)+',outdir='+str(self.out_dir)+',rx='+str(self.rx)+',indir='+str(self.in_dir))

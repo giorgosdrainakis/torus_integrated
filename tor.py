@@ -1,3 +1,4 @@
+import os
 import itertools
 import math
 import random
@@ -29,51 +30,37 @@ class Tors:
         if self.is_new_cycle(current_time):
             print('Entered new inter cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
 
-            # Get list of all per tor requests
-            all_tors_actual_requests=[]
-            all_tors_backup_requests=[]
+            # Get list of all per tor requests, shuffled and sorted
+            all_tors_reqs=[]
             for tor in self.db:
-                actual,backup=tor.check_per_tor_requests()
-                all_tors_actual_requests.extend(actual)
-                all_tors_backup_requests.extend(backup)
-            all_tors_backup_requests.sort(key=lambda x: x.size, reverse=True)
+                reqs=tor.check_per_tor_requests()
+                all_tors_reqs.extend(reqs)
+            random.shuffle(all_tors_reqs)
+            all_tors_reqs.sort(key=lambda x: x.size, reverse=True)
+
+            # Filtering algorithm: Add reqs to tx_train, subject to 3 restriction rules
+            # 1) Each TOR can tx up to INTER_TX_PER_TOR
+            # 2) Each direction at each TOR can tx only one request
+            # 3) Each direction at each TOR can rx only one request
             chosen_reqs = []
-
-            # First try to fit it all actual (big) requests from each TOR (maximize size policy)
-            for actual_req in all_tors_actual_requests:
-                can_enter=True
-                need_swap=False
-                old_rec_to_swap=None
-
-                for chosen_req in chosen_reqs:
-                    if actual_req.rx==chosen_req.rx and actual_req.in_dir==chosen_req.in_dir:#*-+ and actual_req.lamda==chosen_req.lamda:
-                        # check if swap
-                        if actual_req.size>chosen_req.size:
-                            need_swap=True
-                            old_rec_to_swap=chosen_req
-                        else:
-                            can_enter = False
-                if can_enter:
-                    chosen_reqs.append(actual_req)
-                    if need_swap:
-                        chosen_reqs.remove(old_rec_to_swap)
-
-            # If empty space in the tx train, add backup reqs
             max_allowed_reqs=myglobal.INTER_TX_PER_TOR*myglobal.TOTAL_TORS
             i=0
-            while ((len(chosen_reqs)<max_allowed_reqs) and (i<len(all_tors_backup_requests))):
-                backup_req=all_tors_backup_requests[i]
+            while ((len(chosen_reqs)<max_allowed_reqs) and (i<len(all_tors_reqs))):
+                curr_req=all_tors_reqs[i]
                 current_txs = 0
-                is_conflict=False
-                # check if conflict at receiver or backup req will exceed number of max_allowed_transmissions per TOR
+                is_conflict_tx=False
+                is_conflict_rx = False
+
                 for chosen_req in chosen_reqs:
-                    if chosen_req.tx == backup_req.tx:
+                    if chosen_req.tx == curr_req.tx:
                         current_txs=current_txs+1
-                    if backup_req.rx == chosen_req.rx and backup_req.in_dir == chosen_req.in_dir:
-                        is_conflict=True
+                        if chosen_req.out_dir==curr_req.out_dir:
+                            is_conflict_tx=True
+                    if curr_req.rx == chosen_req.rx and curr_req.in_dir == chosen_req.in_dir:
+                        is_conflict_rx=True
                 # if ok, add to chosen requests
-                if ((not is_conflict) and (current_txs<myglobal.INTER_TX_PER_TOR)):
-                    chosen_reqs.append(backup_req)
+                if ((not is_conflict_tx) and (not is_conflict_rx) and (current_txs<myglobal.INTER_TX_PER_TOR)):
+                    chosen_reqs.append(curr_req)
                 i=i+1
 
             # debug
@@ -132,7 +119,9 @@ class Tors:
             tor_names.append(tor.write_log(real_time))
 
         combined_csv = pd.concat([pd.read_csv(f) for f in tor_names])
-        combined_name = myglobal.ROOT + myglobal.LOGS_FOLDER + 'log' + str(real_time) + '_everything.csv'
+        mystr='log' + str(real_time) + '_everything.csv'
+        combined_name=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
+        combined_name = os.path.join(combined_name, mystr)
         combined_csv.to_csv(combined_name, index=False)
 
         #print('Sorting ALL:')
@@ -227,11 +216,11 @@ class Tor:
                 rx_torus_rec_list.append(new_torus_rec)
 
         # Split list into actual requests/backup requests according to max TRX for all directions
-        rx_torus_rec_list.sort(key=lambda x: x.size, reverse=True)
-        actual_list=rx_torus_rec_list[:myglobal.INTER_TX_PER_TOR]
-        backup_list=rx_torus_rec_list[myglobal.INTER_TX_PER_TOR:]
+        #rx_torus_rec_list.sort(key=lambda x: x.size, reverse=True)
+        #actual_list=rx_torus_rec_list[:myglobal.INTER_TX_PER_TOR]
+        #backup_list=rx_torus_rec_list[myglobal.INTER_TX_PER_TOR:]
 
-        return actual_list,backup_list
+        return rx_torus_rec_list
 
 
     def build_15_lamda_request(self,rx_list):
@@ -692,7 +681,10 @@ class Tor:
         output_table = ''
         for packet in self.data_dropped:
             output_table = output_table + packet.show() + '\n'
-        combined_name = myglobal.ROOT + myglobal.LOGS_FOLDER + 'log' + str(real_time) + '_tor' + str(self.id) + '_combo.csv'
+
+        mystr='log' + str(real_time) + '_tor' + str(self.id) + '_combo.csv'
+        combined_name=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
+        combined_name = os.path.join(combined_name, mystr)
 
         with open(combined_name, mode='a') as file:
             file.write(output_table)

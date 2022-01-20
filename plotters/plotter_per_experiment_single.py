@@ -1,5 +1,6 @@
 import csv
 import math
+import os
 from scipy.stats import genpareto
 import matplotlib.pyplot as plt
 import numpy as numpy
@@ -62,7 +63,9 @@ class Record():
 
 
 record_list=[]
-with open(myglobal.ROOT+myglobal.LOGS_FOLDER+filename) as csv_file:
+myname=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
+myname=os.path.join(myname,filename)
+with open(myname) as csv_file:
     csv_reader = csv.DictReader(csv_file, delimiter=',')
     debug_id=0
     for row in csv_reader:

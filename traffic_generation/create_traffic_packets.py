@@ -1,3 +1,4 @@
+import os
 import csv
 import datetime
 import math
@@ -229,7 +230,10 @@ def export_traffic_dataset_single(nodeid,intralist,torid,interlist,t_begin,t_end
     mytime = mytime.replace('.', '_')
 
     print('Writing...')
-    current_file=myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER+mynewfolder+'tor'+str(torid)+'node'+str(nodeid)+".csv"
+    mystr='tor'+str(torid)+'node'+str(nodeid)+".csv"
+    current_file = os.path.join(myglobal.ROOT, myglobal.TRAFFIC_DATASETS_FOLDER)
+    current_file = os.path.join(current_file, mynewfolder)
+    current_file = os.path.join(current_file, mystr)
 
     with open(current_file, mode='a') as file:
         file.write(output_table + '\n')
@@ -280,6 +284,8 @@ intra_perc=0.8
 
 # MAIN - traffic dset is created by default in
 # traffic_dataset/<CURRENT_TIMESTAMP> as 'testN.csv', for N=1,2...
-mynewfolder=get_timestamp_to_string()+'\\'
-Path(myglobal.ROOT + myglobal.TRAFFIC_DATASETS_FOLDER+mynewfolder).mkdir(parents=True, exist_ok=True)
+mynewfolder=get_timestamp_to_string()
+mypath=os.path.join(myglobal.ROOT,myglobal.TRAFFIC_DATASETS_FOLDER)
+mypath=os.path.join(mypath,mynewfolder)
+Path(mypath).mkdir(parents=True, exist_ok=True)
 run_with_params()

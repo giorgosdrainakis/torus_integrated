@@ -1,3 +1,4 @@
+import os
 import csv
 import math
 from scipy.stats import genpareto
@@ -16,7 +17,8 @@ from torus_integrated.myglobal import *
 # Plot label params at the end of the script (thruput-delay-overflow)
 
 # Sampling params
-avgg=True
+measurement_type='post' # in [pre,post], pre refers to traffic_generation metrics, post to after_experiments metrics
+avgg=False
 mode='inter' # in [intra,inter,end2end]
 servers=16 # only for intra
 tors=16 # only for inter
@@ -25,7 +27,7 @@ parent_tor=1 # only for intra, end2end analysis
 my_tbegin=0
 my_tend=0.010 # intra 0.050
 my_samples=100 # intra 100
-filename='log2022_01_19_03_19_35_834673_everything.csv'
+filename='log2022_01_20_18_06_31_907750_everything.csv'
 # Grouping params
 start_group_value=0
 end_group_value=6.26e6#Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
@@ -462,7 +464,6 @@ class My_Group:
             return mylist[0], 0
         else:
             return statistics.mean(mylist), statistics.stdev(mylist)
-
 class My_Group_List():
     def __init__(self,tbegin,tend,samples, start_group_value,end_group_value,grouping_points):
         self.db = []
@@ -773,7 +774,6 @@ class My_Group_List():
             avg_list.append(avg)
             err_list.append(err)
         return avg_list, err_list
-
 class My_Timeslot_List():
     def __init__(self,tbegin,tend,samples):
         self.db=[]
@@ -1058,7 +1058,6 @@ class My_Timeslot_List():
         for element in self.db:
             mylist.append(element.get_agg_drop_total())
         return mylist
-
 class My_Timeslot():
     def __init__(self,tbegin,tend):
         self.t_begin=tbegin
@@ -1201,21 +1200,36 @@ class My_Timeslot():
         except:
             return None
 
-
-my_db=[]
-with open(myglobal.ROOT+myglobal.LOGS_FOLDER+filename) as csv_file:
-    csv_reader = csv.DictReader(csv_file, delimiter=',')
-    debug_id=0
-    for row in csv_reader:
-        new_rec=Record(row['packet_id'],row['time'],row['packet_size'],row['packet_qos'],
-                       row['source_id'], row['tor_id'], row['destination_id'], row['destination_tor'],
-                       row['time_intra_buffer_in'], row['time_intra_buffer_out'], row['time_intra_trx_in'], row['time_intra_trx_out'],
-                       row['time_tor_buffer_in'], row['time_tor_buffer_out'], row['time_tor_trx_in'], row['time_tor_trx_out'],
-                       row['time_inter_buffer_in'], row['time_inter_buffer_out'], row['time_inter_trx_in'], row['time_inter_trx_out']
-                       )
-        my_db.append(new_rec)
-        #print(str(debug_id/len(csv_reader)))
-        debug_id=debug_id+1
+if measurement_type=='pre':
+    print('Preprocessing dataset folder='+str(myglobal.TRAFFIC_DATASETS_FOLDER))
+    my_db=[]
+    for tor_id in range(1,tors+1):
+        for server_id in range(1,servers+1):
+            mystr='tor'+str(tor_id)+'node'+str(server_id)+'.csv'
+            filename=os.path.join(myglobal.ROOT,myglobal.TRAFFIC_DATASETS_FOLDER)
+            filename = os.path.join(filename,mystr)
+            with open(filename) as csv_file:
+                csv_reader = csv.DictReader(csv_file, delimiter=',')
+                for row in csv_reader:
+                    new_rec=Record(row['packet_id'],row['time'],row['packet_size'],row['packet_qos'],
+                                   row['source_id'], row['tor_id'], row['destination_id'], row['destination_tor'],
+                                    -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1)
+                    my_db.append(new_rec)
+elif measurement_type=='post':
+    print('Post-processing log folder=' + str(filename))
+    my_db=[]
+    myname=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
+    myname = os.path.join(myname, filename)
+    with open(myname) as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+        for row in csv_reader:
+            new_rec=Record(row['packet_id'],row['time'],row['packet_size'],row['packet_qos'],
+                           row['source_id'], row['tor_id'], row['destination_id'], row['destination_tor'],
+                           row['time_intra_buffer_in'], row['time_intra_buffer_out'], row['time_intra_trx_in'], row['time_intra_trx_out'],
+                           row['time_tor_buffer_in'], row['time_tor_buffer_out'], row['time_tor_trx_in'], row['time_tor_trx_out'],
+                           row['time_inter_buffer_in'], row['time_inter_buffer_out'], row['time_inter_trx_in'], row['time_inter_trx_out']
+                           )
+            my_db.append(new_rec)
 
 timeslot_list=My_Timeslot_List(my_tbegin,my_tend,my_samples)
 if mode=='intra':

@@ -28,39 +28,61 @@ class Tors:
     def inter_transmit(self,current_time):
         if self.is_new_cycle(current_time):
             print('Entered new inter cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
+
             # Get list of all per tor requests
-            all_tors_potential_recs=[]
+            all_tors_actual_requests=[]
+            all_tors_backup_requests=[]
             for tor in self.db:
-                potential_rec=tor.check_per_tor_requests()
-                all_tors_potential_recs.extend(potential_rec)
+                actual,backup=tor.check_per_tor_requests()
+                all_tors_actual_requests.extend(actual)
+                all_tors_backup_requests.extend(backup)
+            all_tors_backup_requests.sort(key=lambda x: x.size, reverse=True)
+            chosen_reqs = []
 
-            # Check for collisions - max throughput
-            filtered_recs=[]
-            for pot_rec in all_tors_potential_recs:
+            # First try to fit it all actual (big) requests from each TOR (maximize size policy)
+            for actual_req in all_tors_actual_requests:
                 can_enter=True
-                can_swap=False
-                swap_old_rec=None
+                need_swap=False
+                old_rec_to_swap=None
 
-                for filt_rec in filtered_recs:
-                    if pot_rec.rx==filt_rec.rx and pot_rec.in_dir==filt_rec.in_dir:#*-+ and pot_rec.lamda==filt_rec.lamda:
+                for chosen_req in chosen_reqs:
+                    if actual_req.rx==chosen_req.rx and actual_req.in_dir==chosen_req.in_dir:#*-+ and actual_req.lamda==chosen_req.lamda:
                         # check if swap
-                        if pot_rec.size>filt_rec.size:
-                            can_swap=True
-                            swap_old_rec=filt_rec
+                        if actual_req.size>chosen_req.size:
+                            need_swap=True
+                            old_rec_to_swap=chosen_req
                         else:
                             can_enter = False
                 if can_enter:
-                    filtered_recs.append(pot_rec)
-                    if can_swap:
-                        filtered_recs.remove(swap_old_rec)
+                    chosen_reqs.append(actual_req)
+                    if need_swap:
+                        chosen_reqs.remove(old_rec_to_swap)
+
+            # If empty space in the tx train, add backup reqs
+            max_allowed_reqs=myglobal.INTER_TX_PER_TOR*myglobal.TOTAL_TORS
+            i=0
+            while ((len(chosen_reqs)<max_allowed_reqs) and (i<len(all_tors_backup_requests))):
+                backup_req=all_tors_backup_requests[i]
+                current_txs = 0
+                is_conflict=False
+                # check if conflict at receiver or backup req will exceed number of max_allowed_transmissions per TOR
+                for chosen_req in chosen_reqs:
+                    if chosen_req.tx == backup_req.tx:
+                        current_txs=current_txs+1
+                    if backup_req.rx == chosen_req.rx and backup_req.in_dir == chosen_req.in_dir:
+                        is_conflict=True
+                # if ok, add to chosen requests
+                if ((not is_conflict) and (current_txs<myglobal.INTER_TX_PER_TOR)):
+                    chosen_reqs.append(backup_req)
+                i=i+1
 
             # debug
-            print('INTER will transmit a total of recs='+str(len(filtered_recs)))
-            for el in filtered_recs:
+            print('INTER will transmit a total of recs='+str(len(chosen_reqs)))
+            for el in chosen_reqs:
                 el.show()
 
             for tor in self.db:
-                tor.inter_transmit(current_time,filtered_recs)
+                tor.inter_transmit(current_time,chosen_reqs)
 
     def inter_check_arrival(self,current_time):
         list_of_arrived_packs=[]
@@ -154,7 +176,6 @@ class Tor:
         # 1) Each TOR makes a total request to transmit (sub-requests) to all trx_directions.
         # 2) Each sub-request (1500-message) must be targeted to one destination (rx). Cannot couple multiple.
         # 3) Each sub-request has a maximum size of trx window (1500)
-        _total_trx_directions=4
         rx_torus_rec_list=[]
         for rx_id in range(1, myglobal.TOTAL_TORS + 1):
             if rx_id!=self.id:
@@ -205,12 +226,12 @@ class Tor:
                     new_torus_rec.size=fill_with_smalls_size*myglobal.MIN_PACKET_SIZE
                 rx_torus_rec_list.append(new_torus_rec)
 
-                # Choose 4 max tx requests!
-                rx_torus_rec_list.sort(key=lambda x: x.size, reverse=True)
-                rx_torus_rec_list=rx_torus_rec_list[:_total_trx_directions]
+        # Split list into actual requests/backup requests according to max TRX for all directions
+        rx_torus_rec_list.sort(key=lambda x: x.size, reverse=True)
+        actual_list=rx_torus_rec_list[:myglobal.INTER_TX_PER_TOR]
+        backup_list=rx_torus_rec_list[myglobal.INTER_TX_PER_TOR:]
 
-        print('Tor ID='+str(self.id)+'potentia_rx_list='+str(len(rx_torus_rec_list)))
-        return rx_torus_rec_list
+        return actual_list,backup_list
 
 
     def build_15_lamda_request(self,rx_list):

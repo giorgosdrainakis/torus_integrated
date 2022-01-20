@@ -1,5 +1,5 @@
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\'
-TRAFFIC_DATASETS_FOLDER='traffic_datasets\\2022_01_18_18_05_04_903314\\'
+TRAFFIC_DATASETS_FOLDER='traffic_datasets\\torus1200\\'
 INTER_TRANSMISSION_INFO_FOLDER='transmission_info\\'
 TORUS_FILE='torus_matrix.txt'
 LOGS_FOLDER='logs\\'
@@ -46,6 +46,7 @@ INTRA_NODE_INPUT_LOW_BUFFER_SIZE = 1e6 # bytes
 INTRA_GUARD_BAND=True ##
 INTRA_REMOVE_INTER=False # True if not proturs experiments
 # Inter Protocol Settings
+INTER_TX_PER_TOR=4
 INTER_CHANNEL_BITRATE = 10e9
 INTER_CHANNEL_ID_LIST = [1000, 2000, 3000, 4000,5000,6000,7000,8000]  # 8 data channel
 INTER_TOR_HIGH_BUFFER_SIZE = 1e6 # bytes

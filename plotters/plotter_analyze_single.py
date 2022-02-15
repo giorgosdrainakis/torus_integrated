@@ -19,7 +19,7 @@ from torus_integrated.myglobal import *
 # Sampling params
 measurement_type='post' # in [pre,post], pre refers to traffic_generation metrics, post to after_experiments metrics
 avgg=True
-mode='intra' # in [intra,inter,end2end]
+mode='inter' # in [intra,inter,end2end]
 servers=16 # only for intra
 tors=16 # only for inter
 parent_tor=1 # only for intra, end2end analysis
@@ -27,10 +27,10 @@ parent_tor=1 # only for intra, end2end analysis
 my_tbegin=0
 my_tend=0.010 # intra 0.050
 my_samples=100 # intra 100
-filename='torus2022\\torus200_6intra_80in.csv'
+filename='torus2022\\torus1200_6intra_highin_intra075.csv'
 # Grouping params
 start_group_value=0
-end_group_value=3.1e6#Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
+end_group_value=9.2e6 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
 grouping_points=25
 
 class Record():
@@ -281,6 +281,103 @@ class My_Group:
                 mylist.append(0)
             else:
                 mylist.append(tslot.get_agg_drop_low()/tslot.get_agg_load_low())
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+
+    def get_stats_inter_delay_total(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_inter_delay_total()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_inter_delay_high(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_inter_delay_high()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_inter_delay_med(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_inter_delay_med()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_inter_delay_low(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_inter_delay_low()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_intra_delay_total(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_intra_delay_total()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_intra_delay_high(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_intra_delay_high()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_intra_delay_med(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_intra_delay_med()
+            if res is not None:
+                mylist.append(res)
+        if len(mylist)==0:
+            return 0,0
+        elif len(mylist)==1:
+            return mylist[0],0
+        else:
+            return statistics.mean(mylist),statistics.stdev(mylist)
+    def get_stats_intra_delay_low(self):
+        mylist = []
+        for tslot in self.timeslots:
+            res=tslot.get_intra_delay_low()
+            if res is not None:
+                mylist.append(res)
         if len(mylist)==0:
             return 0,0
         elif len(mylist)==1:
@@ -649,6 +746,71 @@ class My_Group_List():
             err_list.append(err)
         return avg_list, err_list
 
+    def get_groups_inter_delay_total(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_inter_delay_total()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_inter_delay_high(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_inter_delay_high()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_inter_delay_med(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_inter_delay_med()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_inter_delay_low(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_inter_delay_low()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_intra_delay_total(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_intra_delay_total()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_intra_delay_high(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_intra_delay_high()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_intra_delay_med(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_intra_delay_med()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+    def get_groups_intra_delay_low(self):
+        avg_list = []
+        err_list = []
+        for gr in self.db:
+            avg, err = gr.get_stats_intra_delay_low()
+            avg_list.append(avg)
+            err_list.append(err)
+        return avg_list, err_list
+
     def get_groups_delay_total(self):
         avg_list = []
         err_list = []
@@ -962,7 +1124,7 @@ class My_Timeslot_List():
         print('Entered init with db')
         debug_id=0
         for rec in record_db:
-            print('B=' + str(debug_id))
+            print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             _time_birth = rec.time
@@ -1004,6 +1166,7 @@ class My_Timeslot_List():
                         timeslot.delay_total=timeslot.delay_total+_delay
                         timeslot.qdelay_total=timeslot.qdelay_total+_qdelay
                         timeslot.succ_total = timeslot.succ_total + 1
+
                         if rec.packet_qos == 'high':
                             timeslot.delay_high = timeslot.delay_high + _delay
                             timeslot.qdelay_high = timeslot.qdelay_high + _qdelay
@@ -1019,6 +1182,31 @@ class My_Timeslot_List():
                         timeslot.delay_node[_source_id] = timeslot.delay_node[_source_id] + _delay
                         timeslot.qdelay_node[_source_id] = timeslot.qdelay_node[_source_id] + _qdelay
                         timeslot.succ_node[_source_id] = timeslot.succ_node[_source_id] + 1
+
+                        if rec.is_intra():
+                            timeslot.succ_intra_total=timeslot.succ_intra_total+1
+                            timeslot.intra_delay_total=timeslot.intra_delay_total+_delay
+                            if rec.packet_qos == 'high':
+                                timeslot.succ_intra_high=timeslot.succ_intra_high+1
+                                timeslot.intra_delay_high=timeslot.intra_delay_high+_delay
+                            elif rec.packet_qos == 'med':
+                                timeslot.succ_intra_med=timeslot.succ_intra_med+1
+                                timeslot.intra_delay_med = timeslot.intra_delay_med + _delay
+                            elif rec.packet_qos == 'low':
+                                timeslot.succ_intra_low=timeslot.succ_intra_low+1
+                                timeslot.intra_delay_low = timeslot.intra_delay_low + _delay
+                        else:
+                            timeslot.succ_inter_total=timeslot.succ_inter_total+1
+                            timeslot.inter_delay_total = timeslot.inter_delay_total + _delay
+                            if rec.packet_qos == 'high':
+                                timeslot.succ_inter_high=timeslot.succ_inter_high+1
+                                timeslot.inter_delay_high=timeslot.inter_delay_high+_delay
+                            elif rec.packet_qos == 'med':
+                                timeslot.succ_inter_med=timeslot.succ_inter_med+1
+                                timeslot.inter_delay_med = timeslot.inter_delay_med + _delay
+                            elif rec.packet_qos == 'low':
+                                timeslot.succ_inter_low=timeslot.succ_inter_low+1
+                                timeslot.inter_delay_low = timeslot.inter_delay_low + _delay
                     else:
                         timeslot.drop_total = timeslot.drop_total + (rec.packet_size)
                         if rec.packet_qos == 'high':
@@ -1073,6 +1261,14 @@ class My_Timeslot():
         self.succ_high = 0
         self.succ_med = 0
         self.succ_low = 0
+        self.succ_intra_total=0
+        self.succ_intra_high=0
+        self.succ_intra_med=0
+        self.succ_intra_low=0
+        self.succ_inter_total=0
+        self.succ_inter_high = 0
+        self.succ_inter_med = 0
+        self.succ_inter_low = 0
         self.succ_node = []
 
         self.load_total=0
@@ -1104,6 +1300,16 @@ class My_Timeslot():
         self.qdelay_med=0
         self.qdelay_low=0
         self.qdelay_node=[]
+
+        self.intra_delay_total=0
+        self.intra_delay_high=0
+        self.intra_delay_med=0
+        self.intra_delay_low=0
+
+        self.inter_delay_total=0
+        self.inter_delay_high=0
+        self.inter_delay_med=0
+        self.inter_delay_low=0
 
         for i in range(0,100):
             self.num_node.append(0)
@@ -1197,6 +1403,47 @@ class My_Timeslot():
     def get_avg_qdelay_node(self,node):
         try:
             return self.qdelay_node[node]/self.succ_node[node]
+        except:
+            return None
+
+    def get_inter_delay_total(self):
+        try:
+            return self.inter_delay_total/self.succ_inter_total
+        except:
+            return None
+    def get_inter_delay_high(self):
+        try:
+            return self.inter_delay_high/self.succ_inter_high
+        except:
+            return None
+    def get_inter_delay_med(self):
+        try:
+            return self.inter_delay_med/self.succ_inter_med
+        except:
+            return None
+    def get_inter_delay_low(self):
+        try:
+            return self.inter_delay_low/self.succ_inter_low
+        except:
+            return None
+    def get_intra_delay_total(self):
+        try:
+            return self.intra_delay_total/self.succ_intra_total
+        except:
+            return None
+    def get_intra_delay_high(self):
+        try:
+            return self.intra_delay_high/self.succ_intra_high
+        except:
+            return None
+    def get_intra_delay_med(self):
+        try:
+            return self.intra_delay_med/self.succ_intra_med
+        except:
+            return None
+    def get_intra_delay_low(self):
+        try:
+            return self.intra_delay_low/self.succ_intra_low
         except:
             return None
 
@@ -1334,6 +1581,30 @@ else: #Group stage
     avg, err = group_list.get_groups_qdelay_low()
     print('waa_qdelay_low' + '_avg=' + str(avg))
     print('waa_qdelay_low' + '_err=' + str(err))
+    avg, err = group_list.get_groups_inter_delay_total()
+    print('waa_inter_delay_total' + '_avg=' + str(avg))
+    print('waa_inter_delay_total' + '_err=' + str(err))
+    avg, err = group_list.get_groups_inter_delay_high()
+    print('waa_inter_delay_high' + '_avg=' + str(avg))
+    print('waa_inter_delay_high' + '_err=' + str(err))
+    avg, err = group_list.get_groups_inter_delay_med()
+    print('waa_inter_delay_med' + '_avg=' + str(avg))
+    print('waa_inter_delay_med' + '_err=' + str(err))
+    avg, err = group_list.get_groups_inter_delay_low()
+    print('waa_inter_delay_low' + '_avg=' + str(avg))
+    print('waa_inter_delay_low' + '_err=' + str(err))
+    avg, err = group_list.get_groups_intra_delay_total()
+    print('waa_intra_delay_total' + '_avg=' + str(avg))
+    print('waa_intra_delay_total' + '_err=' + str(err))
+    avg, err = group_list.get_groups_intra_delay_high()
+    print('waa_intra_delay_high' + '_avg=' + str(avg))
+    print('waa_intra_delay_high' + '_err=' + str(err))
+    avg, err = group_list.get_groups_intra_delay_med()
+    print('waa_intra_delay_med' + '_avg=' + str(avg))
+    print('waa_intra_delay_med' + '_err=' + str(err))
+    avg, err = group_list.get_groups_intra_delay_low()
+    print('waa_intra_delay_low' + '_avg=' + str(avg))
+    print('waa_intra_delay_low' + '_err=' + str(err))
 
     if mode=='intra' or mode=='end2end':
         main_elements=servers

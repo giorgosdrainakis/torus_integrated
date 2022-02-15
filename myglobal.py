@@ -1,5 +1,5 @@
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-TRAFFIC_DATASETS_FOLDER='traffic_datasets\\torus1200'
+TRAFFIC_DATASETS_FOLDER='traffic_datasets\\torus1200_highin_intra075'
 INTER_TRANSMISSION_INFO_FOLDER='transmission_info'
 TORUS_FILE='torus_matrix.txt'
 LOGS_FOLDER='logs'
@@ -38,7 +38,7 @@ TOTAL_NODES_PER_TOR = 16
 TOTAL_TORS=16
 # Intra Protocol Settings
 INTRA_CHANNEL_BITRATE = 40e9
-INTRA_CHANNEL_ID_LIST = [100,200,300,400]  # 4 data channel
+INTRA_CHANNEL_ID_LIST = [100,200,300,400,500,600]  # 4 data channel
 INTRA_CONTROL_CHANNEL_ID = 500  # 1 control channel
 INTRA_NODE_INPUT_HIGH_BUFFER_SIZE = 1e6 # bytes
 INTRA_NODE_INPUT_MED_BUFFER_SIZE = 1e6 # bytes

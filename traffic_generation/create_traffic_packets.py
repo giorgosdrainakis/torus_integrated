@@ -152,7 +152,7 @@ def generate_packets_high_qos(packet_id,t_begin,t_end,avg_throughput,source_id,d
         new_time=inttime
 
         luckynum = random.uniform(0, 1)
-        if luckynum <= intra_traffic_perc:
+        if luckynum <= intra_traffic_perc or high_traffic_in:
             destination_id = random.sample(destination_ids, 1)[0]
             destination_tor = torid
         else:
@@ -262,6 +262,7 @@ def run_with_params(): # main
             my_tor=[tor]
             my_node=[node]
             intra_dest_list=[item for item in intra_nodes_list if item not in my_node]
+            intra_dest_list=[item for item in intra_dest_list if item!=tor_server_id]
             inter_dest_list=[item for item in inter_tor_list if item not in my_tor]
             hasHeader=True
             intra_traffic_perc = intra_perc
@@ -276,11 +277,14 @@ avg_throughput=1200e9 # 300avg=75intra+170inter, 640avg=140intra+200inter #4a2_1
 qos='all'# choose qos packets allowed {'low','med','high','all'}
 intra_nodes_list=[x for x in range(1,17)]
 inter_tor_list=[x for x in range(1,17)]
+tor_server_id=16
 low_thru_shape_param=3 # (float)
 med_thru_shape_param=5 # (float)
 high_thru_shape_param=0.005 # (float)
 avg_throughput_per_node=avg_throughput/len(intra_nodes_list)
-intra_perc=0.8
+intra_perc=0.75 # 0.75 with high in gives 80-20
+high_traffic_in=True
+
 
 # MAIN - traffic dset is created by default in
 # traffic_dataset/<CURRENT_TIMESTAMP> as 'testN.csv', for N=1,2...

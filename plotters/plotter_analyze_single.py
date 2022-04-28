@@ -18,19 +18,20 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 measurement_type='post' # in [pre,post], pre refers to traffic_generation metrics, post to after_experiments metrics
-avgg=True
-mode='inter' # in [intra,inter,end2end]
+avgg=False
+mode='end2end' # in [intra,inter,end2end]
 servers=16 # only for intra
 tors=16 # only for inter
 parent_tor=1 # only for intra, end2end analysis
 # Simulation params
 my_tbegin=0
 my_tend=0.010 # intra 0.050
-my_samples=100 # intra 100
-filename='torus2022\\torus1200_6intra_highin_intra075.csv'
+my_samples=500 # intra 100
+filename='torus_07_to_10_logs_globecom\\torus2400_highin_intra075_10ms.csv'
+#filename='torus_logs_globecom\\torus2400_80in.csv'
 # Grouping params
 start_group_value=0
-end_group_value=9.2e6 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
+end_group_value=0.5e8 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
 grouping_points=25
 
 class Record():

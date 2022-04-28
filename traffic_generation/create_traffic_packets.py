@@ -273,7 +273,7 @@ def run_with_params(): # main
 #############  params  ###############
 t_begin=0 #sec (float)
 t_end=0.010 #sec (float)
-avg_throughput=1200e9 # 300avg=75intra+170inter, 640avg=140intra+200inter #4a2_1600, 4a3_2400# exp5=1800avgtry1
+avg_throughput=2400e9 # 300avg=75intra+170inter, 640avg=140intra+200inter #4a2_1600, 4a3_2400# exp5=1800avgtry1
 qos='all'# choose qos packets allowed {'low','med','high','all'}
 intra_nodes_list=[x for x in range(1,17)]
 inter_tor_list=[x for x in range(1,17)]
@@ -282,8 +282,8 @@ low_thru_shape_param=3 # (float)
 med_thru_shape_param=5 # (float)
 high_thru_shape_param=0.005 # (float)
 avg_throughput_per_node=avg_throughput/len(intra_nodes_list)
-intra_perc=0.75 # 0.75 with high in gives 80-20
-high_traffic_in=True
+intra_perc=0.80 # 0.75 with high in gives 80-20
+high_traffic_in=False
 
 
 # MAIN - traffic dset is created by default in

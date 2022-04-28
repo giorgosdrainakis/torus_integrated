@@ -10,10 +10,10 @@ class Packet:
         self.time=float(time)
         self.packet_size=float(packet_size)
         self.packet_qos=packet_qos
-        self.source_id=source_id
-        self.tor_id=tor_id
-        self.destination_id=destination_id
-        self.destination_tor=destination_tor
+        self.source_id=int(source_id)
+        self.tor_id=int(tor_id)
+        self.destination_id=int(destination_id)
+        self.destination_tor=int(destination_tor)
 
     def is_intra(self):
         return (self.tor_id == self.destination_tor)
@@ -28,7 +28,7 @@ class Packet:
         return ((not self.is_intra()) and self.destination_tor == parent_tor_id)
 datasets_main_folder='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\traffic_datasets'
 #traffic_dataset_folder='torus1200_highin' #84-16
-traffic_dataset_folder='torus1200_highin_intra075'
+traffic_dataset_folder='torus2400_highin_intra075_10ms'
 tors=16
 servers=16
 
@@ -45,6 +45,10 @@ for tor_id in range(1,tors+1):
                 new_pack=Packet(row['packet_id'],row['time'],row['packet_size'],row['packet_qos'],
                                row['source_id'], row['tor_id'], row['destination_id'], row['destination_tor'])
                 my_db.append(new_pack)
+
+per_tor_load=[]
+for tor_id in range(1,tors+1):
+    per_tor_load.append(0)
 
 intra_high_bytes=0
 intra_high_packets=0
@@ -76,6 +80,9 @@ for pack in my_db:
     print(str(100*dbg/len(my_db)))
     total_packets=total_packets+1
     total_bytes=total_bytes+pack.packet_size
+
+    per_tor_load[pack.tor_id]=per_tor_load[pack.tor_id]+pack.packet_size
+
 
     if pack.is_intra():
         intra_packets=intra_packets+1
@@ -160,3 +167,6 @@ print('Total low intra packets='+str(intra_low_packets)+',perc%='+str(100*intra_
 print('Total low intra bytes='+str(intra_low_bytes)+',perc%='+str(100*intra_low_bytes/intra_bytes))
 print('Total low inter packets='+str(inter_low_packets)+',perc%='+str(100*inter_low_packets/inter_packets))
 print('Total low inter bytes='+str(inter_low_bytes)+',perc%='+str(100*inter_low_bytes/inter_bytes))
+print('----')
+for tor_id in range(1,tors+1):
+    print('Tor'+str(tor_id)+',bytes:'+str(per_tor_load[tor_id]))

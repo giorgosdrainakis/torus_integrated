@@ -66,8 +66,7 @@ class Record():
 
 print('Post-processing log folder=' + str(filename))
 my_db=[]
-myname=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
-myname = os.path.join(myname, filename)
+myname = os.path.join(myglobal.LOGS_FOLDER, filename)
 with open(myname) as csv_file:
     csv_reader = csv.DictReader(csv_file, delimiter=',')
     for row in csv_reader:

@@ -63,8 +63,7 @@ class Record():
 
 
 record_list=[]
-myname=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
-myname=os.path.join(myname,filename)
+myname=os.path.join(myglobal.LOGS_FOLDER,filename)
 with open(myname) as csv_file:
     csv_reader = csv.DictReader(csv_file, delimiter=',')
     debug_id=0

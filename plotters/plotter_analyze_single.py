@@ -18,20 +18,20 @@ from torus_integrated.myglobal import *
 
 # Sampling params
 measurement_type='post' # in [pre,post], pre refers to traffic_generation metrics, post to after_experiments metrics
-avgg=False
+avgg=True
 mode='end2end' # in [intra,inter,end2end]
 servers=16 # only for intra
 tors=16 # only for inter
 parent_tor=1 # only for intra, end2end analysis
 # Simulation params
 my_tbegin=0
-my_tend=0.010 # intra 0.050
-my_samples=500 # intra 100
-filename='torus_07_to_10_logs_globecom\\torus2400_highin_intra075_10ms.csv'
+my_tend=0.0010 # intra 0.050
+my_samples=100 # intra 100
+filename='log2022_05_09_15_28_25_947833_everything.csv'
 #filename='torus_logs_globecom\\torus2400_80in.csv'
 # Grouping params
 start_group_value=0
-end_group_value=0.5e8 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
+end_group_value=1e7 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
 grouping_points=25
 
 class Record():
@@ -1449,12 +1449,12 @@ class My_Timeslot():
             return None
 
 if measurement_type=='pre':
-    print('Preprocessing dataset folder='+str(myglobal.TRAFFIC_DATASETS_FOLDER))
+    print('Preprocessing dataset folder='+str(myglobal.CURR_TRAFFIC_DATASET_FOLDER))
     my_db=[]
     for tor_id in range(1,tors+1):
         for server_id in range(1,servers+1):
             mystr='tor'+str(tor_id)+'node'+str(server_id)+'.csv'
-            filename=os.path.join(myglobal.ROOT,myglobal.TRAFFIC_DATASETS_FOLDER)
+            filename=os.path.join(myglobal.ROOT,myglobal.CURR_TRAFFIC_DATASET_FOLDER)
             filename = os.path.join(filename,mystr)
             with open(filename) as csv_file:
                 csv_reader = csv.DictReader(csv_file, delimiter=',')
@@ -1466,8 +1466,7 @@ if measurement_type=='pre':
 elif measurement_type=='post':
     print('Post-processing log folder=' + str(filename))
     my_db=[]
-    myname=os.path.join(myglobal.ROOT,myglobal.LOGS_FOLDER)
-    myname = os.path.join(myname, filename)
+    myname = os.path.join(myglobal.LOGS_FOLDER, filename)
     with open(myname) as csv_file:
         csv_reader = csv.DictReader(csv_file, delimiter=',')
         for row in csv_reader:

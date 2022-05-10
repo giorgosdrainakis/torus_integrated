@@ -1,9 +1,17 @@
+import os
+
+# Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-TRAFFIC_DATASETS_FOLDER='traffic_datasets\\torus2400_80in'
-INTER_TRANSMISSION_INFO_FOLDER='transmission_info'
-TORUS_FILE='torus_matrix.txt'
-LOGS_FOLDER='logs'
-SAVE_LOGS=False
+CURR_DATASET='torus2400_80in'
+
+
+###
+TRAFFIC_DATASETS_FOLDER=os.path.join(ROOT,'traffic_datasets')
+CURR_TRAFFIC_DATASET_FOLDER=os.path.join(TRAFFIC_DATASETS_FOLDER,CURR_DATASET)
+TRANSMISSION_INFO_FOLDER=os.path.join(ROOT,'transmission_info')
+TORUS_MATRIX_FILE=os.path.join(TRANSMISSION_INFO_FOLDER,'torus_matrix.txt')
+LOGS_FOLDER=os.path.join(ROOT,'logs')
+
 PROPAGATION_TIME=10/(2e8) #PROPAGATION_TIME=0 10/(2e8)
 ID_DIFF=1
 MAX_PACKET_SIZE=1500 #bytes
@@ -12,10 +20,6 @@ CYCLE_SIZE=1500 #bytes
 TOTAL_BUFFS_PER_NODE=3
 DEFAULT_UNLUCKY_NODE_ID=1
 DEFAULT_LUCKY_NUM=10
-TOLERANCE = 1e-9
-timestep = 0.8e-9 #-> NEED TOTAL_TIME MOD timestep=0 (sync!)
-WAITING=timestep
-timeslot=(10)*(1e-9) #timeslot=(51.2)*(1e-9)
 
 # Will be set on startup
 CONTROL_MSG_PACKS_PER_BUFF=46
@@ -32,30 +36,7 @@ TOTAL_UNLUCKY_NODES=1
 TOTAL_LUCKY_NODES=1
 ASSIGN_CHANNEL_POLICY='ALL_BIG'
 CYCLE_GUARD_BAND=3 # bytes
-
-####################################################### Architecure Settings
-TOTAL_NODES_PER_TOR = 16
-TOTAL_TORS=16
-# Intra Protocol Settings
-INTRA_CHANNEL_BITRATE = 100e9
-INTRA_CHANNEL_ID_LIST = [100,200,300,400]  # 4 data channel
-INTRA_CONTROL_CHANNEL_ID = 500  # 1 control channel
-INTRA_NODE_INPUT_HIGH_BUFFER_SIZE = 1e6 # bytes
-INTRA_NODE_INPUT_MED_BUFFER_SIZE = 1e6 # bytes
-INTRA_NODE_INPUT_LOW_BUFFER_SIZE = 1e6 # bytes
-INTRA_GUARD_BAND=True ##
-INTRA_REMOVE_INTER=False # True if not proturs experiments
-# Inter Protocol Settings
-INTER_TX_PER_TOR=4
-INTER_CHANNEL_BITRATE = 40e9
-INTER_CHANNEL_ID_LIST = [1000, 2000, 3000, 4000,5000,6000,7000,8000]  # 8 data channel
-INTER_TOR_HIGH_BUFFER_SIZE = 1e6 # bytes
-INTER_TOR_MED_BUFFER_SIZE = 1e6 # bytes
-INTER_TOR_LOW_BUFFER_SIZE = 1e6 # bytes
-# Simulation (traffic dataset) settings
-T_BEGIN = 0
-T_END = 0.010
-##########################################################################################################
+MAX_SLOTS_FOR_SMALL_PACKS=None
 
 # logging
 OUTPUT_TABLE_TITLE='packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,' \

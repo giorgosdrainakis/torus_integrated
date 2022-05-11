@@ -227,7 +227,7 @@ class Nodes:
             print('TOR:' + str(self.tor_id) + '-' + 'INTER add localTOR pack:' + str(
                 pack.show_mini()))
 
-    def write_log(self,real_time):
+    def write_log_deprecated(self,real_time):
         filenames = []
         for node in self.db:
             output_table = myglobal.OUTPUT_TABLE_TITLE
@@ -236,8 +236,6 @@ class Nodes:
              #   len(node.data_dropped) + ',sent=' + str(node.data_sent))
 
             for packet in node.data_sent:
-                output_table = output_table + packet.show() + '\n'
-            for packet in node.data_sent_dedicated:
                 output_table = output_table + packet.show() + '\n'
             for packet in node.data_dropped:
                 output_table = output_table + packet.show() + '\n'
@@ -276,6 +274,26 @@ class Nodes:
             csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
             csv_output.writeheader()
             csv_output.writerows(data)
+
+    def write_log(self,real_time,logfile):
+        for node in self.db:
+            print('Writing tor='+str(self.tor_id)+',node='+str(node.id)+',drop at generation='+str(len(node.data_dropped))+',sent/intra-consume='+str(len(node.data_sent)))
+            with open(logfile, mode='a') as file:
+                for packet in node.data_sent:
+                    curr_str = packet.show() + '\n'
+                    file.write(curr_str)
+                for packet in node.data_dropped:
+                    curr_str = packet.show() + '\n'
+                    file.write(curr_str)
+
+        print('Writing tor='+str(self.tor_id)+',nodess with dl ded sent/inter_consume='+str(len(self.data_sent_dedicated_dl))+',drop/inter-inbound='+str(self.data_dropped))
+        with open(logfile, mode='a') as file:
+            for packet in self.data_sent_dedicated_dl:
+                curr_str = packet.show() + '\n'
+                file.write(curr_str)
+            for packet in self.data_dropped:
+                curr_str = packet.show() + '\n'
+                file.write(curr_str)
 
     def check_generated_packets(self,current_time,split):
         for node in self.db:
@@ -973,7 +991,6 @@ class Node:
         self.node_output_buffer_for_inter_packs_med=None
         self.node_output_buffer_for_inter_packs_high=None
         self.data_meta_buffer_dedicated=[]
-        self.data_sent_dedicated=[]
         self.control_meta_buffer_dedicated=[]
         self.control_sent_dedicated=[]
 

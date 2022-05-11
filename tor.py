@@ -222,6 +222,7 @@ class Tors:
         for tor in self.db:
             tor_names.append(tor.write_log(real_time))
 
+        print('Merging all ToR logs to single everything file...')
         combined_csv = pd.concat([pd.read_csv(f) for f in tor_names])
         mystr='log' + str(real_time) + '_everything.csv'
         combined_name = os.path.join(myglobal.LOGS_FOLDER, mystr)
@@ -843,30 +844,35 @@ class Tor:
         self.nodes.transmit_dedicated_dl(current_time)
 
     def write_log(self,real_time):
-        self.nodes.write_log(real_time)
 
-        output_table = ''
-        print('Dropped packs at TOR level='+str(self.id)+',packs='+str(len(self.data_dropped)))
-        for packet in self.data_dropped:
-            output_table = output_table + packet.show() + '\n'
-
+        # create logfile for this ToR
         mystr='log' + str(real_time) + '_tor' + str(self.id) + '_combo.csv'
-        combined_name = os.path.join(myglobal.LOGS_FOLDER, mystr)
+        logfile = os.path.join(myglobal.LOGS_FOLDER, mystr)
+        with open(logfile, mode='a') as file:
+            file.write(myglobal.OUTPUT_TABLE_TITLE)
 
-        with open(combined_name, mode='a') as file:
-            file.write(output_table)
+        # write info for all ToR nodes and ToR node (intra)
+        self.nodes.write_log(real_time,logfile)
 
+        # write ToR-level info (inter)
+        print('Writing level info for tor='+str(self.id)+',drop/inter-outbound='+str(len(self.data_dropped)))
+        with open(logfile, mode='a') as file:
+            for packet in self.data_dropped:
+                curr_str = packet.show() + '\n'
+                file.write(curr_str)
+
+        # sort ToR
         print('Re Sorting TOR='+str(self.id))
-        with open(combined_name, 'r', newline='') as f_input:
+        with open(logfile, 'r', newline='') as f_input:
             csv_input = csv.DictReader(f_input)
             data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
 
         print('Rewriting TOR='+str(self.id))
-        with open(combined_name, 'w', newline='') as f_output:
+        with open(logfile, 'w', newline='') as f_output:
             csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
             csv_output.writeheader()
             csv_output.writerows(data)
-        return combined_name
+        return logfile
 
     def add_pack_to_outbound_buffers(self,pack,current_time):
         can_add_pack = False

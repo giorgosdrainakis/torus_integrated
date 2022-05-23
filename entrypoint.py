@@ -55,7 +55,7 @@ def main_torus_split():
         tors.inter_check_arrival_and_add_to_inbound_buffers(CURRENT_TIME,split=True)
         tors.inter_transmit(CURRENT_TIME)
         # guard band
-        CURRENT_TIME=CURRENT_TIME+myglobal.CYCLE_GUARD_BAND*8/tors.intra_bitrate
+        #CURRENT_TIME=CURRENT_TIME+myglobal.INTRA_CYCLE_GUARD_BAND*8/tors.intra_bitrate
         CURRENT_TIME=CURRENT_TIME+_TIMESTEP
 
     # print buffer etc. content
@@ -92,7 +92,7 @@ def main_torus_integrated():
         tors.inter_check_arrival_and_add_to_inbound_buffers(CURRENT_TIME,split=False)
         tors.inter_transmit(CURRENT_TIME)
         # guard band
-        CURRENT_TIME=CURRENT_TIME+myglobal.CYCLE_GUARD_BAND*8/tors.intra_bitrate
+        CURRENT_TIME=CURRENT_TIME+myglobal.INTRA_CYCLE_GUARD_BAND*8/tors.intra_bitrate
         CURRENT_TIME=CURRENT_TIME+_TIMESTEP
 
     # print buffer etc. content
@@ -225,7 +225,7 @@ elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==40e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=9 # 7*2+9*1
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=9 #byte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    myglobal.INTRA_CYCLE_GUARD_BAND=9 #byte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
     print('Running with 16 Servers at 100 Gbps')
     time.sleep(3)
@@ -250,8 +250,10 @@ elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=9 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=23 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
     myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
+    myglobal.INTER_CYCLE_GUARD_BAND = 9  # bytes
+    myglobal.DEDICATED_UL_CYCLE_GUARD_BAND = 23  # bytes
 elif _TOTAL_NODES_PER_TOR==64 and _INTRA_BITRATE==10e9: #
     print('Running with 64 Servers with 10Gbps channel')
     # total packets that will be printed per buff
@@ -275,7 +277,7 @@ elif _TOTAL_NODES_PER_TOR==64 and _INTRA_BITRATE==10e9: #
     else:
         myglobal.TOTAL_UNLUCKY_NODES=41 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=3 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=3 #byte
 elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==5e9:
     print('Running with 80 Servers at 5 Gbps')
     time.sleep(3)
@@ -300,7 +302,7 @@ elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==5e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=80-23 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=1 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=1 #byte
 elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==10e9:
     print('Running with 80 Servers at 10 Gbps')
     time.sleep(3)
@@ -325,7 +327,7 @@ elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==10e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=80-23 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=3 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=3 #byte
 elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==20e9:
     print('Running with 80 Servers at 20 Gbps')
     time.sleep(3)
@@ -350,7 +352,7 @@ elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==20e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=80-23 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=5 #byte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    myglobal.INTRA_CYCLE_GUARD_BAND=5 #byte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==40e9:
     print('Running with 80 Servers at 40 Gbps')
     time.sleep(3)
@@ -375,7 +377,7 @@ elif _TOTAL_NODES_PER_TOR==80 and _INTRA_BITRATE==40e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=80-23 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=9 #byte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    myglobal.INTRA_CYCLE_GUARD_BAND=9 #byte!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 elif _TOTAL_NODES_PER_TOR==8 and _INTRA_BITRATE==5e9:
     print('Running with 8 Servers at 5 Gbps')
     time.sleep(3)
@@ -400,7 +402,7 @@ elif _TOTAL_NODES_PER_TOR==8 and _INTRA_BITRATE==5e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=1 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=1 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=1 #byte
 elif _TOTAL_NODES_PER_TOR==20 and _INTRA_BITRATE==100e9:
     print('Running with 20 Servers at 100 Gbps')
     time.sleep(3)
@@ -425,7 +427,7 @@ elif _TOTAL_NODES_PER_TOR==20 and _INTRA_BITRATE==100e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=1 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=23 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
 elif _TOTAL_NODES_PER_TOR==20 and _INTRA_BITRATE==40e9:
     print('Running with 20 Servers at 40 Gbps')
     time.sleep(3)
@@ -450,7 +452,7 @@ elif _TOTAL_NODES_PER_TOR==20 and _INTRA_BITRATE==40e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=1 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=9 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=9 #byte
 elif _TOTAL_NODES_PER_TOR==40 and _INTRA_BITRATE==40e9:
     print('Running with 40 Servers at 40 Gbps')
     time.sleep(3)
@@ -475,7 +477,7 @@ elif _TOTAL_NODES_PER_TOR==40 and _INTRA_BITRATE==40e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=17 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=9 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=9 #byte
 elif _TOTAL_NODES_PER_TOR==60 and _INTRA_BITRATE==40e9:
     print('Running with 60 Servers at 40 Gbps')
     time.sleep(3)
@@ -500,7 +502,7 @@ elif _TOTAL_NODES_PER_TOR==60 and _INTRA_BITRATE==40e9:
     else:
         myglobal.TOTAL_UNLUCKY_NODES=37 # total packs per cycle=23 (need to calculate)
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.CYCLE_GUARD_BAND=9 #byte
+    myglobal.INTRA_CYCLE_GUARD_BAND=9 #byte
 else:
     print('ERROR - Main: Invalid number of nodes per tor')
 

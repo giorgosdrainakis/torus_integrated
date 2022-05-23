@@ -286,7 +286,7 @@ class Nodes:
                     curr_str = packet.show() + '\n'
                     file.write(curr_str)
 
-        print('Writing tor='+str(self.tor_id)+',nodess with dl ded sent/inter_consume='+str(len(self.data_sent_dedicated_dl))+',drop/inter-inbound='+str(self.data_dropped))
+        print('Writing tor='+str(self.tor_id)+',nodess with dl ded sent/inter_consume='+str(len(self.data_sent_dedicated_dl))+',drop/inter-inbound='+str(len(self.data_dropped)))
         with open(logfile, mode='a') as file:
             for packet in self.data_sent_dedicated_dl:
                 curr_str = packet.show() + '\n'
@@ -325,7 +325,8 @@ class Nodes:
         cycle_slot_time=cycle_time/total_slots
         control_bitsize_per_node=myglobal.CONTROL_MSG_PACKS_PER_BUFF*myglobal.TOTAL_BUFFS_PER_NODE*myglobal.CONTROL_MINIPACK_SIZE
         control_cycle_slot_time=control_bitsize_per_node/self.channels.get_common_bitrate()
-        entered_new_cycle=(current_time>=cycle_time*self.current_cycle)
+        time_guard_band=myglobal.INTRA_CYCLE_GUARD_BAND*8/self.channels.get_common_bitrate()
+        entered_new_cycle=(current_time>=cycle_time*self.current_cycle+time_guard_band)
         if entered_new_cycle:
             print('TOR:'+str(self.tor_id)+' -----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
             control_msg = self.build_new_control_message()
@@ -343,7 +344,9 @@ class Nodes:
         cycle_slot_time=cycle_time/total_slots
         control_bitsize_per_node=myglobal.CONTROL_MSG_PACKS_PER_BUFF*myglobal.TOTAL_BUFFS_PER_NODE*myglobal.CONTROL_MINIPACK_SIZE
         control_cycle_slot_time=control_bitsize_per_node/self.dedicated_channels_ul.get_common_bitrate()
-        entered_new_cycle=(current_time>=cycle_time*self.current_cycle_dedicated_ul)
+
+        time_guard_band=myglobal.DEDICATED_UL_CYCLE_GUARD_BAND*8/self.dedicated_channels_ul.get_common_bitrate()
+        entered_new_cycle=(current_time>=cycle_time*self.current_cycle_dedicated_ul+time_guard_band)
         if entered_new_cycle:
             print('TOR:'+str(self.tor_id)+' ---- New dedicated ul cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
             control_msg = self.build_new_control_message_dedicated_ul()

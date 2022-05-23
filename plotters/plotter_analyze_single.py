@@ -25,13 +25,13 @@ tors=16 # only for inter
 parent_tor=1 # only for intra, end2end analysis
 # Simulation params
 my_tbegin=0
-my_tend=0.0010 # intra 0.050
+my_tend=0.010 # intra 0.050
 my_samples=100 # intra 100
-filename='log2022_05_09_15_28_25_947833_everything.csv'
+filename='torus2400_highin_intra075_10ms_with_split.csv'
 #filename='torus_logs_globecom\\torus2400_80in.csv'
 # Grouping params
 start_group_value=0
-end_group_value=1e7 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
+end_group_value=1.5e8 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
 grouping_points=25
 
 class Record():

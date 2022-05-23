@@ -2,8 +2,7 @@ import os
 
 # Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-CURR_DATASET='torus2400_80in'
-
+CURR_DATASET='torus2400_highin_intra075_10ms'
 
 ###
 TRAFFIC_DATASETS_FOLDER=os.path.join(ROOT,'traffic_datasets')
@@ -35,8 +34,10 @@ STR_SOURCE_DEST_ID="{0:03b}"
 TOTAL_UNLUCKY_NODES=1
 TOTAL_LUCKY_NODES=1
 ASSIGN_CHANNEL_POLICY='ALL_BIG'
-CYCLE_GUARD_BAND=3 # bytes
+INTRA_CYCLE_GUARD_BAND=3 # bytes
 MAX_SLOTS_FOR_SMALL_PACKS=None
+INTER_CYCLE_GUARD_BAND=3 # bytes
+DEDICATED_UL_CYCLE_GUARD_BAND=3 # bytes
 
 # logging
 OUTPUT_TABLE_TITLE='packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,' \

@@ -97,7 +97,9 @@ class Tors:
 
     def is_new_cycle(self,current_time):
         cycle_time = self.get_per_cycle_time()
-        entered_new_cycle = (current_time >= cycle_time * self.current_cycle)
+
+        time_guard_band=myglobal.INTER_CYCLE_GUARD_BAND*8/self.inter_bitrate
+        entered_new_cycle = (current_time >= cycle_time * self.current_cycle+time_guard_band)
         if entered_new_cycle:
             self.current_cycle = self.current_cycle + 1
         return entered_new_cycle

@@ -24,7 +24,7 @@ parent_tor=1 # only for intra, end2end analysis
 # Simulation params
 my_tbegin=0
 my_tend=0.010 # intra 0.050
-filename='torus_07_to_10_logs_globecom\\torus3200_highin_intra075_10ms.csv'
+filename='torus2400_80in.csv'
 
 class Record():
     def __init__(self,packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,
@@ -133,13 +133,7 @@ for rec in my_db:
         else:
             bytes_inter_drop_at_dest_tor=bytes_inter_drop_at_dest_tor+rec.packet_size
 
-        new_rec=Record(row['packet_id'],row['time'],row['packet_size'],row['packet_qos'],
-                       row['source_id'], row['tor_id'], row['destination_id'], row['destination_tor'],
-                       row['time_intra_buffer_in'], row['time_intra_buffer_out'], row['time_intra_trx_in'], row['time_intra_trx_out'],
-                       row['time_tor_buffer_in'], row['time_tor_buffer_out'], row['time_tor_trx_in'], row['time_tor_trx_out'],
-                       row['time_inter_buffer_in'], row['time_inter_buffer_out'], row['time_inter_trx_in'], row['time_inter_trx_out']
-                       )
-
+print('Total packets='+str(len(my_db)))
 print('bytes_intra_born'+'='+str(bytes_intra_born))
 print('bytes_intra_drop'+'='+str(bytes_intra_drop))
 print('bytes_intra_rx'+'='+str(bytes_intra_rx))

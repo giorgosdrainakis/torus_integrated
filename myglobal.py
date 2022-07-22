@@ -11,7 +11,7 @@ TRANSMISSION_INFO_FOLDER=os.path.join(ROOT,'transmission_info')
 TORUS_MATRIX_FILE=os.path.join(TRANSMISSION_INFO_FOLDER,'torus_matrix.txt')
 LOGS_FOLDER=os.path.join(ROOT,'logs')
 
-PROPAGATION_TIME=10/(2e8) #PROPAGATION_TIME=0 10/(2e8)
+PROPAGATION_TIME=5/(2e8) #PROPAGATION_TIME=0 10/(2e8) # 2.5m cable (2 RTT)
 ID_DIFF=1
 MAX_PACKET_SIZE=1500 #bytes
 MIN_PACKET_SIZE=64 #bytes
@@ -22,6 +22,8 @@ DEFAULT_LUCKY_NUM=10
 
 # Will be set on startup
 CONTROL_MSG_PACKS_PER_BUFF=46
+CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA=46 # apply in split network with shared channel
+CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER=46 # apply in split network with shared channel
 CONTROL_MINIPACK_SIZE=9 #bits
 BONUS_MSG_BITSIZE=7 #bits
 BREAK_POSITION=3

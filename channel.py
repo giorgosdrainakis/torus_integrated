@@ -62,6 +62,7 @@ class Channel():
         self.bitrate=bitrate
         self.db=[]
         self.trx_matrix=[]
+        self.shared=False
 
     def get_unlucky_list(self):
         mylist=[]

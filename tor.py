@@ -63,9 +63,9 @@ class Tors:
         for tor in self.db:
             tor.create_intra_data_channels(total_intra_data_channels,intra_bitrate)
 
-    def create_intra_control_channel(self,intra_control_channel_id):
+    def create_intra_control_channel(self,intra_control_channel_id,shared):
         for tor in self.db:
-            tor.create_intra_control_channel(intra_control_channel_id)
+            tor.create_intra_control_channel(intra_control_channel_id,shared)
 
     def create_intra_dedicated_data_channels_dl(self,total_intra_data_channels_dl,intra_dedicated_bitrate):
         self.intra_dedicated_bitrate=intra_dedicated_bitrate
@@ -76,9 +76,9 @@ class Tors:
         for tor in self.db:
             tor.create_intra_dedicated_data_channels_ul(total_intra_data_channels_ul,intra_dedicated_bitrate)
 
-    def create_intra_dedicated_control_channel(self,intra_dedicated_control_channel_id):
+    def create_intra_dedicated_control_channel(self,intra_dedicated_control_channel_id,shared):
         for tor in self.db:
-            tor.create_intra_dedicated_control_channel(intra_dedicated_control_channel_id)
+            tor.create_intra_dedicated_control_channel(intra_dedicated_control_channel_id,shared)
 
     def create_intra_traffic_datasets(self,remove_inter):
         for tor in self.db:
@@ -290,8 +290,8 @@ class Tor:
     def create_intra_data_channels(self, total_intra_data_channels, intra_bitrate):
         self.nodes.create_intra_data_channels(total_intra_data_channels, intra_bitrate)
 
-    def create_intra_control_channel(self, intra_control_channel_id):
-        self.nodes.create_intra_control_channel(intra_control_channel_id)
+    def create_intra_control_channel(self, intra_control_channel_id,shared):
+        self.nodes.create_intra_control_channel(intra_control_channel_id,shared)
 
     def create_intra_dedicated_data_channels_dl(self, total_intra_data_channels_dl, intra_dedicated_bitrate):
         self.nodes.create_intra_dedicated_data_channels_dl(total_intra_data_channels_dl, intra_dedicated_bitrate)
@@ -299,8 +299,8 @@ class Tor:
     def create_intra_dedicated_data_channels_ul(self, total_intra_data_channels_ul, intra_dedicated_bitrate):
         self.nodes.create_intra_dedicated_data_channels_ul(total_intra_data_channels_ul, intra_dedicated_bitrate)
 
-    def create_intra_dedicated_control_channel(self, intra_dedicated_control_channel_id):
-        self.nodes.create_intra_dedicated_control_channel(intra_dedicated_control_channel_id)
+    def create_intra_dedicated_control_channel(self, intra_dedicated_control_channel_id,shared):
+        self.nodes.create_intra_dedicated_control_channel(intra_dedicated_control_channel_id,shared)
 
     def create_intra_traffic_datasets(self,remove_inter):
         self.nodes.create_intra_traffic_datasets(remove_inter=remove_inter)

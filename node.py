@@ -155,8 +155,9 @@ class Nodes:
             self.channels.add_new(new_channel)
         print('Tor '+str(self.tor_id)+',created' + str(len(self.channels.db)) + ' intra channels @' + str(self.channels.get_common_bitrate()) + ' bps')
 
-    def create_intra_control_channel(self,intra_control_channel_id):
+    def create_intra_control_channel(self,intra_control_channel_id,shared):
         control_channel = Channel(intra_control_channel_id, self.intra_bitrate)
+        control_channel.shared=shared
         self.control_channel = control_channel
 
     def create_intra_dedicated_data_channels_dl(self,total_intra_dedicated_data_channels_dl, intra_dedicated_bitrate):
@@ -176,8 +177,9 @@ class Nodes:
             self.dedicated_channels_ul.add_new(new_channel)
         print('Tor '+str(self.tor_id)+',created' + str(len(self.channels.db)) + ' dedicated UL intra channels @' + str(self.channels.get_common_bitrate()) + ' bps')
 
-    def create_intra_dedicated_control_channel(self, intra_dedicated_control_channel_id):
+    def create_intra_dedicated_control_channel(self, intra_dedicated_control_channel_id,shared):
         control_channel = Channel(intra_dedicated_control_channel_id, self.intra_dedicated_bitrate)
+        control_channel.shared=shared
         self.dedicated_control_channel = control_channel
 
     def create_intra_traffic_datasets(self,remove_inter):
@@ -323,39 +325,70 @@ class Nodes:
         cycle_time=self.get_per_cycle_time()
         total_slots=int(myglobal.CYCLE_SIZE/myglobal.MIN_PACKET_SIZE)
         cycle_slot_time=cycle_time/total_slots
-        control_bitsize_per_node=myglobal.CONTROL_MSG_PACKS_PER_BUFF*myglobal.TOTAL_BUFFS_PER_NODE*myglobal.CONTROL_MINIPACK_SIZE
-        control_cycle_slot_time=control_bitsize_per_node/self.channels.get_common_bitrate()
         time_guard_band=myglobal.INTRA_CYCLE_GUARD_BAND*8/self.channels.get_common_bitrate()
         entered_new_cycle=(current_time>=cycle_time*self.current_cycle+time_guard_band)
         if entered_new_cycle:
-            print('TOR:'+str(self.tor_id)+' -----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
-            control_msg = self.build_new_control_message()
-            decoder=self.run_distributed_algo(control_msg)
-            for node in self.db:
-                node.process_new_cycle(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
-                                       self.current_cycle,self.channels,self.control_channel,total_nodes)
+            if self.control_channel.shared:
+                print('TOR:' + str(self.tor_id) + ' -----------Entered new cycle (intra+dedicatedUL)=' + str(self.current_cycle) + ' at=' + str(current_time))
+
+                control_bitsize_per_node_intra = myglobal.CONTROL_MSG_PACKS_PER_BUFF * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
+                control_cycle_slot_time_intra = control_bitsize_per_node_intra / self.channels.get_common_bitrate()
+
+                control_bitsize_per_node_dedicated_ul = myglobal.CONTROL_MSG_PACKS_PER_BUFF * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
+                control_cycle_slot_time_dedicated_ul = control_bitsize_per_node_dedicated_ul / self.dedicated_channels_ul.get_common_bitrate()
+
+                control_msg_intra = self.build_new_control_message()
+                decoder_intra = self.run_distributed_algo(control_msg_intra)
+
+                control_msg_dedicated_ul = self.build_new_control_message_dedicated_ul()
+                decoder_dedicated_ul = self.run_distributed_algo_dedicated_ul(control_msg_dedicated_ul)
+
+                for node in self.db:
+                    node.process_new_cycle(current_time, decoder_intra, cycle_time, cycle_slot_time, control_cycle_slot_time_intra,
+                                           self.current_cycle, self.channels, self.control_channel, total_nodes)
+
+                    node.process_new_cycle_dedicated_ul(current_time,decoder_dedicated_ul,cycle_time,cycle_slot_time,control_cycle_slot_time_dedicated_ul,
+                                           self.current_cycle_dedicated_ul,self.dedicated_channels_ul,self.control_channel,total_nodes)
+                self.current_cycle_dedicated_ul = self.current_cycle_dedicated_ul + 1
+            else:
+                print('TOR:'+str(self.tor_id)+' -----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
+                control_bitsize_per_node = myglobal.CONTROL_MSG_PACKS_PER_BUFF * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
+                control_cycle_slot_time = control_bitsize_per_node / self.channels.get_common_bitrate()
+
+                control_msg = self.build_new_control_message()
+                decoder=self.run_distributed_algo(control_msg)
+
+                for node in self.db:
+                    node.process_new_cycle(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
+                                           self.current_cycle,self.channels,self.control_channel,total_nodes)
+
             self.current_cycle=self.current_cycle+1
+
         return entered_new_cycle
 
     def process_new_cycle_dedicated_ul(self,current_time):
-        total_nodes = len(self.db)
-        cycle_time=self.get_per_cycle_time_dedicated_ul()
-        total_slots=int(myglobal.CYCLE_SIZE/myglobal.MIN_PACKET_SIZE)
-        cycle_slot_time=cycle_time/total_slots
-        control_bitsize_per_node=myglobal.CONTROL_MSG_PACKS_PER_BUFF*myglobal.TOTAL_BUFFS_PER_NODE*myglobal.CONTROL_MINIPACK_SIZE
-        control_cycle_slot_time=control_bitsize_per_node/self.dedicated_channels_ul.get_common_bitrate()
+        if self.control_channel.shared:
+            return 0
+        else:
+            total_nodes = len(self.db)
+            cycle_time=self.get_per_cycle_time_dedicated_ul()
+            total_slots=int(myglobal.CYCLE_SIZE/myglobal.MIN_PACKET_SIZE)
+            cycle_slot_time=cycle_time/total_slots
+            control_bitsize_per_node=myglobal.CONTROL_MSG_PACKS_PER_BUFF*myglobal.TOTAL_BUFFS_PER_NODE*myglobal.CONTROL_MINIPACK_SIZE
+            control_cycle_slot_time=control_bitsize_per_node/self.dedicated_channels_ul.get_common_bitrate()
 
-        time_guard_band=myglobal.DEDICATED_UL_CYCLE_GUARD_BAND*8/self.dedicated_channels_ul.get_common_bitrate()
-        entered_new_cycle=(current_time>=cycle_time*self.current_cycle_dedicated_ul+time_guard_band)
-        if entered_new_cycle:
-            print('TOR:'+str(self.tor_id)+' ---- New dedicated ul cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
-            control_msg = self.build_new_control_message_dedicated_ul()
-            decoder=self.run_distributed_algo_dedicated_ul(control_msg)
-            for node in self.db:
-                node.process_new_cycle_dedicated_ul(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
-                                       self.current_cycle_dedicated_ul,self.dedicated_channels_ul,self.dedicated_control_channel,total_nodes)
-            self.current_cycle_dedicated_ul=self.current_cycle_dedicated_ul+1
-        return entered_new_cycle
+            time_guard_band=myglobal.DEDICATED_UL_CYCLE_GUARD_BAND*8/self.dedicated_channels_ul.get_common_bitrate()
+            entered_new_cycle=(current_time>=cycle_time*self.current_cycle_dedicated_ul+time_guard_band)
+            if entered_new_cycle:
+                print('TOR:'+str(self.tor_id)+' ---- New dedicated ul cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
+                control_msg = self.build_new_control_message_dedicated_ul()
+                decoder=self.run_distributed_algo_dedicated_ul(control_msg)
+                for node in self.db:
+                    node.process_new_cycle_dedicated_ul(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
+                                           self.current_cycle_dedicated_ul,self.dedicated_channels_ul,self.dedicated_control_channel,total_nodes)
+                self.current_cycle_dedicated_ul=self.current_cycle_dedicated_ul+1
+            return entered_new_cycle
+
 
     def check_arrival_dedicated_dl(self,current_time):
         for pack in self.data_meta_buffer_dedicated_dl:
@@ -547,6 +580,23 @@ class Nodes:
                 else:
                     print('ERROR unknow DL location')
                     exit(0)
+
+    def build_new_control_message_shared(self):
+        msg=[]
+        bonus=None
+        for node in self.db:
+            if len(node.control_sent_shared)==1:
+                msg.append(node.control_sent_shared[0])
+            elif len(node.control_sent_shared)==2:
+                msg.append(node.control_sent_shared[0])
+                bonus=node.control_sent_shared[1]
+            else:
+                print('Cannot find built message for '+str(node.id))
+        if bonus is not None:
+            msg.append(bonus)
+        for node in self.db:
+            node.control_sent_shared=[]
+        return msg
 
     def build_new_control_message(self):
         msg=[]
@@ -997,6 +1047,9 @@ class Node:
         self.control_meta_buffer_dedicated=[]
         self.control_sent_dedicated=[]
 
+        self.control_meta_buffer_shared = []
+        self.control_sent_shared=[]
+
     def create_intra_traffic_datasets(self,remove_inter):
         node_str = 'tor' + str(self.parent_tor_id) + 'node' + str(self.id) + '.csv'
         traffic_dataset_file = os.path.join(myglobal.CURR_TRAFFIC_DATASET_FOLDER, node_str)
@@ -1396,8 +1449,10 @@ class Node:
                           current_cycle, data_channels,control_channel,total_nodes):
 
         self.decode_previous_cycle(decoder, cycle_time, cycle_slot_time, current_cycle, data_channels)
+
         self.build_next_rounds_control_msg(current_time, cycle_time, control_cycle_slot_time,
                                           current_cycle, control_channel)
+
         self.build_bonus_msg(current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes)
 
@@ -1405,8 +1460,10 @@ class Node:
                           current_cycle, data_channels,control_channel,total_nodes):
 
         self.decode_previous_cycle_dedicated_ul(decoder, cycle_time, cycle_slot_time, current_cycle, data_channels)
+
         self.build_next_rounds_control_msg_dedicated_ul(current_time, cycle_time, control_cycle_slot_time,
                                           current_cycle, control_channel)
+
         self.build_bonus_msg_dedicated_ul(current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes)
 

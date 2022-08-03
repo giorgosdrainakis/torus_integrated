@@ -34,7 +34,7 @@ def main_torus_split():
 
     # run simulation
     CURRENT_TIME=_T_BEGIN
-    while (CURRENT_TIME<=_T_END or tors.have_buffers_packets()): #and CURRENT_TIME<=myglobal.T_END*1.5:
+    while (CURRENT_TIME<=_T_END or tors.have_buffers_packets()) and (CURRENT_TIME<=_T_END*1.1):
         # add newly generated packets to intra buffers
         if CURRENT_TIME<=_T_END*1.01:
             tors.check_generated_packets(CURRENT_TIME,split=True)
@@ -79,7 +79,7 @@ def main_torus_integrated():
 
     # run simulation
     CURRENT_TIME=_T_BEGIN
-    while (CURRENT_TIME<=_T_END or tors.have_buffers_packets()): #and CURRENT_TIME<=myglobal.T_END*1.5:
+    while (CURRENT_TIME<=_T_END or tors.have_buffers_packets()) and CURRENT_TIME<=_T_END*1.1:
         # add newly generated packets to intra buffers
         if CURRENT_TIME<=_T_END*1.01:
             tors.check_generated_packets(CURRENT_TIME,split=False)
@@ -111,8 +111,8 @@ _TOR_OUTBOUND_BUFFER_SIZE_HIGH=1e6
 _TOR_INBOUND_BUFFER_SIZE_LOW=1e6
 _TOR_INBOUND_BUFFER_SIZE_MED=1e6
 _TOR_INBOUND_BUFFER_SIZE_HIGH=1e6
-_TOTAL_NODES_PER_TOR=16
-_TOR_NODE_ID=16
+_TOTAL_NODES_PER_TOR=32
+_TOR_NODE_ID=99
 _TOTAL_INTRA_DATA_CHANNELS=4
 _INTRA_BITRATE=100e9
 _INTRA_CONTROL_CHANNEL_ID=99
@@ -193,6 +193,31 @@ elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
     myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
     myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
+elif _TOTAL_NODES_PER_TOR==32 and _INTRA_BITRATE==100e9:
+    if _SHARE_CONTROL_CHANNEL:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 1  # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 1  # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+        print('Running with 32 Servers at 100 Gbps, with shared control channel')
+    else:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF = 9
+        print('Running with 32 Servers at 100 Gbps, with dedicated control channel')
+    myglobal.STR_SOURCE_DEST_ID = "{0:05b}"
+    myglobal.CONTROL_MINIPACK_SIZE = 13  # bits
+    myglobal.CUT_1 = 5
+    myglobal.CUT_2 = 10
+    myglobal.CUT_3 = 12
+    myglobal.BONUS_MSG_BITSIZE = 9  # bits (=cut1+4)
+    myglobal.BREAK_POSITION=5 #(cut1)
+    myglobal.LUCKY_SLOT_LEN = 1
+    myglobal.UNLUCKY_SLOT_LEN = 0
+    if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+        myglobal.TOTAL_UNLUCKY_NODES=17
+    else:
+        myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+    myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+    myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+    myglobal.MAX_SLOTS_FOR_SMALL_PACKS=15
 else:
     print('ERROR - Main: Invalid number of nodes per tor')
 

@@ -591,7 +591,7 @@ class Nodes:
                 msg.append(node.control_sent_shared[0])
                 bonus=node.control_sent_shared[1]
             else:
-                print('Cannot find built message for '+str(node.id))
+                print('Cannot find built message for shared'+str(node.id))
         if bonus is not None:
             msg.append(bonus)
         for node in self.db:
@@ -608,7 +608,7 @@ class Nodes:
                 msg.append(node.control_sent[0])
                 bonus=node.control_sent[1]
             else:
-                print('Cannot find built message for '+str(node.id))
+                print('Cannot find built message for control intra node'+str(node.id))
         if bonus is not None:
             msg.append(bonus)
         for node in self.db:
@@ -625,7 +625,7 @@ class Nodes:
                 msg.append(node.control_sent_dedicated[0])
                 bonus=node.control_sent_dedicated[1]
             else:
-                print('Cannot find built message for '+str(node.id))
+                print('Cannot find built message for dedicated UL'+str(node.id))
         if bonus is not None:
             msg.append(bonus)
         for node in self.db:
@@ -967,7 +967,9 @@ class Nodes:
                 bonus_pack=pack
                 break
         if bonus_pack is not None:
+            #print(str(bonus_pack.bonus_info))
             s3, p4 = bonus_pack.bonus_info[:break_position], bonus_pack.bonus_info[break_position:]
+            #print('s3='+str(s3))
             lucky_node_bit_id = int(s3, 2)
             lucky_number = int(p4, 2)
         else:

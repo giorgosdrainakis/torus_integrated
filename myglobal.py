@@ -2,7 +2,7 @@ import os
 
 # Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-CURR_DATASET='torus2400_highin_intra075_10ms'
+CURR_DATASET='torus_3200_16x32_stayin'
 
 ###
 TRAFFIC_DATASETS_FOLDER=os.path.join(ROOT,'traffic_datasets')
@@ -11,7 +11,11 @@ TRANSMISSION_INFO_FOLDER=os.path.join(ROOT,'transmission_info')
 TORUS_MATRIX_FILE=os.path.join(TRANSMISSION_INFO_FOLDER,'torus_matrix.txt')
 LOGS_FOLDER=os.path.join(ROOT,'logs')
 
-PROPAGATION_TIME=5/(2e8) #PROPAGATION_TIME=0 10/(2e8) # 2.5m cable (2 RTT)
+CABLE_LEN=2.5 # m
+FIBER_FACTOR=1.5 # 1.5 if typical fyber, 1 if hollow-core (=refraction index)
+SPEED=3e8/FIBER_FACTOR # speed in fiber=speed of light/factor
+PROPAGATION_TIME=(2*CABLE_LEN)/(SPEED) #PROPAGATION_TIME= 2 * cable_len (RTT) /speed
+print('propagationtime (ns)='+str(PROPAGATION_TIME*1e9))
 ID_DIFF=1
 MAX_PACKET_SIZE=1500 #bytes
 MIN_PACKET_SIZE=64 #bytes

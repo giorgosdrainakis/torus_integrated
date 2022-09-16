@@ -331,10 +331,10 @@ class Nodes:
             if self.control_channel.shared:
                 print('TOR:' + str(self.tor_id) + ' -----------Entered new cycle (intra+dedicatedUL)=' + str(self.current_cycle) + ' at=' + str(current_time))
 
-                control_bitsize_per_node_intra = myglobal.CONTROL_MSG_PACKS_PER_BUFF * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
+                control_bitsize_per_node_intra = myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
                 control_cycle_slot_time_intra = control_bitsize_per_node_intra / self.channels.get_common_bitrate()
 
-                control_bitsize_per_node_dedicated_ul = myglobal.CONTROL_MSG_PACKS_PER_BUFF * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
+                control_bitsize_per_node_dedicated_ul = myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
                 control_cycle_slot_time_dedicated_ul = control_bitsize_per_node_dedicated_ul / self.dedicated_channels_ul.get_common_bitrate()
 
                 control_msg_intra = self.build_new_control_message()
@@ -1279,9 +1279,14 @@ class Node:
                           current_cycle, control_channel):
         mymsg=Control_Packet(current_time,self.id)
         minipack_list=[]
+        if control_channel.shared:
+            mymax=myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA
+        else:
+            mymax = myglobal.CONTROL_MSG_PACKS_PER_BUFF
+
         i=0
         for pack in self.node_output_buffer_for_intra_packs_high.db:
-            if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
+            if i<mymax:
                 strr=myglobal.STR_SOURCE_DEST_ID
                 src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
                 dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
@@ -1291,11 +1296,11 @@ class Node:
                 minipack_list.append(total_str)
             i=i+1
 
-        mydbg_high=min(i,myglobal.CONTROL_MSG_PACKS_PER_BUFF)
+        mydbg_high=min(i,mymax)
 
         i=0
         for pack in self.node_output_buffer_for_intra_packs_med.db:
-            if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
+            if i<mymax:
                 strr=myglobal.STR_SOURCE_DEST_ID
                 src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
                 dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
@@ -1308,11 +1313,11 @@ class Node:
                 minipack_list.append(total_str)
             i=i+1
 
-        mydbg_med=min(i,myglobal.CONTROL_MSG_PACKS_PER_BUFF)
+        mydbg_med=min(i,mymax)
 
         i=0
         for pack in self.node_output_buffer_for_intra_packs_low.db:
-            if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
+            if i<mymax:
                 strr=myglobal.STR_SOURCE_DEST_ID
                 src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
                 dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
@@ -1325,10 +1330,10 @@ class Node:
                 minipack_list.append(total_str)
             i=i+1
 
-        mydbg_low=min(i,myglobal.CONTROL_MSG_PACKS_PER_BUFF)
+        mydbg_low=min(i,mymax)
 
         mymsg.minipack_list=minipack_list
-        bit_packet_size=myglobal.CONTROL_MSG_PACKS_PER_BUFF*myglobal.TOTAL_BUFFS_PER_NODE*\
+        bit_packet_size=mymax*myglobal.TOTAL_BUFFS_PER_NODE*\
                               myglobal.CONTROL_MINIPACK_SIZE #bytes
         mymsg.packet_size=bit_packet_size/8
         myslot=self.id-myglobal.ID_DIFF
@@ -1342,9 +1347,13 @@ class Node:
                           current_cycle, control_channel):
         mymsg=Control_Packet(current_time,self.id)
         minipack_list=[]
+        if control_channel.shared:
+            mymax=myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+        else:
+            mymax = myglobal.CONTROL_MSG_PACKS_PER_BUFF
         i=0
         for pack in self.node_output_buffer_for_inter_packs_high.db:
-            if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
+            if i<mymax:
                 strr=myglobal.STR_SOURCE_DEST_ID
                 src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
                 dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
@@ -1354,11 +1363,11 @@ class Node:
                 minipack_list.append(total_str)
             i=i+1
 
-        mydbg_high=min(i,myglobal.CONTROL_MSG_PACKS_PER_BUFF)
+        mydbg_high=min(i,mymax)
 
         i=0
         for pack in self.node_output_buffer_for_inter_packs_med.db:
-            if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
+            if i<mymax:
                 strr=myglobal.STR_SOURCE_DEST_ID
                 src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
                 dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
@@ -1371,11 +1380,11 @@ class Node:
                 minipack_list.append(total_str)
             i=i+1
 
-        mydbg_med=min(i,myglobal.CONTROL_MSG_PACKS_PER_BUFF)
+        mydbg_med=min(i,mymax)
 
         i=0
         for pack in self.node_output_buffer_for_inter_packs_low.db:
-            if i<myglobal.CONTROL_MSG_PACKS_PER_BUFF:
+            if i<mymax:
                 strr=myglobal.STR_SOURCE_DEST_ID
                 src_bit_id=strr.format(self.id-myglobal.ID_DIFF)
                 dest_bit_id=strr.format(pack.destination_id-myglobal.ID_DIFF)
@@ -1388,10 +1397,10 @@ class Node:
                 minipack_list.append(total_str)
             i=i+1
 
-        mydbg_low=min(i,myglobal.CONTROL_MSG_PACKS_PER_BUFF)
+        mydbg_low=min(i,mymax)
 
         mymsg.minipack_list=minipack_list
-        bit_packet_size=myglobal.CONTROL_MSG_PACKS_PER_BUFF*myglobal.TOTAL_BUFFS_PER_NODE*\
+        bit_packet_size=mymax*myglobal.TOTAL_BUFFS_PER_NODE*\
                               myglobal.CONTROL_MINIPACK_SIZE #bytes
         mymsg.packet_size=bit_packet_size/8
         myslot=self.id-myglobal.ID_DIFF

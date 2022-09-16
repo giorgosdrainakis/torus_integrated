@@ -225,7 +225,7 @@ elif _TOTAL_NODES_PER_TOR==32 and _INTRA_BITRATE==100e9:
         myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
         print('Running with 32 Servers at 100 Gbps, with shared control channel')
     else:
-        myglobal.CONTROL_MSG_PACKS_PER_BUFF = 9
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF = 2
         print('Running with 32 Servers at 100 Gbps, with dedicated control channel')
     myglobal.STR_SOURCE_DEST_ID = "{0:05b}"
     myglobal.CONTROL_MINIPACK_SIZE = 13  # bits

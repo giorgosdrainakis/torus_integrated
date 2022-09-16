@@ -173,10 +173,10 @@ elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
         myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 8  # apply in split network with shared channel
         myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 4  # apply in split network with shared channel
         myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
-        print('Running with 20 Servers at 100 Gbps, with shared control channel')
+        print('Running with 16 Servers at 100 Gbps, with shared control channel')
     else:
         myglobal.CONTROL_MSG_PACKS_PER_BUFF = 12
-        print('Running with 20 Servers at 100 Gbps, with dedicated control channel')
+        print('Running with 16 Servers at 100 Gbps, with dedicated control channel')
     myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
     myglobal.CONTROL_MINIPACK_SIZE = 11  # bits
     myglobal.CUT_1 = 4
@@ -193,6 +193,31 @@ elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
     myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
     myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
+elif _TOTAL_NODES_PER_TOR==20 and _INTRA_BITRATE==100e9:
+    if _SHARE_CONTROL_CHANNEL:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 5  # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 2  # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+        print('Running with 20 Servers at 100 Gbps, with shared control channel')
+    else:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF = 7
+        print('Running with 20 Servers at 100 Gbps, with dedicated control channel')
+    myglobal.STR_SOURCE_DEST_ID = "{0:05b}"
+    myglobal.CONTROL_MINIPACK_SIZE = 13  # bits
+    myglobal.CUT_1 = 5
+    myglobal.CUT_2 = 10
+    myglobal.CUT_3 = 12
+    myglobal.BONUS_MSG_BITSIZE = 9  # bits (=cut1+4)
+    myglobal.BREAK_POSITION=5 #(cut1)
+    myglobal.LUCKY_SLOT_LEN = 1
+    myglobal.UNLUCKY_SLOT_LEN = 0
+    if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+        myglobal.TOTAL_UNLUCKY_NODES=4
+    else:
+        myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+    myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+    myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+    myglobal.MAX_SLOTS_FOR_SMALL_PACKS=16
 elif _TOTAL_NODES_PER_TOR==24 and _INTRA_BITRATE==100e9:
     if _SHARE_CONTROL_CHANNEL:
         myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 4  # apply in split network with shared channel

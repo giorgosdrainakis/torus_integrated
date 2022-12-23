@@ -60,7 +60,7 @@ def clean_load_delays(load,avg,high,med,low,cleaning_factor):
 
     return load,avg,high,med,low
 
-def plot_thru_intra(data,strategy):
+def plot_thru_intra(data,strategy,distribution='8020'):
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
@@ -74,8 +74,15 @@ def plot_thru_intra(data,strategy):
         x_lim_begin = -0.1
         x_lim_end=450
         if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_load_total_bps_avg, waa_1600_go_intra_thru_total_bps_avg,
-                                               waa_1600_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
+            if distribution=='8020':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_load_total_bps_avg, waa_1600_go_intra_thru_total_bps_avg,
+                                                   waa_1600_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
+            elif distribution=='7030':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_7030_load_total_bps_avg, waa_1600_go_intra_7030_thru_total_bps_avg,
+                                                   waa_1600_go_intra_7030_drop_total_bps_avg,cleaning_factor=1e9)
+            elif distribution=='6040':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_6040_load_total_bps_avg, waa_1600_go_intra_6040_thru_total_bps_avg,
+                                                   waa_1600_go_intra_6040_drop_total_bps_avg,cleaning_factor=1e9)
         elif strategy=='stay':
             load, thru, drop = clean_load_thru_drop(waa_1600_stay_intra_load_total_bps_avg, waa_1600_stay_intra_thru_total_bps_avg,
                                                waa_1600_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
@@ -430,7 +437,7 @@ def plot_delay_multiple(data_list,strategy):
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
 
     plt.show()
-def plot_thru_inter(data,strategy):
+def plot_thru_inter(data,strategy,distribution='8020'):
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
@@ -444,8 +451,18 @@ def plot_thru_inter(data,strategy):
         #    x_lim_begin = 1.95
         #    x_lim_end=10
         if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_1600_go_inter_load_total_bps_avg, waa_1600_go_inter_thru_total_bps_avg,
-                                               waa_1600_go_inter_drop_total_bps_avg,cleaning_factor=1e9)
+
+            if distribution=='8020':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_inter_load_total_bps_avg,
+                                                        waa_1600_go_inter_thru_total_bps_avg,
+                                                        waa_1600_go_inter_drop_total_bps_avg, cleaning_factor=1e9)
+            elif distribution=='7030':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_inter_7030_load_total_bps_avg, waa_1600_go_inter_7030_thru_total_bps_avg,
+                                                   waa_1600_go_inter_7030_drop_total_bps_avg,cleaning_factor=1e9)
+            elif distribution=='6040':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_inter_6040_load_total_bps_avg, waa_1600_go_inter_6040_thru_total_bps_avg,
+                                                   waa_1600_go_inter_6040_drop_total_bps_avg,cleaning_factor=1e9)
+
         elif strategy=='stay':
             load, thru, drop = clean_load_thru_drop(waa_1600_stay_inter_load_total_bps_avg, waa_1600_stay_inter_thru_total_bps_avg,
                                                waa_1600_stay_inter_drop_total_bps_avg,cleaning_factor=1e9)
@@ -502,7 +519,7 @@ def plot_thru_inter(data,strategy):
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
 
     plt.show()
-def plot_thru_e2e(data,strategy):
+def plot_thru_e2e(data,strategy,distribution='8020'):
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
@@ -516,8 +533,16 @@ def plot_thru_e2e(data,strategy):
         x_lim_begin = -0.1
         x_lim_end=10
         if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_1600_go_e2e_load_total_bps_avg, waa_1600_go_e2e_thru_total_bps_avg,
+            if distribution=='8020':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_e2e_load_total_bps_avg, waa_1600_go_e2e_thru_total_bps_avg,
                                                waa_1600_go_e2e_drop_total_bps_avg,cleaning_factor=1e12)
+            elif distribution=='7030':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_e2e_7030_load_total_bps_avg, waa_1600_go_e2e_7030_thru_total_bps_avg,
+                                                   waa_1600_go_e2e_7030_drop_total_bps_avg,cleaning_factor=1e12)
+            elif distribution=='6040':
+                load, thru, drop = clean_load_thru_drop(waa_1600_go_e2e_6040_load_total_bps_avg, waa_1600_go_e2e_6040_thru_total_bps_avg,
+                                                   waa_1600_go_e2e_6040_drop_total_bps_avg,cleaning_factor=1e12)
+
         elif strategy=='stay':
             load, thru, drop = clean_load_thru_drop(waa_1600_stay_e2e_load_total_bps_avg, waa_1600_stay_e2e_thru_total_bps_avg,
                                                waa_1600_stay_e2e_drop_total_bps_avg,cleaning_factor=1e12)
@@ -574,7 +599,7 @@ def plot_thru_e2e(data,strategy):
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
 
     plt.show()
-def plot_delays_e2e(data, strategy,toplot):
+def plot_delays_e2e(data, strategy,toplot,distribution='8020'):
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
@@ -587,12 +612,32 @@ def plot_delays_e2e(data, strategy,toplot):
         x_lim_begin = 1.95
         x_lim_end=10
         if strategy=='go':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_1600_go_e2e_load_total_bps_avg,
-                                                                                  waa_1600_go_e2e_delay_total_avg,
-                                                                                  waa_1600_go_e2e_delay_high_avg,
-                                                                                  waa_1600_go_e2e_delay_med_avg,
-                                                                                  waa_1600_go_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
+
+            if distribution=='8020':
+                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
+                    waa_1600_go_e2e_load_total_bps_avg,
+                    waa_1600_go_e2e_delay_total_avg,
+                    waa_1600_go_e2e_delay_high_avg,
+                    waa_1600_go_e2e_delay_med_avg,
+                    waa_1600_go_e2e_delay_low_avg,
+                    cleaning_factor=1e12)
+            elif distribution=='7030':
+                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
+                    waa_1600_go_e2e_7030_load_total_bps_avg,
+                    waa_1600_go_e2e_7030_delay_total_avg,
+                    waa_1600_go_e2e_7030_delay_high_avg,
+                    waa_1600_go_e2e_7030_delay_med_avg,
+                    waa_1600_go_e2e_7030_delay_low_avg,
+                    cleaning_factor=1e12)
+            elif distribution=='6040':
+                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
+                    waa_1600_go_e2e_6040_load_total_bps_avg,
+                    waa_1600_go_e2e_6040_delay_total_avg,
+                    waa_1600_go_e2e_6040_delay_high_avg,
+                    waa_1600_go_e2e_6040_delay_med_avg,
+                    waa_1600_go_e2e_6040_delay_low_avg,
+                    cleaning_factor=1e12)
+
         elif strategy=='stay':
             load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_1600_stay_e2e_load_total_bps_avg,
                                                                                   waa_1600_stay_e2e_delay_total_avg,
@@ -1203,11 +1248,21 @@ def plot_compare_delay_bar_C():
 #plot_compare_delay_bar_B()
 
 # Group C: PLot for scaling number of servers (1600,2400,3200 stay)
-data_list=[1600,2400,3200]
-plot_thru_per_server_intra_multiple(data_list=data_list,strategy='stay') # data in [1600,2400,3200], strategy in ['go','stay']
-plot_delay_multiple(data_list=data_list,strategy='stay') # data in [1600,2400,3200], strategy in ['go','stay']
+#data_list=[1600,2400,3200]
+#plot_thru_per_server_intra_multiple(data_list=data_list,strategy='stay') # data in [1600,2400,3200], strategy in ['go','stay']
+#plot_delay_multiple(data_list=data_list,strategy='stay') # data in [1600,2400,3200], strategy in ['go','stay']
 
 #for data in [1600,2400,3200]:
 #    plot_delays_e2e(data=data, strategy='stay',toplot='only_hml') # toplot in ['only_avg', 'only_hml', 'all']
 
-plot_compare_delay_bar_C()
+#plot_compare_delay_bar_C()
+
+# Group D: plots for diff data distribution 6040, 7030
+for dist in ['8020','7030','6040']:
+    #plot_thru_intra(data=1600,strategy='go',distribution=dist) # data in [1600,2400,3200], strategy in ['go','stay']
+    #plot_thru_inter(data=1600,strategy='go',distribution=dist)
+    #plot_thru_e2e(data=1600, strategy='go',distribution=dist)
+    #plot_delays_e2e(data=1600, strategy='go',toplot='only_avg',distribution=dist)
+    throughput report
+    plot_drop_comparison()
+    plot_delay_comparison()

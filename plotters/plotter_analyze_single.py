@@ -19,20 +19,20 @@ from torus_integrated.myglobal import *
 # Sampling params
 split=True
 measurement_type='post' # in [pre,post], pre refers to traffic_generation metrics, post to after_experiments metrics
-avgg=True
-mode='end2end' # in [intra,inter,end2end]
-servers=32 # only for intra
+avgg=False
+mode='intra' # in [intra,inter,end2end]
+servers=16 # only for intra
 tors=16 # only for inter
-parent_tor=5 # only for intra, end2end analysis
+parent_tor=1 # only for intra, end2end analysis
 # Simulation params
 my_tbegin=0
 my_tend=0.010 # intra 0.050
 my_samples=100 # intra 100
 #filename='log2022_07_12_23_13_52_889801_everything.csv'
-filename='torus15_16_17_18_19_20\\torus_3200_16x32_stayin.csv'
+filename='log_1600_8020_stayin.csv'
 # Grouping params
 start_group_value=0
-end_group_value=4e8 #intra/inter/both=8.5e6,9.3e6,1.6e8 (torus1200_6intra_80in)     #Peirama_1_set1  8.5e6       # Peirama2_80_big=5.1e6 #Peirama2_80_small= 1.2e7
+end_group_value=3e8 #intra/inter/both/bridge_ul/bridge_dl=
 grouping_points=25
 
 class Record():
@@ -1127,87 +1127,6 @@ class My_Timeslot_List():
                             timeslot.thru_low=timeslot.thru_low+(rec.packet_size)
                         timeslot.thru_node[_source_id] = timeslot.thru_node[_source_id] + (rec.packet_size)
 
-    def init_with_db_intra_split(self,record_db):
-        print('DBG: Entered init with db')
-        debug_id=0
-
-        total_packets_ids=[]
-        record_db_len=len(record_db)
-        for rec in record_db:
-            print('DBG: B=' + str(debug_id/len(record_db)))
-            debug_id = debug_id + 1
-
-            if rec.is_intra_for_tor(parent_tor):
-                #if rec.packet_id in total_packets_ids:
-                #    print('ERROR: This is a dublicate packet' + str(rec.packet_id))
-                #total_packets_ids.append(rec.packet_id)
-
-                if rec.is_intra_for_tor(parent_tor):  # intra
-                    _time_birth=rec.time
-                    _source_id=rec.source_id
-                    _time_buffer_in = rec.time_intra_buffer_in
-                    _time_trx_in=rec.time_intra_trx_in
-                    _time_trx_out = rec.time_intra_trx_out
-                else:
-                    print('ERROR: Unknown packet, =' + str(rec.show_mini()))
-
-                for timeslot in self.db:
-                    if timeslot.t_begin <= _time_birth and _time_birth < timeslot.t_end:
-                        timeslot.load_total=timeslot.load_total+rec.packet_size
-                        timeslot.num_total=timeslot.num_total+1
-                        timeslot.load_node[_source_id]=timeslot.load_node[_source_id]+rec.packet_size
-                        timeslot.num_node[_source_id]=timeslot.num_node[_source_id]+1
-
-                        if rec.packet_qos=='high':
-                            timeslot.load_high=timeslot.load_high+rec.packet_size
-                            timeslot.num_high=timeslot.num_high+1
-                        elif rec.packet_qos=='med':
-                            timeslot.load_med=timeslot.load_med+rec.packet_size
-                            timeslot.num_med = timeslot.num_med + 1
-                        elif rec.packet_qos=='low':
-                            timeslot.load_low=timeslot.load_low+rec.packet_size
-                            timeslot.num_low = timeslot.num_low + 1
-
-                        if _time_buffer_in > -1:
-                            timeslot.delay_total=timeslot.delay_total+ (_time_trx_out - _time_birth)
-                            timeslot.qdelay_total=timeslot.qdelay_total+(_time_trx_in - _time_birth)
-                            timeslot.succ_total=timeslot.succ_total+1
-                            if rec.packet_qos == 'high':
-                                timeslot.delay_high=timeslot.delay_high+ (_time_trx_out - _time_birth)
-                                timeslot.qdelay_high=timeslot.qdelay_high+(_time_trx_in - _time_birth)
-                                timeslot.succ_high=timeslot.succ_high+1
-                            elif rec.packet_qos == 'med':
-                                timeslot.delay_med=timeslot.delay_med+ (_time_trx_out - _time_birth)
-                                timeslot.qdelay_med=timeslot.qdelay_med+(_time_trx_in - _time_birth)
-                                timeslot.succ_med=timeslot.succ_med+1
-                            elif rec.packet_qos == 'low':
-                                timeslot.delay_low=timeslot.delay_low+ (_time_trx_out - _time_birth)
-                                timeslot.qdelay_low=timeslot.qdelay_low+(_time_trx_in - _time_birth)
-                                timeslot.succ_low=timeslot.succ_low+1
-                            timeslot.delay_node[_source_id]=timeslot.delay_node[_source_id]+(_time_trx_out - _time_birth)
-                            timeslot.qdelay_node[_source_id]=timeslot.qdelay_node[_source_id]+(_time_trx_in - _time_birth)
-                            timeslot.succ_node[_source_id]=timeslot.succ_node[_source_id]+1
-                        else:
-                            timeslot.drop_total=timeslot.drop_total+(rec.packet_size)
-                            if rec.packet_qos == 'high':
-                                timeslot.drop_high = timeslot.drop_high + (rec.packet_size)
-                            elif rec.packet_qos == 'med':
-                                timeslot.drop_med = timeslot.drop_med + (rec.packet_size)
-                            elif rec.packet_qos == 'low':
-                                timeslot.drop_low = timeslot.drop_low + (rec.packet_size)
-                            timeslot.drop_node[_source_id]=timeslot.drop_node[_source_id]+(rec.packet_size)
-
-                for timeslot in self.db:
-                    if timeslot.t_begin <= _time_trx_out and _time_trx_out < timeslot.t_end:
-                        timeslot.thru_total=timeslot.thru_total+(rec.packet_size)
-                        if rec.packet_qos == 'high':
-                            timeslot.thru_high=timeslot.thru_high+(rec.packet_size)
-                        elif rec.packet_qos == 'med':
-                            timeslot.thru_med=timeslot.thru_med+(rec.packet_size)
-                        elif rec.packet_qos == 'low':
-                            timeslot.thru_low=timeslot.thru_low+(rec.packet_size)
-                        timeslot.thru_node[_source_id] = timeslot.thru_node[_source_id] + (rec.packet_size)
-
     def init_with_db_end2end(self,record_db):
         print('Entered init with db')
         debug_id=0
@@ -1316,6 +1235,158 @@ class My_Timeslot_List():
                     elif rec.packet_qos == 'low':
                         timeslot.thru_low = timeslot.thru_low + (rec.packet_size)
                     timeslot.thru_node[_source_id] = timeslot.thru_node[_source_id] + (rec.packet_size)
+
+    def init_with_db_bridge_ul(self,record_db):
+        print('Entered init with db bridge')
+        debug_id=0
+
+        for rec in record_db:
+            print('DBG: B=' + str(debug_id/len(record_db)))
+            debug_id = debug_id + 1
+
+            if not rec.is_intra(): # metraw apo tin wra pou to inter packet genietai ston server mexri na vgri apo to PON
+                _source_id=rec.tor_id
+                _time_load = rec.time
+                _thru_out = rec.time_intra_trx_out
+                _time_buffer1_in = rec.time_intra_buffer_in
+                _time_buffer2_in = rec.time_intra_buffer_in
+                _time_buffer3_in = rec.time_intra_buffer_in
+                _qdelay=(rec.time_intra_buffer_out-rec.time_intra_buffer_in)
+                _delay=rec.time_intra_trx_out-rec.time
+                for timeslot in self.db:
+                    if timeslot.t_begin <= _time_load and _time_load < timeslot.t_end:
+                        timeslot.load_total=timeslot.load_total+rec.packet_size
+                        timeslot.num_total = timeslot.num_total + 1
+                        timeslot.load_node[_source_id]=timeslot.load_node[_source_id]+rec.packet_size
+                        timeslot.num_node[_source_id]=timeslot.num_node[_source_id]+1
+
+                        if rec.packet_qos=='high':
+                            timeslot.load_high=timeslot.load_high+rec.packet_size
+                            timeslot.num_high=timeslot.num_high+1
+                        elif rec.packet_qos=='med':
+                            timeslot.load_med=timeslot.load_med+rec.packet_size
+                            timeslot.num_med = timeslot.num_med + 1
+                        elif rec.packet_qos=='low':
+                            timeslot.load_low=timeslot.load_low+rec.packet_size
+                            timeslot.num_low = timeslot.num_low + 1
+
+                        if _time_buffer1_in > -1 and _time_buffer2_in>-1:
+                            timeslot.delay_total=timeslot.delay_total+_delay
+                            timeslot.qdelay_total=timeslot.qdelay_total+_qdelay
+                            timeslot.succ_total = timeslot.succ_total + 1
+
+                            if rec.packet_qos == 'high':
+                                timeslot.delay_high=timeslot.delay_high+ _delay
+                                timeslot.qdelay_high=timeslot.qdelay_high+_qdelay
+                                timeslot.succ_high=timeslot.succ_high+1
+                            elif rec.packet_qos == 'med':
+                                timeslot.delay_med=timeslot.delay_med+ _delay
+                                timeslot.qdelay_med=timeslot.qdelay_med+_qdelay
+                                timeslot.succ_med=timeslot.succ_med+1
+                            elif rec.packet_qos == 'low':
+                                timeslot.delay_low=timeslot.delay_low+ _delay
+                                timeslot.qdelay_low=timeslot.qdelay_low+_qdelay
+                                timeslot.succ_low=timeslot.succ_low+1
+                            timeslot.delay_node[_source_id]=timeslot.delay_node[_source_id]+_delay
+                            timeslot.qdelay_node[_source_id]=timeslot.qdelay_node[_source_id]+_qdelay
+                            timeslot.succ_node[_source_id]=timeslot.succ_node[_source_id]+1
+                        else:
+                            timeslot.drop_total = timeslot.drop_total + (rec.packet_size)
+                            if rec.packet_qos == 'high':
+                                timeslot.drop_high = timeslot.drop_high + (rec.packet_size)
+                            elif rec.packet_qos == 'med':
+                                timeslot.drop_med = timeslot.drop_med + (rec.packet_size)
+                            elif rec.packet_qos == 'low':
+                                timeslot.drop_low = timeslot.drop_low + (rec.packet_size)
+                            timeslot.drop_node[_source_id] = timeslot.drop_node[_source_id] + (rec.packet_size)
+
+                for timeslot in self.db:
+                    if timeslot.t_begin <= _thru_out and _thru_out < timeslot.t_end:
+                        timeslot.thru_total = timeslot.thru_total + (rec.packet_size)
+
+                        if rec.packet_qos == 'high':
+                            timeslot.thru_high=timeslot.thru_high+(rec.packet_size)
+                        elif rec.packet_qos == 'med':
+                            timeslot.thru_med=timeslot.thru_med+(rec.packet_size)
+                        elif rec.packet_qos == 'low':
+                            timeslot.thru_low=timeslot.thru_low+(rec.packet_size)
+                        timeslot.thru_node[_source_id] = timeslot.thru_node[_source_id] + (rec.packet_size)
+
+    def init_with_db_bridge_dl(self,record_db):
+        print('Entered init with db bridge')
+        debug_id=0
+
+        for rec in record_db:
+            print('DBG: B=' + str(debug_id/len(record_db)))
+            debug_id = debug_id + 1
+
+            if not rec.is_intra(): # metraw apo tin wra pou arrive apto source Tor (or drop) mexri pou pianei server
+                _source_id=rec.tor_id
+                _time_load = rec.time_tor_trx_out
+                _thru_out = rec.time_inter_trx_out
+                _time_buffer1_in = rec.time_inter_buffer_in
+                _time_buffer2_in = rec.time_inter_buffer_in
+                _time_buffer3_in = rec.time_inter_buffer_in
+                _qdelay=(rec.time_inter_buffer_out-rec.time_inter_buffer_in)
+                _delay=rec.time_inter_trx_out-rec.time_tor_trx_out
+                for timeslot in self.db:
+                    if timeslot.t_begin <= _time_load and _time_load < timeslot.t_end:
+                        timeslot.load_total=timeslot.load_total+rec.packet_size
+                        timeslot.num_total = timeslot.num_total + 1
+                        timeslot.load_node[_source_id]=timeslot.load_node[_source_id]+rec.packet_size
+                        timeslot.num_node[_source_id]=timeslot.num_node[_source_id]+1
+
+                        if rec.packet_qos=='high':
+                            timeslot.load_high=timeslot.load_high+rec.packet_size
+                            timeslot.num_high=timeslot.num_high+1
+                        elif rec.packet_qos=='med':
+                            timeslot.load_med=timeslot.load_med+rec.packet_size
+                            timeslot.num_med = timeslot.num_med + 1
+                        elif rec.packet_qos=='low':
+                            timeslot.load_low=timeslot.load_low+rec.packet_size
+                            timeslot.num_low = timeslot.num_low + 1
+
+                        if _time_buffer1_in > -1 and _time_buffer2_in>-1:
+                            timeslot.delay_total=timeslot.delay_total+_delay
+                            timeslot.qdelay_total=timeslot.qdelay_total+_qdelay
+                            timeslot.succ_total = timeslot.succ_total + 1
+
+                            if rec.packet_qos == 'high':
+                                timeslot.delay_high=timeslot.delay_high+ _delay
+                                timeslot.qdelay_high=timeslot.qdelay_high+_qdelay
+                                timeslot.succ_high=timeslot.succ_high+1
+                            elif rec.packet_qos == 'med':
+                                timeslot.delay_med=timeslot.delay_med+ _delay
+                                timeslot.qdelay_med=timeslot.qdelay_med+_qdelay
+                                timeslot.succ_med=timeslot.succ_med+1
+                            elif rec.packet_qos == 'low':
+                                timeslot.delay_low=timeslot.delay_low+ _delay
+                                timeslot.qdelay_low=timeslot.qdelay_low+_qdelay
+                                timeslot.succ_low=timeslot.succ_low+1
+                            timeslot.delay_node[_source_id]=timeslot.delay_node[_source_id]+_delay
+                            timeslot.qdelay_node[_source_id]=timeslot.qdelay_node[_source_id]+_qdelay
+                            timeslot.succ_node[_source_id]=timeslot.succ_node[_source_id]+1
+                        else:
+                            timeslot.drop_total = timeslot.drop_total + (rec.packet_size)
+                            if rec.packet_qos == 'high':
+                                timeslot.drop_high = timeslot.drop_high + (rec.packet_size)
+                            elif rec.packet_qos == 'med':
+                                timeslot.drop_med = timeslot.drop_med + (rec.packet_size)
+                            elif rec.packet_qos == 'low':
+                                timeslot.drop_low = timeslot.drop_low + (rec.packet_size)
+                            timeslot.drop_node[_source_id] = timeslot.drop_node[_source_id] + (rec.packet_size)
+
+                for timeslot in self.db:
+                    if timeslot.t_begin <= _thru_out and _thru_out < timeslot.t_end:
+                        timeslot.thru_total = timeslot.thru_total + (rec.packet_size)
+
+                        if rec.packet_qos == 'high':
+                            timeslot.thru_high=timeslot.thru_high+(rec.packet_size)
+                        elif rec.packet_qos == 'med':
+                            timeslot.thru_med=timeslot.thru_med+(rec.packet_size)
+                        elif rec.packet_qos == 'low':
+                            timeslot.thru_low=timeslot.thru_low+(rec.packet_size)
+                        timeslot.thru_node[_source_id] = timeslot.thru_node[_source_id] + (rec.packet_size)
 
     def get_list_load_total(self):
         mylist=[]
@@ -1572,6 +1643,10 @@ elif mode=='inter':
     timeslot_list.init_with_db_inter(my_db)
 elif mode=='end2end':
     timeslot_list.init_with_db_end2end(my_db)
+elif mode=='bridge_ul':
+    timeslot_list.init_with_db_bridge_ul(my_db)
+elif mode=='bridge_dl':
+    timeslot_list.init_with_db_bridge_dl(my_db)
 
 if not avgg:
     LOAD=timeslot_list.get_list_load_total()

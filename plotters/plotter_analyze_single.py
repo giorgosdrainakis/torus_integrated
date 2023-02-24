@@ -19,8 +19,8 @@ from torus_integrated.myglobal import *
 # Sampling params
 split=True
 measurement_type='post' # in [pre,post], pre refers to traffic_generation metrics, post to after_experiments metrics
-avgg=False
-mode='intra' # in [intra,inter,end2end]
+avgg=True
+mode='bridge_dl' # in [intra,inter,end2end]
 servers=16 # only for intra
 tors=16 # only for inter
 parent_tor=1 # only for intra, end2end analysis
@@ -32,7 +32,7 @@ my_samples=100 # intra 100
 filename='log_1600_8020_stayin.csv'
 # Grouping params
 start_group_value=0
-end_group_value=3e8 #intra/inter/both/bridge_ul/bridge_dl=
+end_group_value=2e7 #intra/inter/both/bridge_ul/bridge_dl=9e6,2e7,1e8...4.8e7,2e7
 grouping_points=25
 
 class Record():
@@ -573,7 +573,7 @@ class My_Group_List():
         self.end_group_value=end_group_value
         self.grouping_point=grouping_points
         self.nominal_rates = np.linspace(self.start_group_value, self.end_group_value, self.grouping_point)
-        print('DBG: Nominal Rates'+str(self.nominal_rates))
+        #print('DBG: Nominal Rates'+str(self.nominal_rates))
         timestep=(self.tend-self.tbegin)/self.samples
         for nomrate in self.nominal_rates:
             mygroup=My_Group(timestep)
@@ -958,7 +958,7 @@ class My_Timeslot_List():
         total_packets_ids=[]
         record_db_len=len(record_db)
         for rec in record_db:
-            print('DBG: B=' + str(debug_id/len(record_db)))
+            #print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             if not rec.is_intra(): # metraw apo tin wra pou to paketo ftanei (i drop) ston source tor buffer mexri tin wra prin ftasei ston dest buffer
@@ -1030,13 +1030,13 @@ class My_Timeslot_List():
                         timeslot.thru_node[_source_id] = timeslot.thru_node[_source_id] + (rec.packet_size)
 
     def init_with_db_intra(self,record_db,split):
-        print('DBG: Entered init with db')
+        #print('DBG: Entered init with db')
         debug_id=0
 
         total_packets_ids=[]
         record_db_len=len(record_db)
         for rec in record_db:
-            print('DBG: B=' + str(debug_id/len(record_db)))
+            #print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             if split:
@@ -1131,7 +1131,7 @@ class My_Timeslot_List():
         print('Entered init with db')
         debug_id=0
         for rec in record_db:
-            print('DBG: B=' + str(debug_id/len(record_db)))
+            #print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             _time_birth = rec.time
@@ -1241,7 +1241,7 @@ class My_Timeslot_List():
         debug_id=0
 
         for rec in record_db:
-            print('DBG: B=' + str(debug_id/len(record_db)))
+            #print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             if not rec.is_intra(): # metraw apo tin wra pou to inter packet genietai ston server mexri na vgri apo to PON
@@ -1317,7 +1317,7 @@ class My_Timeslot_List():
         debug_id=0
 
         for rec in record_db:
-            print('DBG: B=' + str(debug_id/len(record_db)))
+            #print('DBG: B=' + str(debug_id/len(record_db)))
             debug_id = debug_id + 1
 
             if not rec.is_intra(): # metraw apo tin wra pou arrive apto source Tor (or drop) mexri pou pianei server
@@ -1770,7 +1770,7 @@ else: #Group stage
 
     if mode=='intra':
         main_elements=servers
-    elif mode=='inter'or mode=='end2end':
+    else:
         main_elements = tors
 
     for node in range(1,main_elements+1):

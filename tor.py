@@ -317,7 +317,6 @@ class Tor:
         else:
             self.nodes.add_inter_packet_to_local_tor(pack, current_time)
 
-
     def check_per_tor_requests(self):
         # 1) Each TOR makes a total request to transmit (sub-requests) to all trx_directions.
         # 2) Each sub-request (1500-message) must be targeted to one destination (rx). Cannot couple multiple.

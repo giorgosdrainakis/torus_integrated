@@ -111,7 +111,7 @@ _TOR_OUTBOUND_BUFFER_SIZE_HIGH=1e6
 _TOR_INBOUND_BUFFER_SIZE_LOW=1e6
 _TOR_INBOUND_BUFFER_SIZE_MED=1e6
 _TOR_INBOUND_BUFFER_SIZE_HIGH=1e6
-_TOTAL_NODES_PER_TOR=16
+_TOTAL_NODES_PER_TOR=8
 _TOR_NODE_ID=99
 _TOTAL_INTRA_DATA_CHANNELS=4
 _INTRA_BITRATE=100e9
@@ -168,6 +168,31 @@ if _TOTAL_NODES_PER_TOR==4:
     # define number of lucky/unlucky nodes per cycle
     myglobal.TOTAL_UNLUCKY_NODES=1
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+elif _TOTAL_NODES_PER_TOR==8 and _INTRA_BITRATE==100e9:
+    if _SHARE_CONTROL_CHANNEL:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 30  # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 7  # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+        print('Running with 8 Servers at 100 Gbps, with shared control channel')
+    else:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF = 37
+        print('Running with 16 Servers at 100 Gbps, with dedicated control channel')
+    myglobal.STR_SOURCE_DEST_ID = "{0:03b}"
+    myglobal.CONTROL_MINIPACK_SIZE = 9  # bits
+    myglobal.CUT_1 = 3
+    myglobal.CUT_2 = 6
+    myglobal.CUT_3 = 8
+    myglobal.BONUS_MSG_BITSIZE = 7  # bits (=cut1+4)
+    myglobal.BREAK_POSITION=3 #(cut1)
+    myglobal.LUCKY_SLOT_LEN = 3
+    myglobal.UNLUCKY_SLOT_LEN = 2
+    if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+        myglobal.TOTAL_UNLUCKY_NODES=4
+    else:
+        myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+    myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+    myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+    myglobal.MAX_SLOTS_FOR_SMALL_PACKS=20
 elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
     if _SHARE_CONTROL_CHANNEL:
         myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 8  # apply in split network with shared channel

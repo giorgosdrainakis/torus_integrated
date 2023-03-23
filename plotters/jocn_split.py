@@ -10,8 +10,35 @@ import csv
 import matplotlib
 from matplotlib.ticker import MaxNLocator
 from torus_integrated.myglobal import *
-from torus_integrated.plotters.jocn_split_data import *
-from torus_integrated.plotters.jocn_split_data2 import *
+from torus_integrated.plotters.jocn_split_data01_1600_16x16_go_8020 import *
+from torus_integrated.plotters.jocn_split_data02_800_16x16_go_8020 import *
+from torus_integrated.plotters.jocn_split_data03_1600_16x16_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data04_800_16x16_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data05_2400_16x24_go_8020 import *
+from torus_integrated.plotters.jocn_split_data06_2400_16x24_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data07_1200_16x24_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data07_3200_16x32_go_8020 import *
+from torus_integrated.plotters.jocn_split_data08_3200_16x32_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data09_1600_16x32_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data14_1600_16x16_go_6040 import *
+from torus_integrated.plotters.jocn_split_data15_1600_16x16_stay_6040 import *
+from torus_integrated.plotters.jocn_split_data16_800_16x16_stay_6040 import *
+from torus_integrated.plotters.jocn_split_data17_1600_16x16_go_7030 import *
+from torus_integrated.plotters.jocn_split_data18_1600_16x16_stay_7030 import *
+from torus_integrated.plotters.jocn_split_data19_800_16x16_stay_7030 import *
+from torus_integrated.plotters.jocn_split_data22_400_16x8_go_8020 import *
+from torus_integrated.plotters.jocn_split_data23_800_16x8_go_8020 import *
+
+if True:
+    del waa_1600_16x16_stay_8020_intra_load_total_bps_avg[12]
+    del waa_1600_16x16_stay_8020_intra_thru_total_bps_avg[12]
+    del waa_1600_16x16_stay_8020_intra_drop_total_bps_avg[12]
+    del waa_1600_16x16_stay_8020_intra_load_total_bps_avg[-1]
+    del waa_1600_16x16_stay_8020_intra_thru_total_bps_avg[-1]
+    del waa_1600_16x16_stay_8020_intra_drop_total_bps_avg[-1]
+
+
+
 
 def clean_load_thru(load,thru,cleaning_factor):
     selected_i=[]
@@ -41,6 +68,34 @@ def clean_load_thru_drop(load,thru,drop,cleaning_factor):
     drop = [drop[i]/cleaning_factor for i in selected_i]
     drop.insert(0,0)
     return load,thru,drop
+def clean_load_thru_drop_prob(load,thru,drop,drop_prob_avg,drop_prob_high,drop_prob_med,drop_prob_low,cleaning_factor):
+    selected_i=[]
+    for i in range(0,len(load)):
+        if load[i]!=0:
+            if thru[i] > load[i]:
+                thru[i]=load[i]
+            selected_i.append(i)
+
+    load = [load[i]/cleaning_factor for i in selected_i]
+    load.insert(0,0)
+    thru = [thru[i]/cleaning_factor for i in selected_i]
+    thru.insert(0,0)
+    drop = [drop[i]/cleaning_factor for i in selected_i]
+    drop.insert(0,0)
+
+    drop_prob_avg = [drop_prob_avg[i] for i in selected_i]
+    drop_prob_avg.insert(0,0)
+
+    drop_prob_high = [drop_prob_high[i] for i in selected_i]
+    drop_prob_high.insert(0,0)
+
+    drop_prob_med= [drop_prob_med[i] for i in selected_i]
+    drop_prob_med.insert(0,0)
+
+    drop_prob_low = [drop_prob_low[i] for i in selected_i]
+    drop_prob_low.insert(0,0)
+
+    return load,thru,drop,drop_prob_avg,drop_prob_high,drop_prob_med,drop_prob_low
 def clean_load_delays(load,avg,high,med,low,cleaning_factor):
     selected_i=[]
     for i in range(0,len(load)):
@@ -61,1100 +116,352 @@ def clean_load_delays(load,avg,high,med,low,cleaning_factor):
 
     return load,avg,high,med,low
 
-def plot_thru_intra(data,strategy,distribution='8020'):
+def plot01_16x16_go_8020_intra_thru():
+    _cleaning_factor=1e9
+    _small_rm_factor=-1
+    _big_rm_factor=5
+    _max_thru=400
+    _x_lim_begin, _x_lim_end=-0.1,450
+    _x_label,_y_label='Intra-rack load (Gbps)','Bitrate (Gbps)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+
+    load_small,thru_small,drop_small=clean_load_thru_drop(waa_800_16x16_go_8020_intra_load_total_bps_avg,
+                                                          waa_800_16x16_go_8020_intra_thru_total_bps_avg,
+                                                          waa_800_16x16_go_8020_intra_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_big, thru_big, drop_big = clean_load_thru_drop(waa_1600_16x16_go_8020_intra_load_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_intra_thru_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_intra_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    # merge 2 datasets
+    load=load_small[:_small_rm_factor]+load_big[_big_rm_factor:]
+    thru = thru_small[:_small_rm_factor] + thru_big[_big_rm_factor:]
+    drop = drop_small[:_small_rm_factor] + drop_big[_big_rm_factor:]
+
+    # create nominal horizontal line
+    nominal_thru=[_max_thru for el in load]
+
+    # dbg
+    print('load='+str(load))
+    print('thru='+str(thru))
+    print('drop=' + str(drop))
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Intra-rack load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    if data==1600:
-        max_thru = 400
-        x_lim_begin = -0.1
-        x_lim_end=450
-        if strategy=='go':
-            if distribution=='8020':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_load_total_bps_avg, waa_1600_go_intra_thru_total_bps_avg,
-                                                   waa_1600_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-            elif distribution=='7030':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_7030_load_total_bps_avg, waa_1600_go_intra_7030_thru_total_bps_avg,
-                                                   waa_1600_go_intra_7030_drop_total_bps_avg,cleaning_factor=1e9)
-            elif distribution=='6040':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_6040_load_total_bps_avg, waa_1600_go_intra_6040_thru_total_bps_avg,
-                                                   waa_1600_go_intra_6040_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_1600_stay_intra_load_total_bps_avg, waa_1600_stay_intra_thru_total_bps_avg,
-                                               waa_1600_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-    elif data==2400:
-        max_thru = 400
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_2400_go_intra_load_total_bps_avg, waa_2400_go_intra_thru_total_bps_avg,
-                                               waa_2400_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_2400_stay_intra_load_total_bps_avg, waa_2400_stay_intra_thru_total_bps_avg,
-                                               waa_2400_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-    elif data==3200:
-        max_thru = 400
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_3200_go_intra_load_total_bps_avg, waa_3200_go_intra_thru_total_bps_avg,
-                                               waa_3200_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_3200_stay_intra_load_total_bps_avg, waa_3200_stay_intra_thru_total_bps_avg,
-                                               waa_3200_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-
-    # Activate max throughput line
-    nominal_thru=[]
-    for el in load:
-        nominal_thru.append(max_thru)
-
     fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load, thru,'b', label="Throughput",linewidth=_LINEWIDTH)
-    ax1.plot(load, drop,'r', label="Drop-rate",linewidth=_LINEWIDTH)
-    ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
 
-    plt.show()
-def plot_thru_per_server_intra(data,strategy):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Intra-rack load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    if data==1600:
-        max_thru = 400
-        num_servers = 16
-        x_lim_begin = -1
-        x_lim_end=450
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_load_total_bps_avg, waa_1600_go_intra_thru_total_bps_avg,
-                                               waa_1600_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_1600_stay_intra_load_total_bps_avg, waa_1600_stay_intra_thru_total_bps_avg,
-                                               waa_1600_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-    elif data==2400:
-        max_thru = 400
-        num_servers = 24
-        x_lim_begin = -1
-        x_lim_end=450
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_2400_go_intra_load_total_bps_avg, waa_2400_go_intra_thru_total_bps_avg,
-                                               waa_2400_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_2400_stay_intra_load_total_bps_avg, waa_2400_stay_intra_thru_total_bps_avg,
-                                               waa_2400_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-    elif data==3200:
-        max_thru = 400
-        num_servers=32
-        x_lim_begin = -1
-        x_lim_end=450
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_3200_go_intra_load_total_bps_avg, waa_3200_go_intra_thru_total_bps_avg,
-                                               waa_3200_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_3200_stay_intra_load_total_bps_avg, waa_3200_stay_intra_thru_total_bps_avg,
-                                               waa_3200_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-
-    # Activate max throughput line
-    nominal_thru=[]
-    for el in load:
-        nominal_thru.append(max_thru)
-
-    # Activate thru/drop averaging
-    thru=[x/num_servers for x in thru]
-    drop = [x / num_servers for x in drop]
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load, thru,'b', label="Throughput per server",linewidth=_LINEWIDTH)
-    #ax1.plot(load, drop,'r', label="Drop-rate",linewidth=_LINEWIDTH)
-    #ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"throughput", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def plot_thru_per_server_intra_multiple(data_list,strategy):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Intra-rack load (Gbps)'
-    y_label='Throughput per server (Gbps)'
-    legend_loc='upper left'
-
-    load_list=[]
-    thru_list=[]
-    drop_list=[]
-    serv_list=[]
-
-    for data in data_list:
-        # Clean my loads and assign max thru values and limits
-        if data==1600:
-            max_thru = 400
-            num_servers = 16
-            x_lim_begin = -1
-            x_lim_end=450
-            if strategy=='stay':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_intra_load_total_bps_avg, waa_1600_go_intra_thru_total_bps_avg,
-                                                   waa_1600_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-            elif strategy=='go':
-                load, thru, drop = clean_load_thru_drop(waa_1600_stay_intra_load_total_bps_avg, waa_1600_stay_intra_thru_total_bps_avg,
-                                                   waa_1600_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-        elif data==2400:
-            max_thru = 400
-            num_servers = 24
-            x_lim_begin = -1
-            x_lim_end=450
-            if strategy=='go':
-                load, thru, drop = clean_load_thru_drop(waa_2400_go_intra_load_total_bps_avg, waa_2400_go_intra_thru_total_bps_avg,
-                                                   waa_2400_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-            elif strategy=='stay':
-                load, thru, drop = clean_load_thru_drop(waa_2400_stay_intra_load_total_bps_avg, waa_2400_stay_intra_thru_total_bps_avg,
-                                                   waa_2400_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-        elif data==3200:
-            max_thru = 400
-            num_servers=32
-            x_lim_begin = -1
-            x_lim_end=450
-            if strategy=='go':
-                load, thru, drop = clean_load_thru_drop(waa_3200_go_intra_load_total_bps_avg, waa_3200_go_intra_thru_total_bps_avg,
-                                                   waa_3200_go_intra_drop_total_bps_avg,cleaning_factor=1e9)
-            elif strategy=='stay':
-                load, thru, drop = clean_load_thru_drop(waa_3200_stay_intra_load_total_bps_avg, waa_3200_stay_intra_thru_total_bps_avg,
-                                                   waa_3200_stay_intra_drop_total_bps_avg,cleaning_factor=1e9)
-
-        load_list.append(load)
-        thru_list.append(thru)
-        drop_list.append(drop)
-        serv_list.append(num_servers)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-    #        nominal_thru.append(max_thru)
-
-    # Activate thru/drop averaging
-    for i in range(len(serv_list)):
-        thru_list[i]=[x/serv_list[i] for x in thru_list[i]]
-        drop_list[i] = [x / serv_list[i] for x in drop_list[i]]
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
-    color=['b','b--','b-.']
-    color2 = ['r', 'r--', 'r-.']
-    for i in range(len(serv_list)):
-        ax1.plot(load_list[i], thru_list[i],color[i], label="N="+str(serv_list[i]),linewidth=_LINEWIDTH)
-    #ax1.plot(load, drop,'r', label="Drop-rate",linewidth=_LINEWIDTH)
-    #ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"throughput", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE-9)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def plot_delay_multiple(data_list,strategy):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Total load (Tbps)'
-    y_label='End-to-end delay (ms)'
-    legend_loc='lower right'
-
-    load_list=[]
-    delay_list=[]
-    serv_list=[]
-
-    for data in data_list:
-        # Clean my loads and assign max thru values and limits
-        # Clean my loads and assign limits
-        if data == 1600:
-            x_lim_begin = 1.95
-            x_lim_end = 10
-            num_servers=16
-            if strategy == 'go':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_1600_go_e2e_load_total_bps_avg,
-                    waa_1600_go_e2e_delay_total_avg,
-                    waa_1600_go_e2e_delay_high_avg,
-                    waa_1600_go_e2e_delay_med_avg,
-                    waa_1600_go_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-            elif strategy == 'stay':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_1600_stay_e2e_load_total_bps_avg,
-                    waa_1600_stay_e2e_delay_total_avg,
-                    waa_1600_stay_e2e_delay_high_avg,
-                    waa_1600_stay_e2e_delay_med_avg,
-                    waa_1600_stay_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-        elif data == 2400:
-            x_lim_begin = 1.95
-            x_lim_end = 10
-            num_servers = 24
-            if strategy == 'go':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_2400_go_e2e_load_total_bps_avg,
-                    waa_2400_go_e2e_delay_total_avg,
-                    waa_2400_go_e2e_delay_high_avg,
-                    waa_2400_go_e2e_delay_med_avg,
-                    waa_2400_go_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-            elif strategy == 'stay':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_2400_stay_e2e_load_total_bps_avg,
-                    waa_2400_stay_e2e_delay_total_avg,
-                    waa_2400_stay_e2e_delay_high_avg,
-                    waa_2400_stay_e2e_delay_med_avg,
-                    waa_2400_stay_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-        elif data == 3200:
-            x_lim_begin = 1.95
-            x_lim_end = 10
-            num_servers = 32
-            if strategy == 'go':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_3200_go_e2e_load_total_bps_avg,
-                    waa_3200_go_e2e_delay_total_avg,
-                    waa_3200_go_e2e_delay_high_avg,
-                    waa_3200_go_e2e_delay_med_avg,
-                    waa_3200_go_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-            elif strategy == 'stay':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_3200_stay_e2e_load_total_bps_avg,
-                    waa_3200_stay_e2e_delay_total_avg,
-                    waa_3200_stay_e2e_delay_high_avg,
-                    waa_3200_stay_e2e_delay_med_avg,
-                    waa_3200_stay_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-
-        load_list.append(load)
-        delay_list.append(avg_delay)
-        serv_list.append(num_servers)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-    #        nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
-
-    color=['b','b--','b-.']
-    for i in range(len(serv_list)):
-        ax1.semilogy(load_list[i][limit:], delay_list[i][limit:],color[i], label="N="+str(serv_list[i]), linewidth=_LINEWIDTH)
-
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def plot_thru_inter(data,strategy,distribution='8020'):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Inter-rack load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    if data==1600:
-        max_thru = 16 * 4 * 40
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-
-            if distribution=='8020':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_inter_load_total_bps_avg,
-                                                        waa_1600_go_inter_thru_total_bps_avg,
-                                                        waa_1600_go_inter_drop_total_bps_avg, cleaning_factor=1e9)
-            elif distribution=='7030':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_inter_7030_load_total_bps_avg, waa_1600_go_inter_7030_thru_total_bps_avg,
-                                                   waa_1600_go_inter_7030_drop_total_bps_avg,cleaning_factor=1e9)
-            elif distribution=='6040':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_inter_6040_load_total_bps_avg, waa_1600_go_inter_6040_thru_total_bps_avg,
-                                                   waa_1600_go_inter_6040_drop_total_bps_avg,cleaning_factor=1e9)
-
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_1600_stay_inter_load_total_bps_avg, waa_1600_stay_inter_thru_total_bps_avg,
-                                               waa_1600_stay_inter_drop_total_bps_avg,cleaning_factor=1e9)
-    elif data==2400:
-        max_thru = 16 * 4 * 40
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_2400_go_inter_load_total_bps_avg, waa_2400_go_inter_thru_total_bps_avg,
-                                               waa_2400_go_inter_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_2400_stay_inter_load_total_bps_avg, waa_2400_stay_inter_thru_total_bps_avg,
-                                               waa_2400_stay_inter_drop_total_bps_avg,cleaning_factor=1e9)
-    elif data==3200:
-        max_thru = 16 * 4 * 40
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_3200_go_inter_load_total_bps_avg, waa_3200_go_inter_thru_total_bps_avg,
-                                               waa_3200_go_inter_drop_total_bps_avg,cleaning_factor=1e9)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_3200_stay_inter_load_total_bps_avg, waa_3200_stay_inter_thru_total_bps_avg,
-                                               waa_3200_stay_inter_drop_total_bps_avg,cleaning_factor=1e9)
-    nominal_thru=[]
-    for el in load:
-        nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load, thru,'b', label="Throughput",linewidth=_LINEWIDTH)
-    ax1.plot(load, drop,'r', label="Drop-rate",linewidth=_LINEWIDTH)
-    ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def plot_thru_e2e(data,strategy,distribution='8020'):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Total load (Tbps)'
-    y_label='Bitrate (Tbps)'
-    legend_loc='center right'
-
-    # Clean my loads and assign max thru values and limits
-    if data==1600:
-        max_thru = 16*0.4+16*0.1
-        x_lim_begin = -0.1
-        x_lim_end=10
-        if strategy=='go':
-            if distribution=='8020':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_e2e_load_total_bps_avg, waa_1600_go_e2e_thru_total_bps_avg,
-                                               waa_1600_go_e2e_drop_total_bps_avg,cleaning_factor=1e12)
-            elif distribution=='7030':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_e2e_7030_load_total_bps_avg, waa_1600_go_e2e_7030_thru_total_bps_avg,
-                                                   waa_1600_go_e2e_7030_drop_total_bps_avg,cleaning_factor=1e12)
-            elif distribution=='6040':
-                load, thru, drop = clean_load_thru_drop(waa_1600_go_e2e_6040_load_total_bps_avg, waa_1600_go_e2e_6040_thru_total_bps_avg,
-                                                   waa_1600_go_e2e_6040_drop_total_bps_avg,cleaning_factor=1e12)
-
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_1600_stay_e2e_load_total_bps_avg, waa_1600_stay_e2e_thru_total_bps_avg,
-                                               waa_1600_stay_e2e_drop_total_bps_avg,cleaning_factor=1e12)
-    elif data==2400:
-        max_thru = 16*0.4+16*0.1
-        x_lim_begin = -0.1
-        x_lim_end=10
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_2400_go_e2e_load_total_bps_avg, waa_2400_go_e2e_thru_total_bps_avg,
-                                               waa_2400_go_e2e_drop_total_bps_avg,cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_2400_stay_e2e_load_total_bps_avg, waa_2400_stay_e2e_thru_total_bps_avg,
-                                               waa_2400_stay_e2e_drop_total_bps_avg,cleaning_factor=1e12)
-    elif data==3200:
-        max_thru = 16*0.4+16*0.1
-        x_lim_begin = -0.1
-        x_lim_end=10
-        if strategy=='go':
-            load, thru, drop = clean_load_thru_drop(waa_3200_go_e2e_load_total_bps_avg, waa_3200_go_e2e_thru_total_bps_avg,
-                                               waa_3200_go_e2e_drop_total_bps_avg,cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, thru, drop = clean_load_thru_drop(waa_3200_stay_e2e_load_total_bps_avg, waa_3200_stay_e2e_thru_total_bps_avg,
-                                               waa_3200_stay_e2e_drop_total_bps_avg,cleaning_factor=1e12)
-    nominal_thru=[]
-    for el in load:
-        nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=30
-    _TICK_PARAMS=45
     ax1.plot(load, thru,'b', label="Throughput",linewidth=_LINEWIDTH)
     ax1.plot(load, drop,'r', label="Drop-rate",linewidth=_LINEWIDTH)
     ax1.plot(load, nominal_thru, 'k--', label="Nominal capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
-def plot_delays_e2e(data, strategy,toplot,distribution='8020'):
+def plot02_16x16_go_8020_inter_thru():
+    _cleaning_factor=1e9
+    _small_rm_factor=-2
+    _big_rm_factor=4
+    _max_thru=16 * 4 * 40
+    _x_lim_begin, _x_lim_end=-0.1,1500
+    _x_label,_y_label='Inter-rack load (Gbps)','Bitrate (Gbps)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center left'
+
+
+    load_small,thru_small,drop_small=clean_load_thru_drop(waa_800_16x16_go_8020_inter_load_total_bps_avg,
+                                                          waa_800_16x16_go_8020_inter_thru_total_bps_avg,
+                                                          waa_800_16x16_go_8020_inter_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_big, thru_big, drop_big = clean_load_thru_drop(waa_1600_16x16_go_8020_inter_load_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_inter_thru_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_inter_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    # merge 2 datasets
+    load=load_small[:_small_rm_factor]+load_big[_big_rm_factor:]
+    thru = thru_small[:_small_rm_factor] + thru_big[_big_rm_factor:]
+    drop = drop_small[:_small_rm_factor] + drop_big[_big_rm_factor:]
+
+    # create nominal horizontal line
+    nominal_thru=[_max_thru for el in load]
+
+    # dbg
+    print('load_small=' + str(load_small))
+    print('load_big=' + str(load_big))
+    print('load='+str(load))
+    print('thru='+str(thru))
+    print('drop=' + str(drop))
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Total load (Tbps)'
-    y_label='End-to-end delay (ms)'
-    legend_loc='center right'
-
-    # Clean my loads and assign limits
-    if data==1600:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-
-            if distribution=='8020':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_1600_go_e2e_load_total_bps_avg,
-                    waa_1600_go_e2e_delay_total_avg,
-                    waa_1600_go_e2e_delay_high_avg,
-                    waa_1600_go_e2e_delay_med_avg,
-                    waa_1600_go_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-            elif distribution=='7030':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_1600_go_e2e_7030_load_total_bps_avg,
-                    waa_1600_go_e2e_7030_delay_total_avg,
-                    waa_1600_go_e2e_7030_delay_high_avg,
-                    waa_1600_go_e2e_7030_delay_med_avg,
-                    waa_1600_go_e2e_7030_delay_low_avg,
-                    cleaning_factor=1e12)
-            elif distribution=='6040':
-                load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    waa_1600_go_e2e_6040_load_total_bps_avg,
-                    waa_1600_go_e2e_6040_delay_total_avg,
-                    waa_1600_go_e2e_6040_delay_high_avg,
-                    waa_1600_go_e2e_6040_delay_med_avg,
-                    waa_1600_go_e2e_6040_delay_low_avg,
-                    cleaning_factor=1e12)
-
-        elif strategy=='stay':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_1600_stay_e2e_load_total_bps_avg,
-                                                                                  waa_1600_stay_e2e_delay_total_avg,
-                                                                                  waa_1600_stay_e2e_delay_high_avg,
-                                                                                  waa_1600_stay_e2e_delay_med_avg,
-                                                                                  waa_1600_stay_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==2400:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_2400_go_e2e_load_total_bps_avg,
-                                                                                  waa_2400_go_e2e_delay_total_avg,
-                                                                                  waa_2400_go_e2e_delay_high_avg,
-                                                                                  waa_2400_go_e2e_delay_med_avg,
-                                                                                  waa_2400_go_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_2400_stay_e2e_load_total_bps_avg,
-                                                                                  waa_2400_stay_e2e_delay_total_avg,
-                                                                                  waa_2400_stay_e2e_delay_high_avg,
-                                                                                  waa_2400_stay_e2e_delay_med_avg,
-                                                                                  waa_2400_stay_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==3200:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_3200_go_e2e_load_total_bps_avg,
-                                                                                  waa_3200_go_e2e_delay_total_avg,
-                                                                                  waa_3200_go_e2e_delay_high_avg,
-                                                                                  waa_3200_go_e2e_delay_med_avg,
-                                                                                  waa_3200_go_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_3200_stay_e2e_load_total_bps_avg,
-                                                                                  waa_3200_stay_e2e_delay_total_avg,
-                                                                                  waa_3200_stay_e2e_delay_high_avg,
-                                                                                  waa_3200_stay_e2e_delay_med_avg,
-                                                                                  waa_3200_stay_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-
-    print(str(load))
-    print(str(high_delay))
     fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
 
-    if toplot in ['only_avg','all']:
-        ax1.semilogy(load[limit:], avg_delay[limit:], 'k', label="avg", linewidth=4)
-    if toplot in ['only_hml','all']:
-        ax1.semilogy(load[limit:], high_delay[limit:],'r', label="High",linewidth=_LINEWIDTH)
-        ax1.semilogy(load[limit:], med_delay[limit:],'g', label="Med",linewidth=_LINEWIDTH)
-        ax1.semilogy(load[limit:], low_delay[limit:],'b', label="Low",linewidth=_LINEWIDTH)
+    ax1.plot(load, thru,'b', label="Throughput",linewidth=_LINEWIDTH)
+    ax1.plot(load, drop,'r', label="Drop-rate",linewidth=_LINEWIDTH)
+    ax1.plot(load, nominal_thru, 'k--', label="Nominal capacity", linewidth=_LINEWIDTH)
 
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
-def plot_qdelays_e2e(data, strategy,toplot,distribution='8020'):
+def plot03_16x16_go_8020_e2e_thru():
+    _cleaning_factor=1e12
+    _small_rm_factor=-2
+    _big_rm_factor=2
+    _max_thru=16*0.4+16*0.1
+    _x_lim_begin, _x_lim_end=-0.1,10
+    _x_label,_y_label='Total load (Tbps)','Bitrate (Tbps)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+
+    load_small,thru_small,drop_small=clean_load_thru_drop(waa_800_16x16_go_8020_e2e_load_total_bps_avg,
+                                                          waa_800_16x16_go_8020_e2e_thru_total_bps_avg,
+                                                          waa_800_16x16_go_8020_e2e_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_big, thru_big, drop_big = clean_load_thru_drop(waa_1600_16x16_go_8020_e2e_load_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_e2e_thru_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_e2e_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    # merge 2 datasets
+    load=load_small[:_small_rm_factor]+load_big[_big_rm_factor:]
+    thru = thru_small[:_small_rm_factor] + thru_big[_big_rm_factor:]
+    drop = drop_small[:_small_rm_factor] + drop_big[_big_rm_factor:]
+
+    # create nominal horizontal line
+    nominal_thru=[_max_thru for el in load]
+
+    # dbg
+    print('load_small=' + str(load_small))
+    print('load_big=' + str(load_big))
+    print('load='+str(load))
+    print('thru='+str(thru))
+    print('drop=' + str(drop))
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Total load (Tbps)'
-    y_label='End-to-end qdelay (ms)'
-    legend_loc='center right'
-
-    # Clean my loads and assign limits
-    if data==1600:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-
-            if distribution=='8020':
-                load, avg_qdelay, high_qdelay, med_delay, low_qdelay = clean_load_delays(
-                    waa_1600_go_e2e_load_total_bps_avg,
-                    waa_1600_go_e2e_qdelay_total_avg,
-                    waa_1600_go_e2e_qdelay_high_avg,
-                    waa_1600_go_e2e_qdelay_med_avg,
-                    waa_1600_go_e2e_qdelay_low_avg,
-                    cleaning_factor=1e12)
-            elif distribution=='7030':
-                load, avg_qdelay, high_qdelay, med_qdelay, low_qdelay = clean_load_delays(
-                    waa_1600_go_e2e_7030_load_total_bps_avg,
-                    waa_1600_go_e2e_7030_qdelay_total_avg,
-                    waa_1600_go_e2e_7030_qdelay_high_avg,
-                    waa_1600_go_e2e_7030_qdelay_med_avg,
-                    waa_1600_go_e2e_7030_qdelay_low_avg,
-                    cleaning_factor=1e12)
-            elif distribution=='6040':
-                load, avg_qdelay, high_qdelay, med_qdelay, low_qdelay = clean_load_delays(
-                    waa_1600_go_e2e_6040_load_total_bps_avg,
-                    waa_1600_go_e2e_6040_qdelay_total_avg,
-                    waa_1600_go_e2e_6040_qdelay_high_avg,
-                    waa_1600_go_e2e_6040_qdelay_med_avg,
-                    waa_1600_go_e2e_6040_qdelay_low_avg,
-                    cleaning_factor=1e12)
-
-        elif strategy=='stay':
-            load, avg_qdelay, high_qdelay, med_qdelay, low_qdelay = clean_load_delays(waa_1600_stay_e2e_load_total_bps_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_total_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_high_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_med_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==2400:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-            load, avg_qdelay, high_qdelay, med_qdelay, low_qdelay = clean_load_delays(waa_2400_go_e2e_load_total_bps_avg,
-                                                                                  waa_2400_go_e2e_qdelay_total_avg,
-                                                                                  waa_2400_go_e2e_qdelay_high_avg,
-                                                                                  waa_2400_go_e2e_qdelay_med_avg,
-                                                                                  waa_2400_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, avg_qdelay, high_qdelay, med_qdelay, low_qdelay = clean_load_delays(waa_2400_stay_e2e_load_total_bps_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_total_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_high_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_med_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==3200:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-            load, avg_qdelay, high_qdelay, med_qdelay, low_qdelay = clean_load_delays(waa_3200_go_e2e_load_total_bps_avg,
-                                                                                  waa_3200_go_e2e_qdelay_total_avg,
-                                                                                  waa_3200_go_e2e_qdelay_high_avg,
-                                                                                  waa_3200_go_e2e_qdelay_med_avg,
-                                                                                  waa_3200_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, avg_qdelay, high_qdelay, med_qdelay, low_qdelay = clean_load_delays(waa_3200_stay_e2e_load_total_bps_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_total_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_high_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_med_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-
-    print(str(load))
-    print(str(high_qdelay))
     fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_qdelay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
 
-    if toplot in ['only_avg','all']:
-        ax1.semilogy(load[limit:], avg_qdelay[limit:], 'k', label="avg", linewidth=4)
-    if toplot in ['only_hml','all']:
-        ax1.semilogy(load[limit:], high_qdelay[limit:],'r', label="High",linewidth=_LINEWIDTH)
-        ax1.semilogy(load[limit:], med_qdelay[limit:],'g', label="Med",linewidth=_LINEWIDTH)
-        ax1.semilogy(load[limit:], low_qdelay[limit:],'b', label="Low",linewidth=_LINEWIDTH)
+    ax1.plot(load, thru,'b', label="Throughput",linewidth=_LINEWIDTH)
+    ax1.plot(load, drop,'r', label="Drop-rate",linewidth=_LINEWIDTH)
+    ax1.plot(load, nominal_thru, 'k--', label="Nominal capacity", linewidth=_LINEWIDTH)
 
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
-def plot_qdelays_2e2e(data, strategy,toplot):
+def plot04_16x16_go_8020_e2e_delays():
+    _cleaning_factor=1e12
+    _zero_rm_factor=1
+    _small_rm_factor=-2
+    _big_rm_factor=2
+    _x_lim_begin, _x_lim_end=2,10
+    _y_lim_begin,_y_lim_end=1e-3,1e-1
+    _x_label,_y_label='Total load (Tbps)','End-to-end delay (ms)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+    load_small, avg_delay_small, high_delay_small, med_delay_small, low_delay_small = clean_load_delays(waa_800_16x16_go_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_total_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_high_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_med_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    qload_small, avg_qdelay_small, high_qdelay_small, med_qdelay_small, low_qdelay_small = clean_load_delays(waa_800_16x16_go_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_qdelay_total_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_qdelay_high_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_qdelay_med_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_qdelay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_big, avg_delay_big, high_delay_big, med_delay_big, low_delay_big = clean_load_delays(
+        waa_1600_16x16_go_8020_e2e_load_total_bps_avg,
+        waa_1600_16x16_go_8020_e2e_delay_total_avg,
+        waa_1600_16x16_go_8020_e2e_delay_high_avg,
+        waa_1600_16x16_go_8020_e2e_delay_med_avg,
+        waa_1600_16x16_go_8020_e2e_delay_low_avg,
+        cleaning_factor=_cleaning_factor)
+
+    qload_big, avg_qdelay_big, high_qdelay_big, med_qdelay_big, low_qdelay_big = clean_load_delays(
+        waa_1600_16x16_go_8020_e2e_load_total_bps_avg,
+        waa_1600_16x16_go_8020_e2e_qdelay_total_avg,
+        waa_1600_16x16_go_8020_e2e_qdelay_high_avg,
+        waa_1600_16x16_go_8020_e2e_qdelay_med_avg,
+        waa_1600_16x16_go_8020_e2e_qdelay_low_avg,
+        cleaning_factor=_cleaning_factor)
+
+
+    # merge 2 datasets
+    load=load_small[_zero_rm_factor:_small_rm_factor]+load_big[_big_rm_factor:]
+    avg_delay=avg_delay_small[_zero_rm_factor:_small_rm_factor]+avg_delay_big[_big_rm_factor:]
+    high_delay=high_delay_small[_zero_rm_factor:_small_rm_factor]+high_delay_big[_big_rm_factor:]
+    med_delay=med_delay_small[_zero_rm_factor:_small_rm_factor]+med_delay_big[_big_rm_factor:]
+    low_delay=low_delay_small[_zero_rm_factor:_small_rm_factor]+low_delay_big[_big_rm_factor:]
+    qload = qload_small[_zero_rm_factor:_small_rm_factor] + qload_big[_big_rm_factor:]
+    avg_qdelay=avg_qdelay_small[_zero_rm_factor:_small_rm_factor]+avg_qdelay_big[_big_rm_factor:]
+    high_qdelay=high_qdelay_small[_zero_rm_factor:_small_rm_factor]+high_qdelay_big[_big_rm_factor:]
+    med_qdelay=med_qdelay_small[_zero_rm_factor:_small_rm_factor]+med_qdelay_big[_big_rm_factor:]
+    low_qdelay=low_qdelay_small[_zero_rm_factor:_small_rm_factor]+low_qdelay_big[_big_rm_factor:]
+
+    # dbg
+    print('load_small=' + str(load_small))
+    print('load_big=' + str(load_big))
+    print('load='+str(load))
+
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Total load (Tbps)'
-    y_label='Queuing delay (ms)'
-    legend_loc='center right'
-
-    # Clean my loads and assign limits
-    if data==1600:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_1600_go_e2e_load_total_bps_avg,
-                                                                                  waa_1600_go_e2e_qdelay_total_avg,
-                                                                                  waa_1600_go_e2e_qdelay_high_avg,
-                                                                                  waa_1600_go_e2e_qdelay_med_avg,
-                                                                                  waa_1600_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_1600_stay_e2e_load_total_bps_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_total_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_high_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_med_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==2400:
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_2400_go_e2e_load_total_bps_avg,
-                                                                                  waa_2400_go_e2e_qdelay_total_avg,
-                                                                                  waa_2400_go_e2e_qdelay_high_avg,
-                                                                                  waa_2400_go_e2e_qdelay_med_avg,
-                                                                                  waa_2400_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_2400_stay_e2e_load_total_bps_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_total_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_high_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_med_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==3200:
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_3200_go_e2e_load_total_bps_avg,
-                                                                                  waa_3200_go_e2e_qdelay_total_avg,
-                                                                                  waa_3200_go_e2e_qdelay_high_avg,
-                                                                                  waa_3200_go_e2e_qdelay_med_avg,
-                                                                                  waa_3200_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_3200_stay_e2e_load_total_bps_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_total_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_high_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_med_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-
-    print(str(load))
-    print(str(high_delay))
     fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
 
-    if toplot in ['only_avg','all']:
-        ax1.semilogy(load[limit:], avg_delay[limit:], 'k', label="avg", linewidth=4)
-    if toplot in ['only_hml','all']:
-        ax1.semilogy(load[limit:], high_delay[limit:],'r', label="High",linewidth=_LINEWIDTH)
-        ax1.semilogy(load[limit:], med_delay[limit:],'g', label="Med",linewidth=_LINEWIDTH)
-        ax1.semilogy(load[limit:], low_delay[limit:],'b', label="Low",linewidth=_LINEWIDTH)
+    ax1.semilogy(load, avg_delay, 'b', label="Total delay", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(qload, avg_qdelay, 'r', label="Queuing delay", linewidth=_LINEWIDTH)
 
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.set_ylim(_y_lim_begin, _y_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
-def plot_delays_n_qdelays_e2e(data, strategy,toplot):
+
+
+def prep_plot05_16x16_stay_8020_e2e_delays():
+    _cleaning_factor=1e12
+    _zero_rm_factor=1
+    _stay_small_rm_factor=-2
+    _stay_big_rm_factor=2
+    _go_small_rm_factor=-2
+    _go_big_rm_factor=2
+    _x_lim_begin, _x_lim_end=2,10
+    _y_lim_begin,_y_lim_end=1e-4,1
+    _x_label,_y_label='Total load (Tbps)','End-to-end delay (ms)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+    stay_load_small, stay_avg_delay_small, stay_high_delay_small, stay_med_delay_small, stay_low_delay_small = clean_load_delays(waa_800_16x16_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    stay_load_big, stay_avg_delay_big, stay_high_delay_big, stay_med_delay_big, stay_low_delay_big = clean_load_delays(
+        waa_1600_16x16_stay_8020_e2e_load_total_bps_avg,
+        waa_1600_16x16_stay_8020_e2e_delay_total_avg,
+        waa_1600_16x16_stay_8020_e2e_delay_high_avg,
+        waa_1600_16x16_stay_8020_e2e_delay_med_avg,
+        waa_1600_16x16_stay_8020_e2e_delay_low_avg,
+        cleaning_factor=_cleaning_factor)
+
+    go_load_small, go_avg_delay_small, go_high_delay_small, go_med_delay_small, go_low_delay_small = clean_load_delays(waa_800_16x16_go_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_total_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_high_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_med_avg,
+                                                                                                        waa_800_16x16_go_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    go_load_big, go_avg_delay_big, go_high_delay_big, go_med_delay_big, go_low_delay_big = clean_load_delays(
+        waa_1600_16x16_go_8020_e2e_load_total_bps_avg,
+        waa_1600_16x16_go_8020_e2e_delay_total_avg,
+        waa_1600_16x16_go_8020_e2e_delay_high_avg,
+        waa_1600_16x16_go_8020_e2e_delay_med_avg,
+        waa_1600_16x16_go_8020_e2e_delay_low_avg,
+        cleaning_factor=_cleaning_factor)
+
+
+    # merge 2 datasets
+    stay_load=stay_load_small[_zero_rm_factor:_stay_small_rm_factor]+stay_load_big[_stay_big_rm_factor:]
+    stay_avg_delay=stay_avg_delay_small[_zero_rm_factor:_stay_small_rm_factor]+stay_avg_delay_big[_stay_big_rm_factor:]
+    stay_high_delay=stay_high_delay_small[_zero_rm_factor:_stay_small_rm_factor]+stay_high_delay_big[_stay_big_rm_factor:]
+    stay_med_delay=stay_med_delay_small[_zero_rm_factor:_stay_small_rm_factor]+stay_med_delay_big[_stay_big_rm_factor:]
+    stay_low_delay=stay_low_delay_small[_zero_rm_factor:_stay_small_rm_factor]+stay_low_delay_big[_stay_big_rm_factor:]
+
+    go_load=go_load_small[_zero_rm_factor:_go_small_rm_factor]+go_load_big[_go_big_rm_factor:]
+    go_avg_delay=go_avg_delay_small[_zero_rm_factor:_go_small_rm_factor]+go_avg_delay_big[_go_big_rm_factor:]
+    go_high_delay=go_high_delay_small[_zero_rm_factor:_go_small_rm_factor]+go_high_delay_big[_go_big_rm_factor:]
+    go_med_delay=go_med_delay_small[_zero_rm_factor:_go_small_rm_factor]+go_med_delay_big[_go_big_rm_factor:]
+    go_low_delay=go_low_delay_small[_zero_rm_factor:_go_small_rm_factor]+go_low_delay_big[_go_big_rm_factor:]
+
+    # dbg
+    print('stay_load_small=' + str(stay_load_small))
+    print('stay_load_big=' + str(stay_load_big))
+    print('stay_load='+str(stay_load))
+    print('go_load_small=' + str(go_load_small))
+    print('go_load_big=' + str(go_load_big))
+    print('go_load='+str(go_load))
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Total load (Tbps)'
-    y_label='End-to-end delay (ms)'
-    legend_loc='center right'
-    y_lim_begin=0
-    y_lim_end=1e-1
-    # Clean my loads and assign limits
-    if data==1600:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-            load_delay, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_1600_go_e2e_load_total_bps_avg,
-                                                                                  waa_1600_go_e2e_delay_total_avg,
-                                                                                  waa_1600_go_e2e_delay_high_avg,
-                                                                                  waa_1600_go_e2e_delay_med_avg,
-                                                                                  waa_1600_go_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-            load_q, avg_q, high_q, med_q, low_q = clean_load_delays(waa_1600_go_e2e_load_total_bps_avg,
-                                                                                  waa_1600_go_e2e_qdelay_total_avg,
-                                                                                  waa_1600_go_e2e_qdelay_high_avg,
-                                                                                  waa_1600_go_e2e_qdelay_med_avg,
-                                                                                  waa_1600_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load_delay, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_1600_stay_e2e_load_total_bps_avg,
-                                                                                  waa_1600_stay_e2e_delay_total_avg,
-                                                                                  waa_1600_stay_e2e_delay_high_avg,
-                                                                                  waa_1600_stay_e2e_delay_med_avg,
-                                                                                  waa_1600_stay_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-            load_q, avg_q, high_q, med_q, low_q = clean_load_delays(waa_1600_stay_e2e_load_total_bps_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_total_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_high_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_med_avg,
-                                                                                  waa_1600_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==2400:
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load_delay, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_2400_go_e2e_load_total_bps_avg,
-                                                                                  waa_2400_go_e2e_delay_total_avg,
-                                                                                  waa_2400_go_e2e_delay_high_avg,
-                                                                                  waa_2400_go_e2e_delay_med_avg,
-                                                                                  waa_2400_go_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-            load_q, avg_q, high_q, med_q, low_q = clean_load_delays(waa_2400_go_e2e_load_total_bps_avg,
-                                                                                  waa_2400_go_e2e_qdelay_total_avg,
-                                                                                  waa_2400_go_e2e_qdelay_high_avg,
-                                                                                  waa_2400_go_e2e_qdelay_med_avg,
-                                                                                  waa_2400_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load_delay, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_2400_stay_e2e_load_total_bps_avg,
-                                                                                  waa_2400_stay_e2e_delay_total_avg,
-                                                                                  waa_2400_stay_e2e_delay_high_avg,
-                                                                                  waa_2400_stay_e2e_delay_med_avg,
-                                                                                  waa_2400_stay_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-            load_q, avg_q, high_q, med_q, low_q = clean_load_delays(waa_2400_stay_e2e_load_total_bps_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_total_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_high_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_med_avg,
-                                                                                  waa_2400_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-    elif data==3200:
-        #    x_lim_begin = 1.95
-        #    x_lim_end=10
-        if strategy=='go':
-            load_delay, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_3200_go_e2e_load_total_bps_avg,
-                                                                                  waa_3200_go_e2e_delay_total_avg,
-                                                                                  waa_3200_go_e2e_delay_high_avg,
-                                                                                  waa_3200_go_e2e_delay_med_avg,
-                                                                                  waa_3200_go_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-            load_q, avg_q, high_q, med_q, low_q = clean_load_delays(waa_3200_go_e2e_load_total_bps_avg,
-                                                                                  waa_3200_go_e2e_qdelay_total_avg,
-                                                                                  waa_3200_go_e2e_qdelay_high_avg,
-                                                                                  waa_3200_go_e2e_qdelay_med_avg,
-                                                                                  waa_3200_go_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-        elif strategy=='stay':
-            load_delay, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(waa_3200_stay_e2e_load_total_bps_avg,
-                                                                                  waa_3200_stay_e2e_delay_total_avg,
-                                                                                  waa_3200_stay_e2e_delay_high_avg,
-                                                                                  waa_3200_stay_e2e_delay_med_avg,
-                                                                                  waa_3200_stay_e2e_delay_low_avg,
-                                                                                  cleaning_factor=1e12)
-            load_q, avg_q, high_q, med_q, low_q = clean_load_delays(waa_3200_stay_e2e_load_total_bps_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_total_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_high_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_med_avg,
-                                                                                  waa_3200_stay_e2e_qdelay_low_avg,
-                                                                                  cleaning_factor=1e12)
-
     fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
 
-    if toplot in ['only_avg','all']:
-        ax1.semilogy(load_delay[limit:], avg_delay[limit:], 'b', label="total delay", linewidth=_LINEWIDTH+1)
-        ax1.semilogy(load_q[limit:], avg_q[limit:], 'r', label="queuing delay", linewidth=_LINEWIDTH)
-    if toplot in ['only_hml','all']:
-        ax1.semilogy(load_delay[limit:], high_delay[limit:],'r', label="High",linewidth=_LINEWIDTH)
-        ax1.semilogy(load_delay[limit:], med_delay[limit:],'g', label="Med",linewidth=_LINEWIDTH)
-        ax1.semilogy(load_delay[limit:], low_delay[limit:],'b', label="Low",linewidth=_LINEWIDTH)
+    ax1.semilogy(stay_load, stay_avg_delay, 'k', label="StayTotal", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(stay_load, stay_high_delay, 'r', label="StayHigh", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(stay_load, stay_med_delay, 'g', label="StayMed", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(stay_load, stay_low_delay, 'b', label="StayLow", linewidth=_LINEWIDTH + 1)
 
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.set_ylim(y_lim_begin,y_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+    ax1.semilogy(go_load, go_avg_delay, 'k--', label="goTotal", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(go_load, go_high_delay, 'r--', label="goHigh", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(go_load, go_med_delay, 'g--', label="goMed", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(go_load, go_low_delay, 'b--', label="goLow", linewidth=_LINEWIDTH + 1)
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.set_ylim(_y_lim_begin, _y_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
-def plot_compare_delay_bar():
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Total load (Tbps)'
-
-    x_lim_begin=-2
-    x_lim_end=12
-    y_label='End-to-end delay (ms)'
-    legend_loc='lower left'
-
-    fig, ax1 = plt.subplots(constrained_layout=False)
-    ax1.set_yscale('log')
-
-    load=[2.5,5,7.5,10]
-    high2400=[0.00045,0.00045,0.00050,0.00056]
-    med2400=[0.228,0.234,0.517,0.6]
-    low2400=[0.353,0.318,0.483,0.574]
-    avg2400=[0.046,0.048,0.111,0.17]
-    high3200=[0.00034,0.00034,0.00035,0.00041]
-    med3200=[0.021,0.021,0.054,0.22]
-    low3200=[0.102,0.102,0.145,0.27]
-    avg3200=[0.0082,0.0082,0.019,0.06]
-
-    mini_size = 0.16
-    big_size = 0.65
-    width = 0.25
-
-    x_med = load
-    x_med_2400 = [x - mini_size for x in x_med]
-    x_med_3200 = [x + mini_size for x in x_med]
-
-    x_high = [x - big_size for x in x_med]
-    x_high_2400 = [x - mini_size for x in x_high]
-    x_high_3200  = [x + mini_size for x in x_high]
-
-    x_low = [x + big_size for x in x_med]
-    x_low_2400 = [x - mini_size for x in x_low]
-    x_low_3200  = [x + mini_size for x in x_low]
-
-
-    ax1.bar(x_high_2400, high2400, color='white',edgecolor='red', label="High-4ch",linewidth=4, width=width,hatch='//')
-    ax1.bar(x_med_2400, med2400,  color='white',edgecolor='green', label="Med-4ch",linewidth=4, width=width,hatch='//')
-    ax1.bar(x_low_2400, low2400,  color='white',edgecolor='blue', label="Low-4ch",linewidth=4, width=width,hatch='//')
-    ax1.bar(x_high_3200, high3200, color='white',edgecolor='red',  label="High-6ch",linewidth=4, width=width, hatch='o')
-    ax1.bar(x_med_3200, med3200, color='white',edgecolor='green', label="Med-6ch",linewidth=4, width=width, hatch='o')
-    ax1.bar(x_low_3200, low3200, color='white',edgecolor='blue', label="Low-6ch",linewidth=4, width=width, hatch='o')
-    ax1.set_xticks([0,2.5,5,7.5,10])
-    legend_fontsize = 21
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=37
-    _TICK_PARAMS=45
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def plot_compare_delay_bar_B():
+def plot05_16x16_stay_8020_e2e_delays():
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
 
@@ -1169,12 +476,12 @@ def plot_compare_delay_bar_B():
     ax1.set_yscale('log')
 
     load=[2,4,6,8,10]
-    high_go=[0.000476,0.000506,0.000777,0.000989,0.00103]
-    med_go = [0.000685,0.000748,0.0066,0.0272,0.0322]
-    low_go = [0.0211,0.0222,0.1,0.225,0.237]
-    high_stay=[0.000253,0.000253,0.000321,0.000437,0.000464]
-    med_stay = [0.00079,0.00079,0.00814,0.0318,0.0382]
-    low_stay = [0.0213,0.024,0.125,0.266,0.277]
+    high_go=[0.00040,0.00052,0.00078,0.00098,0.0010]
+    med_go = [0.00048,0.00058,0.0069,0.027,0.033]
+    low_go = [0.0067,0.0098,0.1,0.218,0.223]
+    high_stay=[0.00023,0.00025,0.00032,0.00043,0.00048]
+    med_stay = [0.00052,0.00067,0.0086,0.033,0.038]
+    low_stay = [0.0073,0.016,0.133,0.2586,0.267]
 
     for i in range(0,len(load)):
         hh=(100*(high_go[i]-high_stay[i]))/high_go[i]
@@ -1206,9 +513,9 @@ def plot_compare_delay_bar_B():
     ax1.bar(x_high_2400, high_go, color='white',edgecolor='red', label="Vanilla/High",linewidth=4, width=width,hatch='//')
     ax1.bar(x_med_2400, med_go,  color='white',edgecolor='green', label="Vanilla/Med",linewidth=4, width=width,hatch='//')
     ax1.bar(x_low_2400, low_go,  color='white',edgecolor='blue', label="Vanilla/Low",linewidth=4, width=width,hatch='//')
-    ax1.bar(x_high_3200, high_stay, color='white',edgecolor='red',  label="StayIn/Low",linewidth=4, width=width, hatch='o')
+    ax1.bar(x_high_3200, high_stay, color='white',edgecolor='red',  label="StayIn/High",linewidth=4, width=width, hatch='o')
     ax1.bar(x_med_3200, med_stay, color='white',edgecolor='green', label="StayIn/Med",linewidth=4, width=width, hatch='o')
-    ax1.bar(x_low_3200, low_stay, color='white',edgecolor='blue', label="StayIn/High",linewidth=4, width=width, hatch='o')
+    ax1.bar(x_low_3200, low_stay, color='white',edgecolor='blue', label="StayIn/Low",linewidth=4, width=width, hatch='o')
     ax1.set_xticks([2,4,6,8,10])
 
     _LINEWIDTH=7
@@ -1236,1014 +543,521 @@ def plot_compare_delay_bar_B():
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
 
     plt.show()
-def plot_compare_delay_bar_C():
+
+def plot06_16x16_stay_traffic_e2e_delays():
+    _cleaning_factor=1e12
+    _8020_zero_rm_factor=1
+    _8020_small_rm_factor=-3
+    _8020_big_rm_factor=3
+    _7030_zero_rm_factor=1
+    _7030_small_rm_factor=-2
+    _7030_big_rm_factor=2
+    _6040_zero_rm_factor=1
+    _6040_small_rm_factor=-3
+    _6040_big_rm_factor=3
+    _x_lim_begin, _x_lim_end=2,10
+    _y_lim_begin,_y_lim_end=1e-4,1
+    _x_label,_y_label='Total load (Tbps)','End-to-end delay (ms)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+    load_8020_small, avgdelay_8020_small, _, _, _ = clean_load_delays(waa_800_16x16_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_8020_big, avgdelay_8020_big, _, _, _ = clean_load_delays(waa_1600_16x16_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_7030_small, avgdelay_7030_small, _, _, _ = clean_load_delays(waa_800_16x16_stay_7030_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_stay_7030_e2e_delay_total_avg,
+                                                                                                        waa_800_16x16_stay_7030_e2e_delay_high_avg,
+                                                                                                        waa_800_16x16_stay_7030_e2e_delay_med_avg,
+                                                                                                        waa_800_16x16_stay_7030_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_7030_big, avgdelay_7030_big, _, _, _ = clean_load_delays(waa_1600_16x16_stay_7030_e2e_load_total_bps_avg,
+                                                                                                        waa_1600_16x16_stay_7030_e2e_delay_total_avg,
+                                                                                                        waa_1600_16x16_stay_7030_e2e_delay_high_avg,
+                                                                                                        waa_1600_16x16_stay_7030_e2e_delay_med_avg,
+                                                                                                        waa_1600_16x16_stay_7030_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_6040_small, avgdelay_6040_small, _, _, _ = clean_load_delays(waa_800_16x16_stay_6040_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_stay_6040_e2e_delay_total_avg,
+                                                                                                        waa_800_16x16_stay_6040_e2e_delay_high_avg,
+                                                                                                        waa_800_16x16_stay_6040_e2e_delay_med_avg,
+                                                                                                        waa_800_16x16_stay_6040_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_6040_big, avgdelay_6040_big, _, _, _ = clean_load_delays(waa_1600_16x16_stay_6040_e2e_load_total_bps_avg,
+                                                                                                        waa_1600_16x16_stay_6040_e2e_delay_total_avg,
+                                                                                                        waa_1600_16x16_stay_6040_e2e_delay_high_avg,
+                                                                                                        waa_1600_16x16_stay_6040_e2e_delay_med_avg,
+                                                                                                        waa_1600_16x16_stay_6040_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+    # merge 2 datasets
+    load_8020=load_8020_small[_8020_zero_rm_factor:_8020_small_rm_factor]+load_8020_big[_8020_big_rm_factor:]
+    avgdelay_8020=avgdelay_8020_small[_8020_zero_rm_factor:_8020_small_rm_factor]+avgdelay_8020_big[_8020_big_rm_factor:]
+    load_7030=load_7030_small[_7030_zero_rm_factor:_7030_small_rm_factor]+load_7030_big[_7030_big_rm_factor:]
+    avgdelay_7030=avgdelay_7030_small[_7030_zero_rm_factor:_7030_small_rm_factor]+avgdelay_7030_big[_7030_big_rm_factor:]
+    load_6040=load_6040_small[_6040_zero_rm_factor:_6040_small_rm_factor]+load_6040_big[_6040_big_rm_factor:]
+    avgdelay_6040=avgdelay_6040_small[_6040_zero_rm_factor:_6040_small_rm_factor]+avgdelay_6040_big[_6040_big_rm_factor:]
+
+
+    # dbg
+    print('load_8020_small=' + str(load_8020_small))
+    print('load_8020_big=' + str(load_8020_big))
+    print('load_8020='+str(load_8020))
+    print('load_7030_small=' + str(load_7030_small))
+    print('load_7030_big=' + str(load_7030_big))
+    print('load_7030='+str(load_7030))
+    print('load_6040_small=' + str(load_6040_small))
+    print('load_6040_big=' + str(load_6040_big))
+    print('load_6040='+str(load_6040))
+
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
+    fig, ax1 = plt.subplots(constrained_layout=True)
 
-    x_label='Total load (Tbps)'
-
-    x_lim_begin=-3
-    x_lim_end=12
-    y_label='End-to-end delay (ms)'
-    legend_loc='lower left'
-
-    fig, ax1 = plt.subplots(constrained_layout=False)
-    ax1.set_yscale('log')
-
-    load=[2,4,6,8,10]
-#    high_1600= [0.000256,0.000256,0.000320,0.000440,0.000460]
-#    med_1600 = [0.000800,0.000800,0.000830,0.033700,0.033800]
-#    low_1600 = [0.021700,0.021700,0.128000,0.275000,0.288000]
-
-    high_1600=[0.000253,0.000253,0.000321,0.000437,0.000464]
-    med_1600 = [0.00079,0.00079,0.00814,0.0318,0.0382]
-    low_1600 = [0.0213,0.024,0.125,0.266,0.277]
-
-    high_2400= [0.0160,0.0160,0.0220,0.111,0.117]
-    med_2400 = [0.0629,0.0629,0.0784,0.317,0.636]
-    low_2400 = [0.1040,0.1040,0.1290,0.459,0.827]
-
-    high_3200= [0.044,0.044,0.048,0.122,0.126]
-    med_3200 = [0.089,0.089,0.100,0.362,0.772]
-    low_3200 = [0.149,0.149,0.159,0.504,0.844]
+    ax1.semilogy(load_6040, avgdelay_6040, 'k', label="intra=60%,inter=40%", linewidth=5,
+                 linestyle='dashdot')
+    ax1.semilogy(load_7030, avgdelay_7030, 'k', label="intra=70%,inter=30%", linewidth=5,
+                 linestyle='dashed')
+    ax1.semilogy(load_8020, avgdelay_8020, 'k', label="intra=80%,inter=20%", linewidth=5,
+                 linestyle='solid')
 
 
-    for i in range(0,len(load)):
-        #hh_24=(100*(high_2400[i]-high_1600[i]))/high_1600[i]
-        #hh_32 = (100 * (high_3200[i] - high_1600[i])) / high_1600[i]
-
-        #mm_24=(100*(med_2400[i]-med_1600[i]))/med_1600[i]
-        #mm_32 = (100 * (med_3200[i] - med_1600[i])) / med_1600[i]
-
-        #ll_24=(100*(low_2400[i]-low_1600[i]))/low_1600[i]
-        #ll_32 = (100 * (low_3200[i] - low_1600[i])) / low_1600[i]
-
-        hh_24=(1*(high_2400[i]-0))/high_1600[i]
-        hh_32 = (1 * (high_3200[i] - 0)) / high_1600[i]
-
-        mm_24=(1*(med_2400[i]-0))/med_1600[i]
-        mm_32 = (1 * (med_3200[i] - 0)) / med_1600[i]
-
-        ll_24=(1*(low_2400[i]-0))/low_1600[i]
-        ll_32 = (1 * (low_3200[i] - 0)) / low_1600[i]
-
-        print('Load='+str(load[i]))
-        print('high_24='+str(hh_24))
-        print('high_32=' + str(hh_32))
-
-        print('med_24='+str(mm_24))
-        print('med_32=' + str(mm_32))
-
-        print('low_24='+str(ll_24))
-        print('low_32=' + str(ll_32))
-
-        print('----')
-
-    mini_size = 0.2
-    big_size = 0.58
-    width = 0.12
-
-    x_med=load
-    x_med_2400=x_med
-    x_med_1600 = [x - mini_size for x in x_med]
-    x_med_3200 = [x + mini_size for x in x_med]
-
-    x_high_2400 = [x - big_size for x in x_med]
-    x_high_1600 = [x - mini_size for x in x_high_2400]
-    x_high_3200  = [x + mini_size for x in x_high_2400]
-
-    x_low_2400 = [x + big_size for x in x_med]
-    x_low_1600 = [x - mini_size for x in x_low_2400]
-    x_low_3200  = [x + mini_size for x in x_low_2400]
-
-    ax1.bar(x_high_1600, high_1600, color='white',edgecolor='red', label="High-16",linewidth=4, width=width,hatch='/')
-    ax1.bar(x_med_1600, med_1600,  color='white',edgecolor='green', label="Med-16",linewidth=4, width=width,hatch='/')
-    ax1.bar(x_low_1600, low_1600,  color='white',edgecolor='blue', label="Low-16",linewidth=4, width=width,hatch='/')
-
-    ax1.bar(x_high_2400, high_2400, color='white',edgecolor='red', label="High-24",linewidth=4, width=width,hatch='.')
-    ax1.bar(x_med_2400, med_2400,  color='white',edgecolor='green', label="Med-24",linewidth=4, width=width,hatch='.')
-    ax1.bar(x_low_2400, low_2400,  color='white',edgecolor='blue', label="Low-24",linewidth=4, width=width,hatch='.')
-
-    ax1.bar(x_high_3200, high_3200, color='white',edgecolor='red', label="High-32",linewidth=4, width=width,hatch='+')
-    ax1.bar(x_med_3200, med_3200,  color='white',edgecolor='green', label="Med-32",linewidth=4, width=width,hatch='+')
-    ax1.bar(x_low_3200, low_3200,  color='white',edgecolor='blue', label="Low-32",linewidth=4, width=width,hatch='+')
-
-    ax1.set_xticks([2,4,6,8,10])
-
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=33
-    _TICK_PARAMS=45
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.set_ylim(_y_lim_begin, _y_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
-def plot_delay_comparison(data=1600, strategy='go',toplot='only_avg',dist_list=['8020','7030','6040']):
+
+def plot07_16xN_stay_8020_server_thru():
+    _cleaning_factor=1e9
+    _16_small_rm_factor=-1
+    _16_big_rm_factor=5
+    _24_small_rm_factor=-1
+    _24_big_rm_factor=5
+    _32_small_rm_factor=-1
+    _32_big_rm_factor=5
+    _x_lim_begin, _x_lim_end=-0.1,450
+    _x_label,_y_label='Intra-rack load (Gbps)','Throughput per server (Gbps)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'upper left'
+
+
+    load_16_small,thru_16_small,_=clean_load_thru_drop(waa_800_16x16_stay_8020_intra_load_total_bps_avg,
+                                                          waa_800_16x16_stay_8020_intra_thru_total_bps_avg,
+                                                          waa_800_16x16_stay_8020_intra_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_16_big, thru_16_big, _ = clean_load_thru_drop(waa_1600_16x16_stay_8020_intra_load_total_bps_avg,
+                                                        waa_1600_16x16_stay_8020_intra_thru_total_bps_avg,
+                                                        waa_1600_16x16_stay_8020_intra_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    load_24_small,thru_24_small,_=clean_load_thru_drop(waa_1200_16x24_stay_8020_intra_load_total_bps_avg,
+                                                          waa_1200_16x24_stay_8020_intra_thru_total_bps_avg,
+                                                          waa_1200_16x24_stay_8020_intra_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_24_big, thru_24_big, _ = clean_load_thru_drop(waa_2400_16x24_stay_8020_intra_load_total_bps_avg,
+                                                        waa_2400_16x24_stay_8020_intra_thru_total_bps_avg,
+                                                        waa_2400_16x24_stay_8020_intra_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    load_32_small,thru_32_small,_=clean_load_thru_drop(waa_1600_16x32_stay_8020_intra_load_total_bps_avg,
+                                                          waa_1600_16x32_stay_8020_intra_thru_total_bps_avg,
+                                                          waa_1600_16x32_stay_8020_intra_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_32_big, thru_32_big, _ = clean_load_thru_drop(waa_3200_16x32_stay_8020_intra_load_total_bps_avg,
+                                                        waa_3200_16x32_stay_8020_intra_thru_total_bps_avg,
+                                                        waa_3200_16x32_stay_8020_intra_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+    # merge 2 datasets
+    load_16=load_16_small[:_16_small_rm_factor]+load_16_big[_16_big_rm_factor:]
+    thru_16 = thru_16_small[:_16_small_rm_factor] + thru_16_big[_16_big_rm_factor:]
+    load_24=load_24_small[:_24_small_rm_factor]+load_24_big[_24_big_rm_factor:]
+    thru_24 = thru_24_small[:_24_small_rm_factor] + thru_24_big[_24_big_rm_factor:]
+    load_32=load_32_small[:_32_small_rm_factor]+load_32_big[_32_big_rm_factor:]
+    thru_32 = thru_32_small[:_32_small_rm_factor] + thru_32_big[_32_big_rm_factor:]
+
+    # dbg
+    print('load_16_small='+str(load_16_small))
+    print('load_16_big=' + str(load_16_big))
+    print('load_16=' + str(load_16))
+    print('thru_16=' + str(thru_16))
+    print('load_24_small='+str(load_24_small))
+    print('load_24_big=' + str(load_24_big))
+    print('load_24=' + str(load_24))
+    print('load_32_small='+str(load_32_small))
+    print('load_32_big=' + str(load_32_big))
+    print('load_32=' + str(load_32))
+
+    # Activate thru/drop averaging
+    thru_16=[x/16 for x in thru_16]
+    thru_24=[x/24 for x in thru_24]
+    thru_32=[x/32 for x in thru_32]
+
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
+    fig, ax1 = plt.subplots(constrained_layout=True)
+    ax1.plot(load_16, thru_16, 'b', label="N=16", linewidth=_LINEWIDTH)
+    ax1.plot(load_24, thru_24, 'b--', label="N=24", linewidth=_LINEWIDTH)
+    ax1.plot(load_32, thru_32, 'b-.', label="N=32", linewidth=_LINEWIDTH)
 
-    x_label='Total load (Tbps)'
-    y_label='End-to-end delay (ms)'
-    legend_loc='lower right'
 
-    # Clean my loads and assign limits
-    if data==1600:
-        x_lim_begin = 1.95
-        x_lim_end=10
-        if strategy=='go':
-                load_6040, avg_delay_6040, high_delay_6040, med_delay_6040, low_delay_6040 = clean_load_delays(
-                    waa_1600_go_e2e_6040_load_total_bps_avg,
-                    waa_1600_go_e2e_6040_delay_total_avg,
-                    waa_1600_go_e2e_6040_delay_high_avg,
-                    waa_1600_go_e2e_6040_delay_med_avg,
-                    waa_1600_go_e2e_6040_delay_low_avg,
-                    cleaning_factor=1e12)
-                load_7030, avg_delay_7030, high_delay_7030, med_delay_7030, low_delay_7030 = clean_load_delays(
-                    waa_1600_go_e2e_7030_load_total_bps_avg,
-                    waa_1600_go_e2e_7030_delay_total_avg,
-                    waa_1600_go_e2e_7030_delay_high_avg,
-                    waa_1600_go_e2e_7030_delay_med_avg,
-                    waa_1600_go_e2e_7030_delay_low_avg,
-                    cleaning_factor=1e12)
-                load_8020, avg_delay_8020, high_delay_8020, med_delay_8020, low_delay_8020 = clean_load_delays(
-                    waa_1600_go_e2e_load_total_bps_avg,
-                    waa_1600_go_e2e_delay_total_avg,
-                    waa_1600_go_e2e_delay_high_avg,
-                    waa_1600_go_e2e_delay_med_avg,
-                    waa_1600_go_e2e_delay_low_avg,
-                    cleaning_factor=1e12)
-        else:
-            pass
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
+    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
+    plt.show()
+
+def plot08_16xN_stay_8020_e2e_delays():
+    _cleaning_factor=1e12
+    _16_zero_rm_factor=1
+    _16_small_rm_factor=-3
+    _16_big_rm_factor=3
+    _24_zero_rm_factor=1
+    _24_small_rm_factor=-3
+    _24_big_rm_factor=2
+    _32_zero_rm_factor=2
+    _32_small_rm_factor=-3
+    _32_big_rm_factor=3
+    _x_lim_begin, _x_lim_end=2,10
+    _y_lim_begin,_y_lim_end=1e-4,1
+    _x_label,_y_label='Total load (Tbps)','End-to-end delay (ms)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+    load_16_small, avgdelay_16_small, _, _, _ = clean_load_delays(waa_800_16x16_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_800_16x16_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_16_big, avgdelay_16_big, _, _, _ = clean_load_delays(waa_1600_16x16_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_24_small, avgdelay_24_small, _, _, _ = clean_load_delays(waa_1200_16x24_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_24_big, avgdelay_24_big, _, _, _ = clean_load_delays(waa_2400_16x24_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_32_small, avgdelay_32_small, _, _, _ = clean_load_delays(waa_1200_16x24_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_32_big, avgdelay_32_big, _, _, _ = clean_load_delays(waa_3200_16x32_stay_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_total_avg,
+                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_high_avg,
+                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_med_avg,
+                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    # merge 2 datasets
+    load_16=load_16_small[_16_zero_rm_factor:_16_small_rm_factor]+load_16_big[_16_big_rm_factor:]
+    avgdelay_16=avgdelay_16_small[_16_zero_rm_factor:_16_small_rm_factor]+avgdelay_16_big[_16_big_rm_factor:]
+    load_24=load_24_small[_24_zero_rm_factor:_24_small_rm_factor]+load_24_big[_24_big_rm_factor:]
+    avgdelay_24=avgdelay_24_small[_24_zero_rm_factor:_24_small_rm_factor]+avgdelay_24_big[_24_big_rm_factor:]
+    load_32=load_32_small[_32_zero_rm_factor:_32_small_rm_factor]+load_32_big[_32_big_rm_factor:]
+    avgdelay_32=avgdelay_32_small[_32_zero_rm_factor:_32_small_rm_factor]+avgdelay_32_big[_32_big_rm_factor:]
+
+
+    # dbg
+    print('load_16_small=' + str(load_16_small))
+    print('load_16_big=' + str(load_16_big))
+    print('load_16='+str(load_16))
+    print('load_24_small=' + str(load_24_small))
+    print('load_24_big=' + str(load_24_big))
+    print('load_24='+str(load_24))
+    print('load_32_small=' + str(load_32_small))
+    print('load_32_big=' + str(load_32_big))
+    print('load_32='+str(load_32))
+    print('avgdelay_32=' + str(avgdelay_32))
+
+
+    #plot
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    fig, ax1 = plt.subplots(constrained_layout=True)
+
+    ax1.semilogy(load_16, avgdelay_16, 'b', label="N=16", linewidth=_LINEWIDTH)
+    ax1.semilogy(load_24, avgdelay_24, 'b--', label="N=24", linewidth=_LINEWIDTH)
+    ax1.semilogy(load_32, avgdelay_32, 'b-.', label="N=32", linewidth=_LINEWIDTH)
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.set_ylim(_y_lim_begin, _y_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
+    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
+    plt.show()
+
+
+def plot10_calabr_thru():
+    _cleaning_factor=1e12
+    _small_rm_factor=-2
+    _big_rm_factor=4
+    _x_lim_begin, _x_lim_end=-0.1,1.5
+    _x_label,_y_label='Normalized load','Normalized throughput'
+    _nominal_thru=16*0.4+16*0.1
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+
+    load_small,thru_small,_=clean_load_thru_drop(waa_400_16x8_go_8020_e2e_load_total_bps_avg,
+                                                          waa_400_16x8_go_8020_e2e_thru_total_bps_avg,
+                                                          waa_400_16x8_go_8020_e2e_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_big, thru_big, _ = clean_load_thru_drop(waa_800_16x8_go_8020_e2e_load_total_bps_avg,
+                                                        waa_800_16x8_go_8020_e2e_thru_total_bps_avg,
+                                                        waa_800_16x8_go_8020_e2e_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    # merge 2 datasets
+    load=load_small[:_small_rm_factor]+load_big[_big_rm_factor:]
+    thru = thru_small[:_small_rm_factor] + thru_big[_big_rm_factor:]
+    norm_load=[x/_nominal_thru for x in load]
+    norm_thru = [x / _nominal_thru for x in thru]
+    # dbg
+    print('load_small=' + str(load_small))
+    print('load_big=' + str(load_big))
+    print('load='+str(load))
+    print('thru='+str(thru))
+    print('norm_load'+str(norm_load))
+    print('norm_thru' + str(norm_thru))
+
+    # calabreta
+    cal_load=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    cal_thru=[0.1,0.2,0.3,0.4,0.5,0.6,0.65,0.7,0.7,0.7]
+
+    #plot
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    fig, ax1 = plt.subplots(constrained_layout=True)
+
+    ax1.plot(norm_load, norm_thru,'b', label="Throughput 16x8",linewidth=_LINEWIDTH)
+    ax1.plot(cal_load, cal_thru, 'r', label="Calabretta", linewidth=_LINEWIDTH)
+
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
+    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
+    plt.show()
+
+def plot11_calabr_delay():
+    _comparison_date=2021
+    _cleaning_factor=1e12
+    _zero_rm_factor=1
+    _small_rm_factor=-2
+    _big_rm_factor=4
+    _x_lim_begin, _x_lim_end=-0.1,1
+    _y_lim_begin,_y_lim_end=1e-4,1
+    _x_label,_y_label='Normalized load','Latency (ms)'
+    _nominal_thru = 16 * 0.4 + 16 * 0.1
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+    load_small, avg_delay_small, high_delay_small, med_delay_small, low_delay_small = clean_load_delays(waa_400_16x8_go_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_400_16x8_go_8020_e2e_delay_total_avg,
+                                                                                                        waa_400_16x8_go_8020_e2e_delay_high_avg,
+                                                                                                        waa_400_16x8_go_8020_e2e_delay_med_avg,
+                                                                                                        waa_400_16x8_go_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_big, avg_delay_big, high_delay_big, med_delay_big, low_delay_big = clean_load_delays(
+        waa_800_16x8_go_8020_e2e_load_total_bps_avg,
+        waa_800_16x8_go_8020_e2e_delay_total_avg,
+        waa_800_16x8_go_8020_e2e_delay_high_avg,
+        waa_800_16x8_go_8020_e2e_delay_med_avg,
+        waa_800_16x8_go_8020_e2e_delay_low_avg,
+        cleaning_factor=_cleaning_factor)
+
+    # merge 2 datasets
+    load=load_small[_zero_rm_factor:_small_rm_factor]+load_big[_big_rm_factor:]
+    avg_delay=avg_delay_small[_zero_rm_factor:_small_rm_factor]+avg_delay_big[_big_rm_factor:]
+
+    # normalize
+    norm_load = [x / _nominal_thru for x in load]
+
+    # calabreta
+    cal_load = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+
+    if _comparison_date==2022:
+        cal_avg_delay=[4e-3,5e-3,6e-3,7e-3,8e-3,9e-3,10e-3,20e-3,45e-3,53e-3] # ms
+        cal_drop_prob=[0,0,7e-5,4e-4,1e-3,1.5e-3,2e-3,3e-3,3e-2,7e-2]
     else:
-        pass
+        cal_avg_delay=[7.5e-3,7.5e-3,7.5e-3,7.5e-3,7.5e-3,8e-3,9e-3,12.5e-3,21e-3,29e-3] # ms
+        cal_drop_prob=[0,0,0,0,0.007,0.010,0.012,0.025,0.06,0.105]
 
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=40
-    _TICK_PARAMS=45
-
-    if toplot in ['only_avg','all']:
-        ax1.semilogy(load_6040[limit:], avg_delay_6040[limit:], 'k', label="intra=60%,inter=40%", linewidth=5,linestyle='dashdot')
-        ax1.semilogy(load_7030[limit:], avg_delay_7030[limit:], 'k', label="intra=70%,inter=30%", linewidth=5,linestyle='dashed')
-        ax1.semilogy(load_8020[limit:], avg_delay_8020[limit:], 'k', label="intra=80%,inter=20%", linewidth=5,linestyle='solid')
-
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
+    # dbg
+    print('load_small=' + str(load_small))
+    print('load_big=' + str(load_big))
+    print('load='+str(load))
 
 
-def test_plot_stayin_intra_thru_drop(traffic_list):
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Intra-rack load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    # data == 1600:
-    max_thru = 400
-    x_lim_begin = -0.1
-    x_lim_end = 450
-
-    if 8020 in traffic_list:
-        load_8020, thru_8020, drop_8020 = clean_load_thru_drop(intra_8020_load_total_bps_avg, intra_8020_thru_total_bps_avg,
-                                                   intra_8020_drop_total_bps_avg,cleaning_factor=1e9)
-    if 7030 in traffic_list:
-        load_7030, thru_7030, drop_7030 = clean_load_thru_drop(intra_7030_load_total_bps_avg, intra_7030_thru_total_bps_avg,
-                                                   intra_7030_drop_total_bps_avg,cleaning_factor=1e9)
-
-    if 6040 in traffic_list:
-        load_6040, thru_6040, drop_6040 = clean_load_thru_drop(intra_6040_load_total_bps_avg, intra_6040_thru_total_bps_avg,
-                                                   intra_6040_drop_total_bps_avg,cleaning_factor=1e9)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-        #nominal_thru.append(max_thru)
-
     fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load_8020, thru_8020,'b', label="Throughput 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_8020, drop_8020,'r', label="Drop 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_7030, thru_7030,'b', label="Throughput 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_7030, drop_7030,'r', label="Drop 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_6040, thru_6040,'b', label="Throughput 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    ax1.plot(load_6040, drop_6040,'r', label="Drop 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    #ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+
+    ax1.semilogy(norm_load, avg_delay, 'b', label="Ours 16x8", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(cal_load, cal_avg_delay, 'r', label="Calabretta", linewidth=_LINEWIDTH)
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.set_ylim(_y_lim_begin, _y_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
-def test_plot_stayin_intra_delays(traffic_list):
+
+def plot12_calabr_loss():
+    _comparison_date=2021
+    _cleaning_factor=1e12
+    _zero_rm_factor=1
+    _small_rm_factor=-2
+    _big_rm_factor=4
+    _x_lim_begin, _x_lim_end=-0.1,1
+    _y_lim_begin,_y_lim_end=1e-4,1
+    _x_label,_y_label='Normalized load','Packet loss'
+    _nominal_thru = 16 * 0.4 + 16 * 0.1
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+    load_small, thru_small, drop_small, drop_prob_avg_small, drop_prob_high_small, drop_prob_med_small, drop_prob_low_small = clean_load_thru_drop_prob \
+        (waa_400_16x8_go_8020_e2e_load_total_bps_avg, waa_400_16x8_go_8020_e2e_thru_total_bps_avg, waa_400_16x8_go_8020_e2e_drop_total_bps_avg,
+         waa_400_16x8_go_8020_e2e_drop_prob_total_avg, waa_400_16x8_go_8020_e2e_drop_prob_high_avg, waa_400_16x8_go_8020_e2e_drop_prob_med_avg,
+         waa_400_16x8_go_8020_e2e_drop_prob_low_avg, cleaning_factor=1e12)
+
+    load_big, thru_big, drop_big, drop_prob_avg_big, drop_prob_high_big, drop_prob_med_big, drop_prob_low_big = clean_load_thru_drop_prob \
+        (waa_800_16x8_go_8020_e2e_load_total_bps_avg, waa_800_16x8_go_8020_e2e_thru_total_bps_avg, waa_800_16x8_go_8020_e2e_drop_total_bps_avg,
+         waa_800_16x8_go_8020_e2e_drop_prob_total_avg, waa_800_16x8_go_8020_e2e_drop_prob_high_avg, waa_800_16x8_go_8020_e2e_drop_prob_med_avg,
+         waa_800_16x8_go_8020_e2e_drop_prob_low_avg, cleaning_factor=1e12)
+
+    # merge 2 datasets
+    load=load_small[_zero_rm_factor:_small_rm_factor]+load_big[_big_rm_factor:]
+    drop_prob_avg=drop_prob_avg_small[_zero_rm_factor:_small_rm_factor]+drop_prob_avg_big[_big_rm_factor:]
+
+    # normalize
+    norm_load = [x / _nominal_thru for x in load]
+
+    # calabreta
+    cal_load = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+
+    if _comparison_date==2022:
+        cal_avg_delay=[4e-3,5e-3,6e-3,7e-3,8e-3,9e-3,10e-3,20e-3,45e-3,53e-3] # ms
+        cal_drop_prob=[0,0,7e-5,4e-4,1e-3,1.5e-3,2e-3,3e-3,3e-2,7e-2]
+    else:
+        cal_avg_delay=[7.5e-3,7.5e-3,7.5e-3,7.5e-3,7.5e-3,8e-3,9e-3,12.5e-3,21e-3,29e-3] # ms
+        cal_drop_prob=[0,0,0,0,0.007,0.010,0.012,0.025,0.06,0.105]
+
+    # dbg
+    print('load_small=' + str(load_small))
+    print('load_big=' + str(load_big))
+    print('load='+str(load))
+
+    #plot
     plt.rcParams["font.weight"] = "bold"
     plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Intra load (Gbps)'
-    y_label='Intra delay (ms)'
-    legend_loc='lower right'
-
-    load_list=[]
-    delay_list=[]
-    label_list=[]
-
-    for tr in traffic_list:
-        # Clean my loads and assign max thru values and limits
-        # Clean my loads and assign limits
-        #if data == 1600:
-        x_lim_begin = 0
-        x_lim_end = 400
-        num_servers=16
-        mylabel = str(tr)
-        if tr==8020:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    intra_8020_load_total_bps_avg,
-                    intra_8020_delay_total_avg,
-                    intra_8020_delay_high_avg,
-                    intra_8020_delay_med_avg,
-                    intra_8020_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==7030:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    intra_7030_load_total_bps_avg,
-                    intra_7030_delay_total_avg,
-                    intra_7030_delay_high_avg,
-                    intra_7030_delay_med_avg,
-                    intra_7030_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==6040:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    intra_6040_load_total_bps_avg,
-                    intra_6040_delay_total_avg,
-                    intra_6040_delay_high_avg,
-                    intra_6040_delay_med_avg,
-                    intra_6040_delay_low_avg,
-                    cleaning_factor=1e9)
-
-
-        load_list.append(load)
-        delay_list.append(avg_delay)
-        label_list.append(mylabel)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-    #        nominal_thru.append(max_thru)
-
     fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
-    print(str(delay_list))
-    color=['b','r','g','k','b--','b-.']
-    for i in range(len(label_list)):
-        ax1.semilogy(load_list[i][limit:], delay_list[i][limit:],color[i], label="perc="+str(label_list[i]), linewidth=_LINEWIDTH)
 
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
+    ax1.plot(norm_load, drop_prob_avg, 'b', label="Ours 16x8", linewidth=_LINEWIDTH + 1)
+    ax1.plot(cal_load, cal_drop_prob, 'r', label="Calabretta", linewidth=_LINEWIDTH)
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.set_ylim(_y_lim_begin, _y_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def test_plot_stayin_inter_thru_drop(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Inter-rack load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    # data == 1600:
-    max_thru = 400
-    #x_lim_begin = -0.1
-    #x_lim_end = 450
-
-    if 8020 in traffic_list:
-        load_8020, thru_8020, drop_8020 = clean_load_thru_drop(inter_8020_load_total_bps_avg, inter_8020_thru_total_bps_avg,
-                                                   inter_8020_drop_total_bps_avg,cleaning_factor=1e9)
-    if 7030 in traffic_list:
-        load_7030, thru_7030, drop_7030 = clean_load_thru_drop(inter_7030_load_total_bps_avg, inter_7030_thru_total_bps_avg,
-                                                   inter_7030_drop_total_bps_avg,cleaning_factor=1e9)
-
-    if 6040 in traffic_list:
-        load_6040, thru_6040, drop_6040 = clean_load_thru_drop(inter_6040_load_total_bps_avg, inter_6040_thru_total_bps_avg,
-                                                   inter_6040_drop_total_bps_avg,cleaning_factor=1e9)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-        #nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load_8020, thru_8020,'b', label="Throughput 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_8020, drop_8020,'r', label="Drop 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_7030, thru_7030,'b', label="Throughput 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_7030, drop_7030,'r', label="Drop 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_6040, thru_6040,'b', label="Throughput 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    ax1.plot(load_6040, drop_6040,'r', label="Drop 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    #ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def test_plot_stayin_inter_delays(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='Inter load (Gbps)'
-    y_label='Inter delay (ms)'
-    legend_loc='lower right'
-
-    load_list=[]
-    delay_list=[]
-    label_list=[]
-
-    for tr in traffic_list:
-        # Clean my loads and assign max thru values and limits
-        # Clean my loads and assign limits
-        #if data == 1600:
-        #x_lim_begin = 0
-        #x_lim_end = 400
-        num_servers=16
-        mylabel = str(tr)
-        if tr==8020:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    inter_8020_load_total_bps_avg,
-                    inter_8020_delay_total_avg,
-                    inter_8020_delay_high_avg,
-                    inter_8020_delay_med_avg,
-                    inter_8020_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==7030:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    inter_7030_load_total_bps_avg,
-                    inter_7030_delay_total_avg,
-                    inter_7030_delay_high_avg,
-                    inter_7030_delay_med_avg,
-                    inter_7030_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==6040:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    inter_6040_load_total_bps_avg,
-                    inter_6040_delay_total_avg,
-                    inter_6040_delay_high_avg,
-                    inter_6040_delay_med_avg,
-                    inter_6040_delay_low_avg,
-                    cleaning_factor=1e9)
-
-
-        load_list.append(load)
-        delay_list.append(avg_delay)
-        label_list.append(mylabel)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-    #        nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
-    print(str(delay_list))
-    color=['b','r','g','k','b--','b-.']
-    for i in range(len(label_list)):
-        ax1.semilogy(load_list[i][limit:], delay_list[i][limit:],color[i], label="perc="+str(label_list[i]), linewidth=_LINEWIDTH)
-
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
     plt.show()
 
-def test_plot_stayin_brul_thru_drop(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='PON UL load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    # data == 1600:
-    #max_thru = 400
-    x_lim_begin = -0.1
-    x_lim_end = 2000
-
-    if 8020 in traffic_list:
-        load_8020, thru_8020, drop_8020 = clean_load_thru_drop(brul_8020_load_total_bps_avg, brul_8020_thru_total_bps_avg,
-                                                   brul_8020_drop_total_bps_avg,cleaning_factor=1e9)
-    if 7030 in traffic_list:
-        load_7030, thru_7030, drop_7030 = clean_load_thru_drop(brul_7030_load_total_bps_avg, brul_7030_thru_total_bps_avg,
-                                                   brul_7030_drop_total_bps_avg,cleaning_factor=1e9)
-
-    if 6040 in traffic_list:
-        load_6040, thru_6040, drop_6040 = clean_load_thru_drop(brul_6040_load_total_bps_avg, brul_6040_thru_total_bps_avg,
-                                                   brul_6040_drop_total_bps_avg,cleaning_factor=1e9)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-        #nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load_8020, thru_8020,'b', label="Throughput 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_8020, drop_8020,'r', label="Drop 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_7030, thru_7030,'b', label="Throughput 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_7030, drop_7030,'r', label="Drop 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_6040, thru_6040,'b', label="Throughput 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    ax1.plot(load_6040, drop_6040,'r', label="Drop 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    #ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def test_plot_stayin_brul_delays(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='PON UL load (Gbps)'
-    y_label='PON UL load delay (ms)'
-    legend_loc='lower right'
-
-    load_list=[]
-    delay_list=[]
-    label_list=[]
-
-    for tr in traffic_list:
-        # Clean my loads and assign max thru values and limits
-        # Clean my loads and assign limits
-        #if data == 1600:
-        x_lim_begin = 0
-        x_lim_end = 2000
-        num_servers=16
-        mylabel = str(tr)
-        if tr==8020:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    brul_8020_load_total_bps_avg,
-                    brul_8020_delay_total_avg,
-                    brul_8020_delay_high_avg,
-                    brul_8020_delay_med_avg,
-                    brul_8020_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==7030:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    brul_7030_load_total_bps_avg,
-                    brul_7030_delay_total_avg,
-                    brul_7030_delay_high_avg,
-                    brul_7030_delay_med_avg,
-                    brul_7030_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==6040:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    brul_6040_load_total_bps_avg,
-                    brul_6040_delay_total_avg,
-                    brul_6040_delay_high_avg,
-                    brul_6040_delay_med_avg,
-                    brul_6040_delay_low_avg,
-                    cleaning_factor=1e9)
-
-
-        load_list.append(load)
-        delay_list.append(avg_delay)
-        label_list.append(mylabel)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-    #        nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
-    print(str(delay_list))
-    color=['b','r','g','k','b--','b-.']
-    for i in range(len(label_list)):
-        ax1.semilogy(load_list[i][limit:], delay_list[i][limit:],color[i], label="perc="+str(label_list[i]), linewidth=_LINEWIDTH)
-
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def test_plot_stayin_brdl_thru_drop(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='PON DL load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    # data == 1600:
-    max_thru = 400
-    #x_lim_begin = -0.1
-    #x_lim_end = 450
-
-    if 8020 in traffic_list:
-        load_8020, thru_8020, drop_8020 = clean_load_thru_drop(brdl_8020_load_total_bps_avg, brdl_8020_thru_total_bps_avg,
-                                                   brdl_8020_drop_total_bps_avg,cleaning_factor=1e9)
-    if 7030 in traffic_list:
-        load_7030, thru_7030, drop_7030 = clean_load_thru_drop(brdl_7030_load_total_bps_avg, brdl_7030_thru_total_bps_avg,
-                                                   brdl_7030_drop_total_bps_avg,cleaning_factor=1e9)
-
-    if 6040 in traffic_list:
-        load_6040, thru_6040, drop_6040 = clean_load_thru_drop(brdl_6040_load_total_bps_avg, brdl_6040_thru_total_bps_avg,
-                                                   brdl_6040_drop_total_bps_avg,cleaning_factor=1e9)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-        #nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load_8020, thru_8020,'b', label="Throughput 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_8020, drop_8020,'r', label="Drop 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_7030, thru_7030,'b', label="Throughput 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_7030, drop_7030,'r', label="Drop 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_6040, thru_6040,'b', label="Throughput 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    ax1.plot(load_6040, drop_6040,'r', label="Drop 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    #ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def test_plot_stayin_brdl_delays(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='PON DL  (Gbps)'
-    y_label='PON DL  (ms)'
-    legend_loc='lower right'
-
-    load_list=[]
-    delay_list=[]
-    label_list=[]
-
-    for tr in traffic_list:
-        # Clean my loads and assign max thru values and limits
-        # Clean my loads and assign limits
-        #if data == 1600:
-        #x_lim_begin = 0
-        #x_lim_end = 400
-        num_servers=16
-        mylabel = str(tr)
-        if tr==8020:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    brdl_8020_load_total_bps_avg,
-                    brdl_8020_delay_total_avg,
-                    brdl_8020_delay_high_avg,
-                    brdl_8020_delay_med_avg,
-                    brdl_8020_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==7030:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    brdl_7030_load_total_bps_avg,
-                    brdl_7030_delay_total_avg,
-                    brdl_7030_delay_high_avg,
-                    brdl_7030_delay_med_avg,
-                    brdl_7030_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==6040:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    brdl_6040_load_total_bps_avg,
-                    brdl_6040_delay_total_avg,
-                    brdl_6040_delay_high_avg,
-                    brdl_6040_delay_med_avg,
-                    brdl_6040_delay_low_avg,
-                    cleaning_factor=1e9)
-
-
-        load_list.append(load)
-        delay_list.append(avg_delay)
-        label_list.append(mylabel)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-    #        nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
-    print(str(delay_list))
-    color=['b','r','g','k','b--','b-.']
-    for i in range(len(label_list)):
-        ax1.semilogy(load_list[i][limit:], delay_list[i][limit:],color[i], label="perc="+str(label_list[i]), linewidth=_LINEWIDTH)
-
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-
-def test_plot_stayin_e2e_thru_drop(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='end2end load (Gbps)'
-    y_label='Bitrate (Gbps)'
-    legend_loc='center left'
-
-    # Clean my loads and assign max thru values and limits
-    # data == 1600:
-    max_thru = 400
-    x_lim_begin = -0.1
-    x_lim_end = 8500
-
-    if 8020 in traffic_list:
-        load_8020, thru_8020, drop_8020 = clean_load_thru_drop(e2e_8020_load_total_bps_avg, e2e_8020_thru_total_bps_avg,
-                                                   e2e_8020_drop_total_bps_avg,cleaning_factor=1e9)
-    if 7030 in traffic_list:
-        load_7030, thru_7030, drop_7030 = clean_load_thru_drop(e2e_7030_load_total_bps_avg, e2e_7030_thru_total_bps_avg,
-                                                   e2e_7030_drop_total_bps_avg,cleaning_factor=1e9)
-
-    if 6040 in traffic_list:
-        load_6040, thru_6040, drop_6040 = clean_load_thru_drop(e2e_6040_load_total_bps_avg, e2e_6040_thru_total_bps_avg,
-                                                   e2e_6040_drop_total_bps_avg,cleaning_factor=1e9)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-        #nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=28
-    _TICK_PARAMS=45
-    ax1.plot(load_8020, thru_8020,'b', label="Throughput 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_8020, drop_8020,'r', label="Drop 8020",linewidth=_LINEWIDTH)
-    ax1.plot(load_7030, thru_7030,'b', label="Throughput 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_7030, drop_7030,'r', label="Drop 7030",linewidth=_LINEWIDTH,linestyle='dashed')
-    ax1.plot(load_6040, thru_6040,'b', label="Throughput 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    ax1.plot(load_6040, drop_6040,'r', label="Drop 6040",linewidth=_LINEWIDTH,linestyle='dotted')
-    #ax1.plot(load, nominal_thru, 'k--', label="Nominal"+ "\n"+"capacity", linewidth=_LINEWIDTH)
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-def test_plot_stayin_e2e_delays(traffic_list):
-    plt.rcParams["font.weight"] = "bold"
-    plt.rcParams["axes.labelweight"] = "bold"
-
-    x_label='end2end (Gbps)'
-    y_label='end2end  (ms)'
-    legend_loc='lower right'
-
-    load_list=[]
-    delay_list=[]
-    label_list=[]
-
-    for tr in traffic_list:
-        # Clean my loads and assign max thru values and limits
-        # Clean my loads and assign limits
-        #if data == 1600:
-        x_lim_begin = 0
-        x_lim_end = 8500
-        num_servers=16
-        mylabel = str(tr)
-        if tr==8020:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    e2e_8020_load_total_bps_avg,
-                    e2e_8020_delay_total_avg,
-                    e2e_8020_delay_high_avg,
-                    e2e_8020_delay_med_avg,
-                    e2e_8020_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==7030:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    e2e_7030_load_total_bps_avg,
-                    e2e_7030_delay_total_avg,
-                    e2e_7030_delay_high_avg,
-                    e2e_7030_delay_med_avg,
-                    e2e_7030_delay_low_avg,
-                    cleaning_factor=1e9)
-        elif tr==6040:
-            load, avg_delay, high_delay, med_delay, low_delay = clean_load_delays(
-                    e2e_6040_load_total_bps_avg,
-                    e2e_6040_delay_total_avg,
-                    e2e_6040_delay_high_avg,
-                    e2e_6040_delay_med_avg,
-                    e2e_6040_delay_low_avg,
-                    cleaning_factor=1e9)
-
-
-        load_list.append(load)
-        delay_list.append(avg_delay)
-        label_list.append(mylabel)
-
-    # Activate max throughput line
-    #nominal_thru=[]
-    #for el in load:
-    #        nominal_thru.append(max_thru)
-
-    fig, ax1 = plt.subplots(constrained_layout=True)
-    #ax1.set_yscale('symlog')
-    #ax1.plot(load, avg_delay,'k-.', label="Avg",linewidth=4)
-    limit=0
-    _LINEWIDTH=7
-    _LABEL_SIZE=45
-    _LEGEND_SIZE=45
-    _TICK_PARAMS=45
-    print(str(delay_list))
-    color=['b','r','g','k','b--','b-.']
-    for i in range(len(label_list)):
-        ax1.semilogy(load_list[i][limit:], delay_list[i][limit:],color[i], label="perc="+str(label_list[i]), linewidth=_LINEWIDTH)
-
-    try:
-        ax1.set_xlabel(x_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_ylabel(y_label, fontsize=_LABEL_SIZE)
-    except:
-        pass
-    try:
-        ax1.set_xlim(x_lim_begin,x_lim_end)
-    except:
-        pass
-    try:
-        ax1.legend(loc=legend_loc, fontsize=_LEGEND_SIZE)
-    except:
-        ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
-    ax1.grid(True, which='major', axis='both')
-    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
-    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
-
-    plt.show()
-
-
-
-# Group A: Plots for basic scenario (1600-go)
-#plot_thru_intra(data=1600,strategy='go') # data in [1600,2400,3200], strategy in ['go','stay'] #5a
-#plot_thru_inter(data=1600,strategy='go') #5b
-#plot_thru_e2e(data=1600, strategy='go') #6a
-###plot_delays_e2e(data=1600, strategy='go',toplot='only_avg')
-###plot_qdelays_e2e(data=1600, strategy='go',toplot='only_avg')
-#plot_delays_n_qdelays_e2e(data=1600, strategy='go',toplot='only_avg') #6b
-
-# Group D: plots for diff data distribution 6040, 7030
-#for dist in ['8020','7030','6040']:
-
-    #plot_thru_intra(data=1600,strategy='go',distribution=dist) # data in [1600,2400,3200], strategy in ['go','stay']
-    #plot_thru_inter(data=1600,strategy='go',distribution=dist)
-
-    #plot_thru_e2e(data=1600, strategy='go',distribution=dist)
-    #plot_delays_e2e(data=1600, strategy='go',toplot='only_avg',distribution=dist)
-    #plot_qdelays_e2e(data=1600, strategy='go',toplot='only_avg',distribution=dist)
-
-    #plot_drop_comparison()
-#plot_delay_comparison(data=1600, strategy='go',toplot='only_avg',dist_list=['8020','7030','6040']) #7
-
-# Group B: PLot for strategy (1600-go and stay variations)
-###plot_delays_e2e(data=1600, strategy='go',toplot='all')
-###plot_delays_e2e(data=1600, strategy='stay',toplot='all')
-#plot_compare_delay_bar_B() #8
-
-# Group C: PLot for scaling number of servers (1600,2400,3200 stay)
-#data_list=[1600,2400,3200]
-#plot_thru_per_server_intra_multiple(data_list=data_list,strategy='stay') # data in [1600,2400,3200], strategy in ['go','stay']         #9a
-#plot_delay_multiple(data_list=data_list,strategy='stay') # data in [1600,2400,3200], strategy in ['go','stay']                     #9b
-
-#for data in [1600,2400,3200]:
-    #plot_delays_e2e(data=data, strategy='stay',toplot='only_hml') # toplot in ['only_avg', 'only_hml', 'all']
-#plot_compare_delay_bar_C()                     #10
-
-# test plot
-traffic_list=[8020,7030,6040]
-test_plot_stayin_intra_thru_drop(traffic_list=traffic_list)
-test_plot_stayin_intra_delays(traffic_list=traffic_list)
-
-test_plot_stayin_inter_thru_drop(traffic_list=traffic_list)
-test_plot_stayin_inter_delays(traffic_list=traffic_list)
-
-test_plot_stayin_brul_thru_drop(traffic_list=traffic_list)
-test_plot_stayin_brul_delays(traffic_list=traffic_list)
-
-test_plot_stayin_brdl_thru_drop(traffic_list=traffic_list)
-test_plot_stayin_brdl_delays(traffic_list=traffic_list)
-
-test_plot_stayin_e2e_thru_drop(traffic_list=traffic_list)
-test_plot_stayin_e2e_delays(traffic_list=traffic_list)
+#plot01_16x16_go_8020_intra_thru()
+#plot02_16x16_go_8020_inter_thru()
+#plot03_16x16_go_8020_e2e_thru()
+#plot04_16x16_go_8020_e2e_delays()
+
+#prep_plot05_16x16_stay_8020_e2e_delays()
+#plot05_16x16_stay_8020_e2e_delays()
+#plot06_16x16_stay_traffic_e2e_delays()
+
+#plot07_16xN_stay_8020_server_thru()
+#plot08_16xN_stay_8020_e2e_delays()
+###plot09_16xN_stay_8020_e2e_delays() todooo
+
+#plot10_calabr_thru()
+#plot11_calabr_delay()
+plot12_calabr_loss()

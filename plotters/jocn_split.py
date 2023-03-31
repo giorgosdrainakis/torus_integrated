@@ -16,7 +16,7 @@ from torus_integrated.plotters.jocn_split_data03_1600_16x16_stay_8020 import *
 from torus_integrated.plotters.jocn_split_data04_800_16x16_stay_8020 import *
 from torus_integrated.plotters.jocn_split_data05_2400_16x24_go_8020 import *
 from torus_integrated.plotters.jocn_split_data06_2400_16x24_stay_8020 import *
-from torus_integrated.plotters.jocn_split_data07_1200_16x24_stay_8020 import *
+#from torus_integrated.plotters.jocn_split_data07_1200_16x24_stay_8020 import *
 from torus_integrated.plotters.jocn_split_data07_3200_16x32_go_8020 import *
 from torus_integrated.plotters.jocn_split_data08_3200_16x32_stay_8020 import *
 from torus_integrated.plotters.jocn_split_data09_1600_16x32_stay_8020 import *
@@ -28,7 +28,18 @@ from torus_integrated.plotters.jocn_split_data18_1600_16x16_stay_7030 import *
 from torus_integrated.plotters.jocn_split_data19_800_16x16_stay_7030 import *
 from torus_integrated.plotters.jocn_split_data22_400_16x8_go_8020 import *
 from torus_integrated.plotters.jocn_split_data23_800_16x8_go_8020 import *
+from torus_integrated.plotters.jocn_split_data30_1600_16x8_go_8020 import *
+from torus_integrated.plotters.jocn_split_data31_1200_16x24_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data41_1200_16x24_go_8020 import *
+from torus_integrated.plotters.jocn_split_data42_1600_16x32_go_8020 import *
+from torus_integrated.plotters.jocn_split_data43_800_16x24_go_8020 import *
+from torus_integrated.plotters.jocn_split_data44_800_16x32_go_8020 import *
 
+from torus_integrated.plotters.jocn_split_data45_800_16x24_stay_8020 import *
+from torus_integrated.plotters.jocn_split_data46_800_16x32_stay_8020 import *
+
+from torus_integrated.plotters.jocn_split_data51_200_16x8_go_8020 import *
+from torus_integrated.plotters.jocn_split_data52_600_16x8_go_8020 import *
 if True:
     del waa_1600_16x16_stay_8020_intra_load_total_bps_avg[12]
     del waa_1600_16x16_stay_8020_intra_thru_total_bps_avg[12]
@@ -36,9 +47,6 @@ if True:
     del waa_1600_16x16_stay_8020_intra_load_total_bps_avg[-1]
     del waa_1600_16x16_stay_8020_intra_thru_total_bps_avg[-1]
     del waa_1600_16x16_stay_8020_intra_drop_total_bps_avg[-1]
-
-
-
 
 def clean_load_thru(load,thru,cleaning_factor):
     selected_i=[]
@@ -650,14 +658,14 @@ def plot06_16x16_stay_traffic_e2e_delays():
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
     plt.show()
 
-def plot07_16xN_stay_8020_server_thru():
+def plot07_16xN_stay_8020_server_thru(zmall='half'):
     _cleaning_factor=1e9
-    _16_small_rm_factor=-1
-    _16_big_rm_factor=5
-    _24_small_rm_factor=-1
-    _24_big_rm_factor=5
-    _32_small_rm_factor=-1
-    _32_big_rm_factor=5
+    _16_small_rm_factor=-9
+    _16_big_rm_factor=1
+    _24_small_rm_factor=-9
+    _24_big_rm_factor=1
+    _32_small_rm_factor=-9
+    _32_big_rm_factor=1
     _x_lim_begin, _x_lim_end=-0.1,450
     _x_label,_y_label='Intra-rack load (Gbps)','Throughput per server (Gbps)'
 
@@ -677,21 +685,32 @@ def plot07_16xN_stay_8020_server_thru():
                                                         waa_1600_16x16_stay_8020_intra_thru_total_bps_avg,
                                                         waa_1600_16x16_stay_8020_intra_drop_total_bps_avg,
                                                         cleaning_factor=_cleaning_factor)
-
-    load_24_small,thru_24_small,_=clean_load_thru_drop(waa_1200_16x24_stay_8020_intra_load_total_bps_avg,
-                                                          waa_1200_16x24_stay_8020_intra_thru_total_bps_avg,
-                                                          waa_1200_16x24_stay_8020_intra_drop_total_bps_avg,
-                                                          cleaning_factor=_cleaning_factor)
+    if zmall == 'half':
+        load_24_small,thru_24_small,_=clean_load_thru_drop(waa_1200_16x24_stay_8020_intra_load_total_bps_avg,
+                                                              waa_1200_16x24_stay_8020_intra_thru_total_bps_avg,
+                                                              waa_1200_16x24_stay_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
+    elif zmall =='800':
+        load_24_small,thru_24_small,_=clean_load_thru_drop(waa_800_16x24_stay_8020_intra_load_total_bps_avg,
+                                                              waa_800_16x24_stay_8020_intra_thru_total_bps_avg,
+                                                              waa_800_16x24_stay_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
 
     load_24_big, thru_24_big, _ = clean_load_thru_drop(waa_2400_16x24_stay_8020_intra_load_total_bps_avg,
                                                         waa_2400_16x24_stay_8020_intra_thru_total_bps_avg,
                                                         waa_2400_16x24_stay_8020_intra_drop_total_bps_avg,
                                                         cleaning_factor=_cleaning_factor)
 
-    load_32_small,thru_32_small,_=clean_load_thru_drop(waa_1600_16x32_stay_8020_intra_load_total_bps_avg,
-                                                          waa_1600_16x32_stay_8020_intra_thru_total_bps_avg,
-                                                          waa_1600_16x32_stay_8020_intra_drop_total_bps_avg,
-                                                          cleaning_factor=_cleaning_factor)
+    if zmall == 'half':
+        load_32_small,thru_32_small,_=clean_load_thru_drop(waa_1600_16x32_stay_8020_intra_load_total_bps_avg,
+                                                              waa_1600_16x32_stay_8020_intra_thru_total_bps_avg,
+                                                              waa_1600_16x32_stay_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
+    elif zmall =='800':
+        load_32_small,thru_32_small,_=clean_load_thru_drop(waa_800_16x32_stay_8020_intra_load_total_bps_avg,
+                                                              waa_800_16x32_stay_8020_intra_thru_total_bps_avg,
+                                                              waa_800_16x32_stay_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
 
     load_32_big, thru_32_big, _ = clean_load_thru_drop(waa_3200_16x32_stay_8020_intra_load_total_bps_avg,
                                                         waa_3200_16x32_stay_8020_intra_thru_total_bps_avg,
@@ -741,17 +760,17 @@ def plot07_16xN_stay_8020_server_thru():
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
     plt.show()
 
-def plot08_16xN_stay_8020_e2e_delays():
+def plot08_16xN_stay_8020_e2e_delays(zmall='half'):
     _cleaning_factor=1e12
     _16_zero_rm_factor=1
-    _16_small_rm_factor=-3
-    _16_big_rm_factor=3
+    _16_small_rm_factor=-1
+    _16_big_rm_factor=4
     _24_zero_rm_factor=1
-    _24_small_rm_factor=-3
-    _24_big_rm_factor=2
-    _32_zero_rm_factor=2
+    _24_small_rm_factor=-4
+    _24_big_rm_factor=1
+    _32_zero_rm_factor=3
     _32_small_rm_factor=-3
-    _32_big_rm_factor=3
+    _32_big_rm_factor=1
     _x_lim_begin, _x_lim_end=2,10
     _y_lim_begin,_y_lim_end=1e-4,1
     _x_label,_y_label='Total load (Tbps)','End-to-end delay (ms)'
@@ -763,45 +782,61 @@ def plot08_16xN_stay_8020_e2e_delays():
     _LEGEND_LOC = 'center right'
 
     load_16_small, avgdelay_16_small, _, _, _ = clean_load_delays(waa_800_16x16_stay_8020_e2e_load_total_bps_avg,
-                                                                                                        waa_800_16x16_stay_8020_e2e_delay_total_avg,
-                                                                                                        waa_800_16x16_stay_8020_e2e_delay_high_avg,
-                                                                                                        waa_800_16x16_stay_8020_e2e_delay_med_avg,
-                                                                                                        waa_800_16x16_stay_8020_e2e_delay_low_avg,
+                                                                    waa_800_16x16_stay_8020_e2e_delay_total_avg,
+                                                                    waa_800_16x16_stay_8020_e2e_delay_high_avg,
+                                                                    waa_800_16x16_stay_8020_e2e_delay_med_avg,
+                                                                    waa_800_16x16_stay_8020_e2e_delay_low_avg,
                                                                                 cleaning_factor=_cleaning_factor)
 
     load_16_big, avgdelay_16_big, _, _, _ = clean_load_delays(waa_1600_16x16_stay_8020_e2e_load_total_bps_avg,
-                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_total_avg,
-                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_high_avg,
-                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_med_avg,
-                                                                                                        waa_1600_16x16_stay_8020_e2e_delay_low_avg,
+                                                            waa_1600_16x16_stay_8020_e2e_delay_total_avg,
+                                                            waa_1600_16x16_stay_8020_e2e_delay_high_avg,
+                                                            waa_1600_16x16_stay_8020_e2e_delay_med_avg,
+                                                            waa_1600_16x16_stay_8020_e2e_delay_low_avg,
                                                                                 cleaning_factor=_cleaning_factor)
 
-    load_24_small, avgdelay_24_small, _, _, _ = clean_load_delays(waa_1200_16x24_stay_8020_e2e_load_total_bps_avg,
-                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_total_avg,
-                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_high_avg,
-                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_med_avg,
-                                                                                                        waa_1200_16x24_stay_8020_e2e_delay_low_avg,
-                                                                                cleaning_factor=_cleaning_factor)
+    if zmall == 'half':
+        load_24_small, avgdelay_24_small, _, _, _ = clean_load_delays(waa_1200_16x24_stay_8020_e2e_load_total_bps_avg,
+                                                                        waa_1200_16x24_stay_8020_e2e_delay_total_avg,
+                                                                        waa_1200_16x24_stay_8020_e2e_delay_high_avg,
+                                                                        waa_1200_16x24_stay_8020_e2e_delay_med_avg,
+                                                                        waa_1200_16x24_stay_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
+    elif zmall=='800':
+        load_24_small, avgdelay_24_small, _, _, _ = clean_load_delays(waa_800_16x24_stay_8020_e2e_load_total_bps_avg,
+                                                                        waa_800_16x24_stay_8020_e2e_delay_total_avg,
+                                                                        waa_800_16x24_stay_8020_e2e_delay_high_avg,
+                                                                        waa_800_16x24_stay_8020_e2e_delay_med_avg,
+                                                                        waa_800_16x24_stay_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
 
     load_24_big, avgdelay_24_big, _, _, _ = clean_load_delays(waa_2400_16x24_stay_8020_e2e_load_total_bps_avg,
-                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_total_avg,
-                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_high_avg,
-                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_med_avg,
-                                                                                                        waa_2400_16x24_stay_8020_e2e_delay_low_avg,
+                                                            waa_2400_16x24_stay_8020_e2e_delay_total_avg,
+                                                            waa_2400_16x24_stay_8020_e2e_delay_high_avg,
+                                                            waa_2400_16x24_stay_8020_e2e_delay_med_avg,
+                                                            waa_2400_16x24_stay_8020_e2e_delay_low_avg,
                                                                                 cleaning_factor=_cleaning_factor)
 
-    load_32_small, avgdelay_32_small, _, _, _ = clean_load_delays(waa_1200_16x24_stay_8020_e2e_load_total_bps_avg,
-                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_total_avg,
-                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_high_avg,
-                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_med_avg,
-                                                                                                        waa_1600_16x32_stay_8020_e2e_delay_low_avg,
-                                                                                cleaning_factor=_cleaning_factor)
+    if zmall == 'half':
+        load_32_small, avgdelay_32_small, _, _, _ = clean_load_delays(waa_1600_16x32_stay_8020_e2e_load_total_bps_avg,
+                                                                    waa_1600_16x32_stay_8020_e2e_delay_total_avg,
+                                                                    waa_1600_16x32_stay_8020_e2e_delay_high_avg,
+                                                                    waa_1600_16x32_stay_8020_e2e_delay_med_avg,
+                                                                    waa_1600_16x32_stay_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
+    elif zmall=='800':
+        load_32_small, avgdelay_32_small, _, _, _ = clean_load_delays(waa_800_16x32_stay_8020_e2e_load_total_bps_avg,
+                                                                    waa_800_16x32_stay_8020_e2e_delay_total_avg,
+                                                                    waa_800_16x32_stay_8020_e2e_delay_high_avg,
+                                                                    waa_800_16x32_stay_8020_e2e_delay_med_avg,
+                                                                    waa_800_16x32_stay_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
 
     load_32_big, avgdelay_32_big, _, _, _ = clean_load_delays(waa_3200_16x32_stay_8020_e2e_load_total_bps_avg,
-                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_total_avg,
-                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_high_avg,
-                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_med_avg,
-                                                                                                        waa_3200_16x32_stay_8020_e2e_delay_low_avg,
+                                                            waa_3200_16x32_stay_8020_e2e_delay_total_avg,
+                                                            waa_3200_16x32_stay_8020_e2e_delay_high_avg,
+                                                            waa_3200_16x32_stay_8020_e2e_delay_med_avg,
+                                                            waa_3200_16x32_stay_8020_e2e_delay_low_avg,
                                                                                 cleaning_factor=_cleaning_factor)
 
     # merge 2 datasets
@@ -817,9 +852,11 @@ def plot08_16xN_stay_8020_e2e_delays():
     print('load_16_small=' + str(load_16_small))
     print('load_16_big=' + str(load_16_big))
     print('load_16='+str(load_16))
+    print('avgdelay_16=' + str(avgdelay_16))
     print('load_24_small=' + str(load_24_small))
     print('load_24_big=' + str(load_24_big))
     print('load_24='+str(load_24))
+    print('avgdelay_24=' + str(avgdelay_24))
     print('load_32_small=' + str(load_32_small))
     print('load_32_big=' + str(load_32_big))
     print('load_32='+str(load_32))
@@ -845,14 +882,236 @@ def plot08_16xN_stay_8020_e2e_delays():
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
     plt.show()
 
+def plot07_16xN_go_8020_server_thru(zmall='half'):
+    _cleaning_factor=1e9
+    _16_small_rm_factor=-5
+    _16_big_rm_factor=3
+    _24_small_rm_factor=-5
+    _24_big_rm_factor=3
+    _32_small_rm_factor=-5
+    _32_big_rm_factor=3
+    _x_lim_begin, _x_lim_end=-0.1,450
+    _x_label,_y_label='Intra-rack load (Gbps)','Throughput per server (Gbps)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'upper left'
+
+
+    load_16_small,thru_16_small,_=clean_load_thru_drop(waa_800_16x16_go_8020_intra_load_total_bps_avg,
+                                                          waa_800_16x16_go_8020_intra_thru_total_bps_avg,
+                                                          waa_800_16x16_go_8020_intra_drop_total_bps_avg,
+                                                          cleaning_factor=_cleaning_factor)
+
+    load_16_big, thru_16_big, _ = clean_load_thru_drop(waa_1600_16x16_go_8020_intra_load_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_intra_thru_total_bps_avg,
+                                                        waa_1600_16x16_go_8020_intra_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    if zmall=='half':
+        load_24_small,thru_24_small,_=clean_load_thru_drop(waa_1200_16x24_go_8020_intra_load_total_bps_avg,
+                                                              waa_1200_16x24_go_8020_intra_thru_total_bps_avg,
+                                                              waa_1200_16x24_go_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
+    elif zmall=='800':
+        load_24_small,thru_24_small,_=clean_load_thru_drop(waa_800_16x24_go_8020_intra_load_total_bps_avg,
+                                                              waa_800_16x24_go_8020_intra_thru_total_bps_avg,
+                                                              waa_800_16x24_go_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
+
+    load_24_big, thru_24_big, _ = clean_load_thru_drop(waa_2400_16x24_go_8020_intra_load_total_bps_avg,
+                                                        waa_2400_16x24_go_8020_intra_thru_total_bps_avg,
+                                                        waa_2400_16x24_go_8020_intra_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+
+    if zmall=='half':
+        load_32_small,thru_32_small,_=clean_load_thru_drop(waa_1600_16x32_go_8020_intra_load_total_bps_avg,
+                                                              waa_1600_16x32_go_8020_intra_thru_total_bps_avg,
+                                                              waa_1600_16x32_go_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
+    elif zmall=='800':
+        load_32_small,thru_32_small,_=clean_load_thru_drop(waa_800_16x32_go_8020_intra_load_total_bps_avg,
+                                                              waa_800_16x32_go_8020_intra_thru_total_bps_avg,
+                                                              waa_800_16x32_go_8020_intra_drop_total_bps_avg,
+                                                              cleaning_factor=_cleaning_factor)
+
+    load_32_big, thru_32_big, _ = clean_load_thru_drop(waa_3200_16x32_go_8020_intra_load_total_bps_avg,
+                                                        waa_3200_16x32_go_8020_intra_thru_total_bps_avg,
+                                                        waa_3200_16x32_go_8020_intra_drop_total_bps_avg,
+                                                        cleaning_factor=_cleaning_factor)
+    # merge 2 datasets
+    load_16=load_16_small[:_16_small_rm_factor]+load_16_big[_16_big_rm_factor:]
+    thru_16 = thru_16_small[:_16_small_rm_factor] + thru_16_big[_16_big_rm_factor:]
+    load_24=load_24_small[:_24_small_rm_factor]+load_24_big[_24_big_rm_factor:]
+    thru_24 = thru_24_small[:_24_small_rm_factor] + thru_24_big[_24_big_rm_factor:]
+    load_32=load_32_small[:_32_small_rm_factor]+load_32_big[_32_big_rm_factor:]
+    thru_32 = thru_32_small[:_32_small_rm_factor] + thru_32_big[_32_big_rm_factor:]
+
+    # dbg
+    print('load_16_small='+str(load_16_small))
+    print('load_16_big=' + str(load_16_big))
+    print('load_16=' + str(load_16))
+    print('thru_16=' + str(thru_16))
+    print('load_24_small='+str(load_24_small))
+    print('load_24_big=' + str(load_24_big))
+    print('load_24=' + str(load_24))
+    print('load_32_small='+str(load_32_small))
+    print('load_32_big=' + str(load_32_big))
+    print('load_32=' + str(load_32))
+
+    # Activate thru/drop averaging
+    thru_16=[x/16 for x in thru_16]
+    thru_24=[x/24 for x in thru_24]
+    thru_32=[x/32 for x in thru_32]
+
+
+    #plot
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    fig, ax1 = plt.subplots(constrained_layout=True)
+    ax1.plot(load_16, thru_16, 'b', label="N=16", linewidth=_LINEWIDTH)
+    ax1.plot(load_24, thru_24, 'b--', label="N=24", linewidth=_LINEWIDTH)
+    ax1.plot(load_32, thru_32, 'b-.', label="N=32", linewidth=_LINEWIDTH)
+
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
+    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
+    plt.show()
+
+def plot08_16xN_go_8020_e2e_delays(zmall='half'):
+    _cleaning_factor=1e12
+    _16_zero_rm_factor=1
+    _16_small_rm_factor=-4
+    _16_big_rm_factor=1
+    _24_zero_rm_factor=1
+    _24_small_rm_factor=-2
+    _24_big_rm_factor=1
+    _32_zero_rm_factor=3
+    _32_small_rm_factor=-1
+    _32_big_rm_factor=1
+    _x_lim_begin, _x_lim_end=2,10
+    _y_lim_begin,_y_lim_end=1e-4,1
+    _x_label,_y_label='Total load (Tbps)','End-to-end delay (ms)'
+
+    _LINEWIDTH = 7
+    _LEGEND_SIZE = 30
+    _TICK_PARAMS = 45
+    _LABEL_SIZE = 45
+    _LEGEND_LOC = 'center right'
+
+    load_16_small, avgdelay_16_small, _, _, _ = clean_load_delays(waa_800_16x16_go_8020_e2e_load_total_bps_avg,
+                                                                waa_800_16x16_go_8020_e2e_delay_total_avg,
+                                                                waa_800_16x16_go_8020_e2e_delay_high_avg,
+                                                                waa_800_16x16_go_8020_e2e_delay_med_avg,
+                                                                waa_800_16x16_go_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    load_16_big, avgdelay_16_big, _, _, _ = clean_load_delays(waa_1600_16x16_go_8020_e2e_load_total_bps_avg,
+                                                                    waa_1600_16x16_go_8020_e2e_delay_total_avg,
+                                                                    waa_1600_16x16_go_8020_e2e_delay_high_avg,
+                                                                    waa_1600_16x16_go_8020_e2e_delay_med_avg,
+                                                                    waa_1600_16x16_go_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+    if zmall == 'half':
+        load_24_small, avgdelay_24_small, _, _, _ = clean_load_delays(waa_1200_16x24_go_8020_e2e_load_total_bps_avg,
+                                                                        waa_1200_16x24_go_8020_e2e_delay_total_avg,
+                                                                        waa_1200_16x24_go_8020_e2e_delay_high_avg,
+                                                                        waa_1200_16x24_go_8020_e2e_delay_med_avg,
+                                                                        waa_1200_16x24_go_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
+    elif zmall=='800':
+        load_24_small, avgdelay_24_small, _, _, _ = clean_load_delays(waa_800_16x24_go_8020_e2e_load_total_bps_avg,
+                                                                        waa_800_16x24_go_8020_e2e_delay_total_avg,
+                                                                        waa_800_16x24_go_8020_e2e_delay_high_avg,
+                                                                        waa_800_16x24_go_8020_e2e_delay_med_avg,
+                                                                        waa_800_16x24_go_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
+
+    load_24_big, avgdelay_24_big, _, _, _ = clean_load_delays(waa_2400_16x24_go_8020_e2e_load_total_bps_avg,
+                                                            waa_2400_16x24_go_8020_e2e_delay_total_avg,
+                                                            waa_2400_16x24_go_8020_e2e_delay_high_avg,
+                                                            waa_2400_16x24_go_8020_e2e_delay_med_avg,
+                                                            waa_2400_16x24_go_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    if zmall == 'half':
+        load_32_small, avgdelay_32_small, _, _, _ = clean_load_delays(waa_1600_16x32_go_8020_e2e_load_total_bps_avg,
+                                                                        waa_1600_16x32_go_8020_e2e_delay_total_avg,
+                                                                        waa_1600_16x32_go_8020_e2e_delay_high_avg,
+                                                                        waa_1600_16x32_go_8020_e2e_delay_med_avg,
+                                                                        waa_1600_16x32_go_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
+    elif zmall == '800':
+        load_32_small, avgdelay_32_small, _, _, _ = clean_load_delays(waa_800_16x32_go_8020_e2e_load_total_bps_avg,
+                                                                        waa_800_16x32_go_8020_e2e_delay_total_avg,
+                                                                        waa_800_16x32_go_8020_e2e_delay_high_avg,
+                                                                        waa_800_16x32_go_8020_e2e_delay_med_avg,
+                                                                        waa_800_16x32_go_8020_e2e_delay_low_avg,
+                                                                                    cleaning_factor=_cleaning_factor)
+    load_32_big, avgdelay_32_big, _, _, _ = clean_load_delays(waa_3200_16x32_go_8020_e2e_load_total_bps_avg,
+                                                                waa_3200_16x32_go_8020_e2e_delay_total_avg,
+                                                                waa_3200_16x32_go_8020_e2e_delay_high_avg,
+                                                                waa_3200_16x32_go_8020_e2e_delay_med_avg,
+                                                                waa_3200_16x32_go_8020_e2e_delay_low_avg,
+                                                                                cleaning_factor=_cleaning_factor)
+
+    # merge 2 datasets
+    load_16=load_16_small[_16_zero_rm_factor:_16_small_rm_factor]+load_16_big[_16_big_rm_factor:]
+    avgdelay_16=avgdelay_16_small[_16_zero_rm_factor:_16_small_rm_factor]+avgdelay_16_big[_16_big_rm_factor:]
+    load_24=load_24_small[_24_zero_rm_factor:_24_small_rm_factor]+load_24_big[_24_big_rm_factor:]
+    avgdelay_24=avgdelay_24_small[_24_zero_rm_factor:_24_small_rm_factor]+avgdelay_24_big[_24_big_rm_factor:]
+    load_32=load_32_small[_32_zero_rm_factor:_32_small_rm_factor]+load_32_big[_32_big_rm_factor:]
+    avgdelay_32=avgdelay_32_small[_32_zero_rm_factor:_32_small_rm_factor]+avgdelay_32_big[_32_big_rm_factor:]
+
+
+    # dbg
+    print('load_16_small=' + str(load_16_small))
+    print('load_16_big=' + str(load_16_big))
+    print('load_16='+str(load_16))
+    print('avgdelay_16=' + str(avgdelay_16))
+    print('load_24_small=' + str(load_24_small))
+    print('load_24_big=' + str(load_24_big))
+    print('load_24='+str(load_24))
+    print('avgdelay_24=' + str(avgdelay_24))
+    print('load_32_small=' + str(load_32_small))
+    print('load_32_big=' + str(load_32_big))
+    print('load_32='+str(load_32))
+    print('avgdelay_32=' + str(avgdelay_32))
+
+
+    #plot
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    fig, ax1 = plt.subplots(constrained_layout=True)
+
+    ax1.semilogy(load_16, avgdelay_16, 'b', label="N=16", linewidth=_LINEWIDTH)
+    ax1.semilogy(load_24, avgdelay_24, 'b--', label="N=24", linewidth=_LINEWIDTH)
+    ax1.semilogy(load_32, avgdelay_32, 'b-.', label="N=32", linewidth=_LINEWIDTH)
+
+    ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
+    ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
+    ax1.set_xlim(_x_lim_begin,_x_lim_end)
+    ax1.set_ylim(_y_lim_begin, _y_lim_end)
+    ax1.legend(loc=_LEGEND_LOC, fontsize=_LEGEND_SIZE)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
+    ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
+    plt.show()
 
 def plot10_calabr_thru():
     _cleaning_factor=1e12
     _small_rm_factor=-2
-    _big_rm_factor=4
-    _x_lim_begin, _x_lim_end=-0.1,1.5
+    _big_rm_factor=1
+    _x_lim_begin, _x_lim_end=-0.1,1.0
     _x_label,_y_label='Normalized load','Normalized throughput'
-    _nominal_thru=16*0.4+16*0.1
+    _nominal_thru=16*4*0.04+16*1*0.04
     _LINEWIDTH = 7
     _LEGEND_SIZE = 30
     _TICK_PARAMS = 45
@@ -860,14 +1119,14 @@ def plot10_calabr_thru():
     _LEGEND_LOC = 'center right'
 
 
-    load_small,thru_small,_=clean_load_thru_drop(waa_400_16x8_go_8020_e2e_load_total_bps_avg,
-                                                          waa_400_16x8_go_8020_e2e_thru_total_bps_avg,
-                                                          waa_400_16x8_go_8020_e2e_drop_total_bps_avg,
+    load_small,thru_small,_=clean_load_thru_drop(waa_200_16x8_go_8020_e2e_load_total_bps_avg,
+                                                          waa_200_16x8_go_8020_e2e_thru_total_bps_avg,
+                                                          waa_200_16x8_go_8020_e2e_drop_total_bps_avg,
                                                           cleaning_factor=_cleaning_factor)
 
-    load_big, thru_big, _ = clean_load_thru_drop(waa_800_16x8_go_8020_e2e_load_total_bps_avg,
-                                                        waa_800_16x8_go_8020_e2e_thru_total_bps_avg,
-                                                        waa_800_16x8_go_8020_e2e_drop_total_bps_avg,
+    load_big, thru_big, _ = clean_load_thru_drop(waa_600_16x8_go_8020_e2e_load_total_bps_avg,
+                                                        waa_600_16x8_go_8020_e2e_thru_total_bps_avg,
+                                                        waa_600_16x8_go_8020_e2e_drop_total_bps_avg,
                                                         cleaning_factor=_cleaning_factor)
 
     # merge 2 datasets
@@ -906,40 +1165,43 @@ def plot10_calabr_thru():
     plt.show()
 
 def plot11_calabr_delay():
-    _comparison_date=2021
+    _comparison_date=2022
     _cleaning_factor=1e12
     _zero_rm_factor=1
-    _small_rm_factor=-2
-    _big_rm_factor=4
+    _small_rm_factor=-1
+    _big_rm_factor=3
     _x_lim_begin, _x_lim_end=-0.1,1
     _y_lim_begin,_y_lim_end=1e-4,1
     _x_label,_y_label='Normalized load','Latency (ms)'
-    _nominal_thru = 16 * 0.4 + 16 * 0.1
+    _nominal_thru=16*4*0.04+16*1*0.04
 
     _LINEWIDTH = 7
     _LEGEND_SIZE = 30
     _TICK_PARAMS = 45
     _LABEL_SIZE = 45
-    _LEGEND_LOC = 'center right'
+    _LEGEND_LOC = 'upper left'
 
-    load_small, avg_delay_small, high_delay_small, med_delay_small, low_delay_small = clean_load_delays(waa_400_16x8_go_8020_e2e_load_total_bps_avg,
-                                                                                                        waa_400_16x8_go_8020_e2e_delay_total_avg,
-                                                                                                        waa_400_16x8_go_8020_e2e_delay_high_avg,
-                                                                                                        waa_400_16x8_go_8020_e2e_delay_med_avg,
-                                                                                                        waa_400_16x8_go_8020_e2e_delay_low_avg,
+    load_small, avg_delay_small, high_delay_small, med_delay_small, low_delay_small = clean_load_delays(waa_200_16x8_go_8020_e2e_load_total_bps_avg,
+                                                                                                        waa_200_16x8_go_8020_e2e_delay_total_avg,
+                                                                                                        waa_200_16x8_go_8020_e2e_delay_high_avg,
+                                                                                                        waa_200_16x8_go_8020_e2e_delay_med_avg,
+                                                                                                        waa_200_16x8_go_8020_e2e_delay_low_avg,
                                                                                 cleaning_factor=_cleaning_factor)
 
     load_big, avg_delay_big, high_delay_big, med_delay_big, low_delay_big = clean_load_delays(
-        waa_800_16x8_go_8020_e2e_load_total_bps_avg,
-        waa_800_16x8_go_8020_e2e_delay_total_avg,
-        waa_800_16x8_go_8020_e2e_delay_high_avg,
-        waa_800_16x8_go_8020_e2e_delay_med_avg,
-        waa_800_16x8_go_8020_e2e_delay_low_avg,
+        waa_600_16x8_go_8020_e2e_load_total_bps_avg,
+        waa_600_16x8_go_8020_e2e_delay_total_avg,
+        waa_600_16x8_go_8020_e2e_delay_high_avg,
+        waa_600_16x8_go_8020_e2e_delay_med_avg,
+        waa_600_16x8_go_8020_e2e_delay_low_avg,
         cleaning_factor=_cleaning_factor)
 
     # merge 2 datasets
     load=load_small[_zero_rm_factor:_small_rm_factor]+load_big[_big_rm_factor:]
     avg_delay=avg_delay_small[_zero_rm_factor:_small_rm_factor]+avg_delay_big[_big_rm_factor:]
+    high_delay = high_delay_small[_zero_rm_factor:_small_rm_factor] + high_delay_big[_big_rm_factor:]
+    med_delay = med_delay_small[_zero_rm_factor:_small_rm_factor] + med_delay_big[_big_rm_factor:]
+    low_delay = low_delay_small[_zero_rm_factor:_small_rm_factor] + low_delay_big[_big_rm_factor:]
 
     # normalize
     norm_load = [x / _nominal_thru for x in load]
@@ -965,8 +1227,11 @@ def plot11_calabr_delay():
     plt.rcParams["axes.labelweight"] = "bold"
     fig, ax1 = plt.subplots(constrained_layout=True)
 
-    ax1.semilogy(norm_load, avg_delay, 'b', label="Ours 16x8", linewidth=_LINEWIDTH + 1)
-    ax1.semilogy(cal_load, cal_avg_delay, 'r', label="Calabretta", linewidth=_LINEWIDTH)
+    ax1.semilogy(norm_load, avg_delay, 'k', label="Ours 16x8 - avg", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(norm_load, high_delay, 'r', label="Ours 16x8 - high", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(norm_load, med_delay, 'g', label="Ours 16x8 - med", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(norm_load, low_delay, 'b', label="Ours 16x8 - low", linewidth=_LINEWIDTH + 1)
+    ax1.semilogy(cal_load, cal_avg_delay, 'k--', label="Calabretta avg", linewidth=_LINEWIDTH)
 
     ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
     ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
@@ -983,31 +1248,34 @@ def plot12_calabr_loss():
     _cleaning_factor=1e12
     _zero_rm_factor=1
     _small_rm_factor=-2
-    _big_rm_factor=4
+    _big_rm_factor=1
     _x_lim_begin, _x_lim_end=-0.1,1
     _y_lim_begin,_y_lim_end=1e-4,1
     _x_label,_y_label='Normalized load','Packet loss'
-    _nominal_thru = 16 * 0.4 + 16 * 0.1
+    _nominal_thru=16*4*0.04+16*1*0.04
 
     _LINEWIDTH = 7
     _LEGEND_SIZE = 30
     _TICK_PARAMS = 45
     _LABEL_SIZE = 45
-    _LEGEND_LOC = 'center right'
+    _LEGEND_LOC = 'upper left'
 
     load_small, thru_small, drop_small, drop_prob_avg_small, drop_prob_high_small, drop_prob_med_small, drop_prob_low_small = clean_load_thru_drop_prob \
-        (waa_400_16x8_go_8020_e2e_load_total_bps_avg, waa_400_16x8_go_8020_e2e_thru_total_bps_avg, waa_400_16x8_go_8020_e2e_drop_total_bps_avg,
-         waa_400_16x8_go_8020_e2e_drop_prob_total_avg, waa_400_16x8_go_8020_e2e_drop_prob_high_avg, waa_400_16x8_go_8020_e2e_drop_prob_med_avg,
-         waa_400_16x8_go_8020_e2e_drop_prob_low_avg, cleaning_factor=1e12)
+        (waa_200_16x8_go_8020_e2e_load_total_bps_avg, waa_200_16x8_go_8020_e2e_thru_total_bps_avg, waa_200_16x8_go_8020_e2e_drop_total_bps_avg,
+         waa_200_16x8_go_8020_e2e_drop_prob_total_avg, waa_200_16x8_go_8020_e2e_drop_prob_high_avg, waa_200_16x8_go_8020_e2e_drop_prob_med_avg,
+         waa_200_16x8_go_8020_e2e_drop_prob_low_avg, cleaning_factor=1e12)
 
     load_big, thru_big, drop_big, drop_prob_avg_big, drop_prob_high_big, drop_prob_med_big, drop_prob_low_big = clean_load_thru_drop_prob \
-        (waa_800_16x8_go_8020_e2e_load_total_bps_avg, waa_800_16x8_go_8020_e2e_thru_total_bps_avg, waa_800_16x8_go_8020_e2e_drop_total_bps_avg,
-         waa_800_16x8_go_8020_e2e_drop_prob_total_avg, waa_800_16x8_go_8020_e2e_drop_prob_high_avg, waa_800_16x8_go_8020_e2e_drop_prob_med_avg,
-         waa_800_16x8_go_8020_e2e_drop_prob_low_avg, cleaning_factor=1e12)
+        (waa_600_16x8_go_8020_e2e_load_total_bps_avg, waa_600_16x8_go_8020_e2e_thru_total_bps_avg, waa_600_16x8_go_8020_e2e_drop_total_bps_avg,
+         waa_600_16x8_go_8020_e2e_drop_prob_total_avg, waa_600_16x8_go_8020_e2e_drop_prob_high_avg, waa_600_16x8_go_8020_e2e_drop_prob_med_avg,
+         waa_600_16x8_go_8020_e2e_drop_prob_low_avg, cleaning_factor=1e12)
 
     # merge 2 datasets
     load=load_small[_zero_rm_factor:_small_rm_factor]+load_big[_big_rm_factor:]
     drop_prob_avg=drop_prob_avg_small[_zero_rm_factor:_small_rm_factor]+drop_prob_avg_big[_big_rm_factor:]
+    drop_prob_high = drop_prob_high_small[_zero_rm_factor:_small_rm_factor] + drop_prob_high_big[_big_rm_factor:]
+    drop_prob_med = drop_prob_med_small[_zero_rm_factor:_small_rm_factor] + drop_prob_med_big[_big_rm_factor:]
+    drop_prob_low = drop_prob_low_small[_zero_rm_factor:_small_rm_factor] + drop_prob_low_big[_big_rm_factor:]
 
     # normalize
     norm_load = [x / _nominal_thru for x in load]
@@ -1032,8 +1300,11 @@ def plot12_calabr_loss():
     plt.rcParams["axes.labelweight"] = "bold"
     fig, ax1 = plt.subplots(constrained_layout=True)
 
-    ax1.plot(norm_load, drop_prob_avg, 'b', label="Ours 16x8", linewidth=_LINEWIDTH + 1)
-    ax1.plot(cal_load, cal_drop_prob, 'r', label="Calabretta", linewidth=_LINEWIDTH)
+    ax1.plot(norm_load, drop_prob_avg, 'k', label="Ours 16x8 - avg", linewidth=_LINEWIDTH + 1)
+    ax1.plot(norm_load, drop_prob_high, 'r', label="Ours 16x8 - high", linewidth=_LINEWIDTH + 1)
+    ax1.plot(norm_load, drop_prob_med, 'g', label="Ours 16x8 - med", linewidth=_LINEWIDTH + 1)
+    ax1.plot(norm_load, drop_prob_low, 'b', label="Ours 16x8 - low", linewidth=_LINEWIDTH + 1)
+    ax1.plot(cal_load, cal_drop_prob, 'k--', label="Calabretta - avg", linewidth=_LINEWIDTH)
 
     ax1.set_xlabel(_x_label, fontsize=_LABEL_SIZE)
     ax1.set_ylabel(_y_label, fontsize=_LABEL_SIZE)
@@ -1054,10 +1325,16 @@ def plot12_calabr_loss():
 #plot05_16x16_stay_8020_e2e_delays()
 #plot06_16x16_stay_traffic_e2e_delays()
 
-#plot07_16xN_stay_8020_server_thru()
-#plot08_16xN_stay_8020_e2e_delays()
-###plot09_16xN_stay_8020_e2e_delays() todooo
+_16xN='1stay'
+if _16xN=='stay':
+    #plot07_16xN_stay_8020_server_thru(zmall='800')
+    plot08_16xN_stay_8020_e2e_delays(zmall='800')
+    ###plot09_16xN_stay_8020_e2e_delays() todooo
+elif _16xN=='go':
+    plot07_16xN_go_8020_server_thru(zmall='800')#'half'
+    plot08_16xN_go_8020_e2e_delays(zmall='800')
+    ###plot09_16xN_go_8020_e2e_delays() todooo
 
-#plot10_calabr_thru()
-#plot11_calabr_delay()
+plot10_calabr_thru()
+plot11_calabr_delay()
 plot12_calabr_loss()

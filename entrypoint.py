@@ -103,7 +103,7 @@ _T_BEGIN = 0
 _T_END = 0.010
 _TOTAL_TORS=16
 _TOTAL_INTER_CHANNELS=8
-_INTER_BITRATE=40e9
+_INTER_BITRATE=10e9
 _TX_PER_TOR=4
 _TOR_OUTBOUND_BUFFER_SIZE_LOW=1e6
 _TOR_OUTBOUND_BUFFER_SIZE_MED=1e6
@@ -114,7 +114,7 @@ _TOR_INBOUND_BUFFER_SIZE_HIGH=1e6
 _TOTAL_NODES_PER_TOR=8
 _TOR_NODE_ID=99
 _TOTAL_INTRA_DATA_CHANNELS=4
-_INTRA_BITRATE=100e9
+_INTRA_BITRATE=40e9
 _INTRA_CONTROL_CHANNEL_ID=99
 _REMOVE_INTER=False
 _NODE_OUTPUT_BUFFERS_FOR_INTRA_PACKS_SIZE_LOW=1e6
@@ -126,7 +126,7 @@ _TIMESTEP = 0.8e-9 #-> NEED TOTAL_TIME MOD timestep=0 (sync!)
 
 _SHARE_CONTROL_CHANNEL=True
 _TOTAL_INTRA_DEDICATED_DATA_CHANNELS_DL=1
-_INTRA_DEDICATED_BITRATE=100e9
+_INTRA_DEDICATED_BITRATE=40e9
 if _SHARE_CONTROL_CHANNEL and _INTRA_BITRATE!=_INTRA_DEDICATED_BITRATE:
     # if share control channel...we must set INTRA DEDICATED RATE=INTRA RATE
     print('ERROR Uneven rates between control and data. aborting...')
@@ -193,6 +193,31 @@ elif _TOTAL_NODES_PER_TOR==8 and _INTRA_BITRATE==100e9:
     myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
     myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
     myglobal.MAX_SLOTS_FOR_SMALL_PACKS=20
+elif _TOTAL_NODES_PER_TOR==8 and _INTRA_BITRATE==40e9:
+    if _SHARE_CONTROL_CHANNEL:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 38  # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 10 # apply in split network with shared channel
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+        print('Running with 8 Servers at 40 Gbps, with shared control channel')
+    else:
+        myglobal.CONTROL_MSG_PACKS_PER_BUFF = 48
+        print('Running with 8 Servers at 40 Gbps, with dedicated control channel')
+    myglobal.STR_SOURCE_DEST_ID = "{0:03b}"
+    myglobal.CONTROL_MINIPACK_SIZE = 9  # bits
+    myglobal.CUT_1 = 3
+    myglobal.CUT_2 = 6
+    myglobal.CUT_3 = 8
+    myglobal.BONUS_MSG_BITSIZE = 7  # bits (=cut1+4)
+    myglobal.BREAK_POSITION=3 #(cut1)
+    myglobal.LUCKY_SLOT_LEN = 3
+    myglobal.UNLUCKY_SLOT_LEN = 2
+    if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+        myglobal.TOTAL_UNLUCKY_NODES=2
+    else:
+        myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+    myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+    myglobal.INTRA_CYCLE_GUARD_BAND=9 #byte
+    myglobal.MAX_SLOTS_FOR_SMALL_PACKS=22
 elif _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
     if _SHARE_CONTROL_CHANNEL:
         myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 8  # apply in split network with shared channel

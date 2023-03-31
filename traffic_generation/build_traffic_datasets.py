@@ -3,11 +3,11 @@ from torus_integrated.traffic_generation.generator import *
 # params
 t_begin=0 #sec (float)
 t_end=0.010 #sec (float)
-avg_throughput=800e9 # 300avg=75intra+170inter, 640avg=140intra+200inter #4a2_1600, 4a3_2400# exp5=1800avgtry1
+avg_throughput=200e9 # 300avg=75intra+170inter, 640avg=140intra+200inter #4a2_1600, 4a3_2400# exp5=1800avgtry1
 qos='all'# qos packets allowed in our config {'low','med','high','all'}
 total_intra_nodes=8
 total_inter_nodes=16
-tor_server_id=17 # if tor_id in total_intra_nodes -> co-location (eg torid=16), else separate (eg torid=999)
+tor_server_id=9999 # if tor_id in total_intra_nodes -> co-location (eg torid=16), else separate (eg torid=999)
 low_thru_shape_param=3 # float - calibrates low packet density
 med_thru_shape_param=5 # float - calibrates med packet density
 high_thru_shape_param=0.005 # float - calibrates high packet density

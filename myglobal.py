@@ -2,7 +2,7 @@ import os
 
 # Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-CURR_DATASET='torus_800_16x8_go'
+CURR_DATASET='torus_200_16x8_go_8020'
 
 ###
 TRAFFIC_DATASETS_FOLDER=os.path.join(ROOT,'traffic_datasets')

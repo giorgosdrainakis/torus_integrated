@@ -10,12 +10,7 @@ import csv
 import matplotlib
 from matplotlib.ticker import MaxNLocator
 from torus_integrated.myglobal import *
-from torus_integrated.plotters.jocn_split_data import *
-from torus_integrated.plotters.jocn_split_data2 import *
-from torus_integrated.plotters.jocn_split_data3 import *
-from torus_integrated.plotters.jocn_split_data4 import *
-from torus_integrated.plotters.jocn_split_data5_400_16x8_vanilla import *
-from torus_integrated.plotters.jocn_split_data6_1200_16x24_stay import *
+
 
 def plot_calabr_comparison(dt):
     load_small_go = [0, 2.1167344355555557, 2.401646682352941, 2.7839736084210527, 3.1905813866666666, 3.64618, 4.0436944,
@@ -2632,6 +2627,8 @@ def test_plot_stayin_e2e_delays(traffic_list):
 
     plt.show()
 
+plot_compare_delay_bar_C()
+
 graph_list='scaling'
 
 if graph_list=='basic':
@@ -2663,7 +2660,7 @@ elif graph_list=='strategy':
 
 # Group C: PLot for scaling number of servers (1600,2400,3200 stay)
 elif graph_list=='scaling':
-    prepare_graphs=True
+    prepare_graphs=False
     if prepare_graphs:
         for data in [1600,2400,3200]:
             plot_delays_e2e(data=data, strategy='stay',toplot='only_hml') # toplot in ['only_avg', 'only_hml', 'all']

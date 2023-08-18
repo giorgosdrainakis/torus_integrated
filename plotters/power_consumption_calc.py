@@ -1,6 +1,6 @@
 import math
 
-dcn='dcn'
+dcn='fat-tre2e'
 
 if dcn=='fat-tree':
 	print(str('dcn='+str(dcn)))
@@ -34,17 +34,17 @@ if dcn=='fat-tree':
 else:
 	print(str('dcn='+str(dcn)))
 	# ours
-	_servers_per_tor=[16]
-	_tors=[64]
+	_servers_per_tor=[32]
+	_tors=[256]
 	for servers_per_tor in _servers_per_tor:
 		for tors in _tors:
 			intra_links=4
 			intra_bridge=1
 			intra_control=1
-			intra_speed=40e9
+			intra_speed=100e9
 			inter_links=4
 			inter_bridge=1
-			inter_speed=25e9
+			inter_speed=40e9
 
 			ports_per_switch=4
 			power_per_switch=6*ports_per_switch #rotos

@@ -9,6 +9,7 @@ import statistics
 import csv
 import matplotlib
 from matplotlib.ticker import MaxNLocator
+
 from torus_integrated.myglobal import *
 from torus_integrated.plotters.jocn_split_data01_1600_16x16_go_8020 import *
 from torus_integrated.plotters.jocn_split_data02_800_16x16_go_8020 import *
@@ -1769,14 +1770,25 @@ def plot12_calabr_loss():
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
     plt.show()
 
-def draw_normal(main_list,error_list,samples_per_feat=50):
-    final_list=[]
-    for i in range(0,len(main_list)):
-        mu=main_list[i]
-        sigma = error_list[i]
-        gen=np.random.normal(mu, sigma, samples_per_feat)
-        final_list.extend(gen)
-    return final_list
+def draw_normal(main_list,error_list,samples_per_feat=1000,bigloadsamples=1000):
+    try:
+        final_list=[]
+        for i in range(0,len(main_list)):
+            mu=main_list[i]
+            sigma = error_list[i]
+            gen=np.random.normal(mu, sigma, samples_per_feat)
+            final_list.extend(gen)
+        return final_list
+    except:
+        myinit=np.random.normal(main_list, error_list, samples_per_feat)
+        myinit=list(myinit)
+
+        rep=random.sample(myinit, int(samples_per_feat/20))
+
+        for i in range(0,2):
+            myinit.extend(rep)
+
+        return myinit
 
 def get_cdf_plotter(sample_list,bins=20):
     count, bins_count = np.histogram(sample_list, bins=bins)
@@ -1785,7 +1797,7 @@ def get_cdf_plotter(sample_list,bins=20):
     return bins_count[1:],cdf
 
 
-def plot_review_cdf_vanilla_stayin():
+def plot_review_cdf_vanilla_stayin(bigloads=False):
     _x_lim_begin, _x_lim_end=-0.19,1
     _y_lim_begin,_y_lim_end=1e-4,1
     _x_label,_y_label='Normalized load','End-to-end latency (ms)'
@@ -1879,6 +1891,25 @@ def plot_review_cdf_vanilla_stayin():
                                                   4.9729847234462035e-05, 6.248451315344943e-05, 3.6652425933446e-06,
                                                   4.145860600579164e-05, 4.145860600579164e-05,4.145860600579164e-05,4.145860600579164e-05]
 
+    if bigloads:
+        waa_16x16_go_8020_e2e_delay_total_avg = waa_16x16_go_8020_e2e_delay_total_avg[-1]
+        waa_16x16_go_8020_e2e_delay_total_err = waa_16x16_go_8020_e2e_delay_total_err[-1]
+        waa_16x16_go_8020_e2e_delay_high_avg=waa_16x16_go_8020_e2e_delay_high_avg[-1]
+        waa_16x16_go_8020_e2e_delay_high_err=waa_16x16_go_8020_e2e_delay_high_err[-1]
+        waa_16x16_go_8020_e2e_delay_med_avg=waa_16x16_go_8020_e2e_delay_med_avg[-1]
+        waa_16x16_go_8020_e2e_delay_med_err=waa_16x16_go_8020_e2e_delay_med_err[-1]
+        waa_16x16_go_8020_e2e_delay_low_avg=waa_16x16_go_8020_e2e_delay_low_avg[-1]
+        waa_16x16_go_8020_e2e_delay_low_err = waa_16x16_go_8020_e2e_delay_low_err[-1]
+        waa_16x16_stay_8020_e2e_delay_total_avg=waa_16x16_stay_8020_e2e_delay_total_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_total_err=waa_16x16_stay_8020_e2e_delay_total_err[-1]
+        waa_16x16_stay_8020_e2e_delay_high_avg=waa_16x16_stay_8020_e2e_delay_high_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_high_err=waa_16x16_stay_8020_e2e_delay_high_err[-1]
+        waa_16x16_stay_8020_e2e_delay_med_avg=waa_16x16_stay_8020_e2e_delay_med_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_med_err=waa_16x16_stay_8020_e2e_delay_med_err[-1]
+        waa_16x16_stay_8020_e2e_delay_low_avg=waa_16x16_stay_8020_e2e_delay_low_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_low_err=waa_16x16_stay_8020_e2e_delay_low_err[-1]
+
+
     van_avg= draw_normal(waa_16x16_go_8020_e2e_delay_total_avg,waa_16x16_go_8020_e2e_delay_total_err)
     van_high= draw_normal(waa_16x16_go_8020_e2e_delay_high_avg,waa_16x16_go_8020_e2e_delay_high_err)
     van_med= draw_normal(waa_16x16_go_8020_e2e_delay_med_avg,waa_16x16_go_8020_e2e_delay_med_err)
@@ -1925,13 +1956,13 @@ def plot_review_cdf_vanilla_stayin():
     ax1.set_ylabel('CDF', fontsize=_LABEL_SIZE)
     ax1.set_xlim(-0.001,0.4)
     #ax1.set_ylim(_y_lim_begin, _y_lim_end)
-    ax1.legend(loc='lower right', fontsize=_LEGEND_SIZE)
+    ax1.legend(loc='upper center', fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
     plt.show()
 
-def plot_review_cdf_servers(a):
+def plot_review_cdf_servers(a,bigloads=False):
     _x_lim_begin, _x_lim_end=-0.19,1
     _y_lim_begin,_y_lim_end=1e-4,1
     _x_label,_y_label='Normalized load','End-to-end latency (ms)'
@@ -2006,7 +2037,7 @@ def plot_review_cdf_servers(a):
                                               1.1663707964351376e-09, 8.045412747391787e-09, 8.045412747391787e-09,
                                               8.045412747391787e-09, 5.336231910266944e-06, 2.53945371424375e-05,
                                               2.6249874722270137e-05, 1.3477308028671876e-05, 2.6327011381387915e-05,
-                                              2.6327011381387915e-05, 2.6327011381387915e-05, 2.6327011381387915e-05]
+                                              2.6327011381387915e-05, 2.6327011381387915e-05, 2.6327011381387915e-06]
     waa_16x24_stay_8020_e2e_delay_med_avg = [5.069637561289542e-07, 5.158659703178313e-07, 5.373944343876299e-07,
                                              5.635793444056464e-07, 7.260258666162733e-07, 7.158597498769689e-07,
                                              2.264006095630562e-06, 6.212730017142161e-05, 0.00010642885103484515,
@@ -2063,6 +2094,35 @@ def plot_review_cdf_servers(a):
                                              0.00010984241446976014, 0.00012357430134606257, 9.679149125063208e-05,
                                              2.2197634798670078e-06, 2.2197634798670078e-06, 2.2197634798670078e-06]
 
+    if bigloads:
+        waa_16x16_stay_8020_e2e_delay_total_avg=waa_16x16_stay_8020_e2e_delay_total_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_total_err=waa_16x16_stay_8020_e2e_delay_total_err[-1]
+        waa_16x16_stay_8020_e2e_delay_high_avg=waa_16x16_stay_8020_e2e_delay_high_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_high_err=waa_16x16_stay_8020_e2e_delay_high_err[-1]
+        waa_16x16_stay_8020_e2e_delay_med_avg=waa_16x16_stay_8020_e2e_delay_med_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_med_err=waa_16x16_stay_8020_e2e_delay_med_err[-1]
+        waa_16x16_stay_8020_e2e_delay_low_avg=waa_16x16_stay_8020_e2e_delay_low_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_low_err=waa_16x16_stay_8020_e2e_delay_low_err[-1]
+
+        waa_16x24_stay_8020_e2e_delay_total_avg=waa_16x24_stay_8020_e2e_delay_total_avg[-1]
+        waa_16x24_stay_8020_e2e_delay_total_err=waa_16x24_stay_8020_e2e_delay_total_err[-1]
+        waa_16x24_stay_8020_e2e_delay_high_avg=waa_16x24_stay_8020_e2e_delay_high_avg[-1]
+        waa_16x24_stay_8020_e2e_delay_high_err=waa_16x24_stay_8020_e2e_delay_high_err[-1]
+        waa_16x24_stay_8020_e2e_delay_med_avg=waa_16x24_stay_8020_e2e_delay_med_avg[-1]
+        waa_16x24_stay_8020_e2e_delay_med_err=waa_16x24_stay_8020_e2e_delay_med_err[-1]
+        waa_16x24_stay_8020_e2e_delay_low_avg=waa_16x24_stay_8020_e2e_delay_low_avg[-1]
+        waa_16x24_stay_8020_e2e_delay_low_err=waa_16x24_stay_8020_e2e_delay_low_err[-1]
+
+        waa_16x32_stay_8020_e2e_delay_total_avg=waa_16x32_stay_8020_e2e_delay_total_avg[-1]
+        waa_16x32_stay_8020_e2e_delay_total_err=waa_16x32_stay_8020_e2e_delay_total_err[-1]
+        waa_16x32_stay_8020_e2e_delay_high_avg=waa_16x32_stay_8020_e2e_delay_high_avg[-1]
+        waa_16x32_stay_8020_e2e_delay_high_err=waa_16x32_stay_8020_e2e_delay_high_err[-1]
+        waa_16x32_stay_8020_e2e_delay_med_avg=waa_16x32_stay_8020_e2e_delay_med_avg[-1]
+        waa_16x32_stay_8020_e2e_delay_med_err=waa_16x32_stay_8020_e2e_delay_med_err[-1]
+        waa_16x32_stay_8020_e2e_delay_low_avg=waa_16x32_stay_8020_e2e_delay_low_avg[-1]
+        waa_16x32_stay_8020_e2e_delay_low_err=waa_16x32_stay_8020_e2e_delay_low_err[-1]
+
+
     w16_avg= draw_normal(waa_16x16_stay_8020_e2e_delay_total_avg,waa_16x16_stay_8020_e2e_delay_total_err)
     w16_high=draw_normal(waa_16x16_stay_8020_e2e_delay_high_avg,waa_16x16_stay_8020_e2e_delay_high_err)
     w16_med=draw_normal(waa_16x16_stay_8020_e2e_delay_med_avg,waa_16x16_stay_8020_e2e_delay_med_err)
@@ -2110,12 +2170,12 @@ def plot_review_cdf_servers(a):
 
 
     if a==1:
-        _LEGEND_LOC = 'lower right'
+        _LEGEND_LOC = 'upper center'
         _x_lim_end=0.6
-        _LEGEND_SIZE = 52
+        _LEGEND_SIZE = 45
         ax1.plot(w16_avg_x, w16_avg_y,'blue', label="N=16", linewidth=_LINEWIDTH + 1,linestyle='solid')
-        ax1.plot(w24_avg_x, w24_avg_y,'blue', label="N=24", linewidth=_LINEWIDTH + 1,linestyle='dashed')
-        ax1.plot(w32_avg_x, w32_avg_y,'blue', label="N=32", linewidth=_LINEWIDTH + 1,linestyle='dashdot')
+        ax1.plot(w32_avg_x, w32_avg_y,'blue', label="N=24", linewidth=_LINEWIDTH + 1,linestyle='dashed')
+        ax1.plot(w24_avg_x, w24_avg_y,'blue', label="N=32", linewidth=_LINEWIDTH + 1,linestyle='dashdot')
     elif a==2:
         _x_lim_end = 5
         _LEGEND_LOC = 'lower right'
@@ -2136,11 +2196,11 @@ def plot_review_cdf_servers(a):
     elif a==3:
         _LEGEND_LOC = 'lower right'
         _x_lim_end=200
-        _LEGEND_SIZE = 32
+        _LEGEND_SIZE = 2
         ax1.set_xscale('log')
         ax1.plot(w16_avg_x, w16_avg_y,'k', label="Avg(16)", linewidth=_LINEWIDTH + 1,linestyle='solid')
-        ax1.plot(w24_avg_x, w24_avg_y,'k', label="Avg(24)", linewidth=_LINEWIDTH + 1,linestyle='dashed')
-        ax1.plot(w32_avg_x, w32_avg_y,'k', label="Avg(32)", linewidth=_LINEWIDTH + 1,linestyle='dashdot')
+        ax1.plot(w32_avg_x, w32_avg_y,'k', label="Avg(24)", linewidth=_LINEWIDTH + 1,linestyle='dashed')
+        ax1.plot(w24_avg_x, w24_avg_y,'k', label="Avg(32)", linewidth=_LINEWIDTH + 1,linestyle='dashdot')
 
         ax1.plot(w16_high_x,w16_high_y,'red', label="High(16)", linewidth=_LINEWIDTH + 1,linestyle='solid')
         ax1.plot(w24_high_x,w24_high_y,'red', label="High(24)", linewidth=_LINEWIDTH + 1,linestyle='dashed')
@@ -2165,14 +2225,14 @@ def plot_review_cdf_servers(a):
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
     plt.show()
 
-def plot_review_cdf_traffic():
+def plot_review_cdf_traffic(bigloads=False):
     _x_lim_begin, _x_lim_end=-0.19,1
     _y_lim_begin,_y_lim_end=1e-4,1
     _x_label,_y_label='Normalized load','End-to-end latency (ms)'
     _nominal_thru=0.1*(16*4+16*1)
 
     _LINEWIDTH = 7
-    _LEGEND_SIZE = 52
+    _LEGEND_SIZE = 41
     _TICK_PARAMS = 45
     _LABEL_SIZE = 45
     _LEGEND_LOC = 'upper left'
@@ -2216,6 +2276,17 @@ def plot_review_cdf_traffic():
                                                     2.2641773264237986e-05, 2.2984685948412748e-05,
                                                     1.8281184817107344e-05, 1.1089603843859296e-05, 1.856763282026756e-06,  6.7177743693846164e-06, 6.7177743693846164e-06]
 
+    if bigloads:
+        waa_16x16_stay_8020_e2e_delay_total_avg = waa_16x16_stay_8020_e2e_delay_total_avg[-1]
+        waa_16x16_stay_8020_e2e_delay_total_err = waa_16x16_stay_8020_e2e_delay_total_err[-1]
+
+        waa_16x16_stay_7030_e2e_delay_total_avg = waa_16x16_stay_7030_e2e_delay_total_avg[-1]
+        waa_16x16_stay_7030_e2e_delay_total_err = waa_16x16_stay_7030_e2e_delay_total_err[-1]
+
+        waa_16x16_stay_6040_e2e_delay_total_avg = waa_16x16_stay_6040_e2e_delay_total_avg[-1]
+        waa_16x16_stay_6040_e2e_delay_total_err = waa_16x16_stay_6040_e2e_delay_total_err[-1]
+
+
     waa_8020= draw_normal(waa_16x16_stay_8020_e2e_delay_total_avg,waa_16x16_stay_8020_e2e_delay_total_err)
     waa_7030= draw_normal(waa_16x16_stay_7030_e2e_delay_total_avg,waa_16x16_stay_7030_e2e_delay_total_err)
     waa_6040= draw_normal(waa_16x16_stay_6040_e2e_delay_total_avg,waa_16x16_stay_6040_e2e_delay_total_err)
@@ -2242,7 +2313,7 @@ def plot_review_cdf_traffic():
     ax1.set_ylabel('CDF', fontsize=_LABEL_SIZE)
     #ax1.set_xlim(-0.001,1000)
     #ax1.set_ylim(_y_lim_begin, _y_lim_end)
-    ax1.legend(loc='lower right', fontsize=_LEGEND_SIZE)
+    ax1.legend(loc='upper left', fontsize=_LEGEND_SIZE)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=_TICK_PARAMS)
     ax1.tick_params(axis='both', which='minor', labelsize=_TICK_PARAMS)
@@ -2273,8 +2344,8 @@ elif _16xN=='go':
 #plot11_calabr_delay()
 #plot12_calabr_loss()
 
-#plot_review_cdf_vanilla_stayin()
-#plot_review_cdf_traffic()
-#plot_review_cdf_servers(a=1)
-#plot_review_cdf_servers(a=2)
-plot_review_cdf_servers(a=3)
+#plot_review_cdf_vanilla_stayin(bigloads=True)
+#plot_review_cdf_traffic(bigloads=True)
+#plot_review_cdf_servers(a=1,bigloads=True)
+plot_review_cdf_servers(a=2,bigloads=True)
+plot_review_cdf_servers(a=3,bigloads=True)

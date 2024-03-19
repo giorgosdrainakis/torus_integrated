@@ -2,7 +2,9 @@ import os
 
 # Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-CURR_DATASET='torus_200_16x8_go_8020'
+CURR_DATASET='test_intra'
+CURR_DATASET='20240316_id01_topo1x16_ch4x100_load500g'
+
 
 ###
 TRAFFIC_DATASETS_FOLDER=os.path.join(ROOT,'traffic_datasets')
@@ -10,6 +12,8 @@ CURR_TRAFFIC_DATASET_FOLDER=os.path.join(TRAFFIC_DATASETS_FOLDER,CURR_DATASET)
 TRANSMISSION_INFO_FOLDER=os.path.join(ROOT,'transmission_info')
 TORUS_MATRIX_FILE=os.path.join(TRANSMISSION_INFO_FOLDER,'torus_matrix.txt')
 LOGS_FOLDER=os.path.join(ROOT,'logs')
+
+_FRAMEWORK='trafpy' #trafpy, simple
 
 CABLE_LEN=2.5 # m
 FIBER_FACTOR=1.5 # 1.5 if typical fyber, 1 if hollow-core (=refraction index)
@@ -46,7 +50,7 @@ INTER_CYCLE_GUARD_BAND=3 # bytes
 DEDICATED_UL_CYCLE_GUARD_BAND=3 # bytes
 
 # logging
-OUTPUT_TABLE_TITLE='packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,' \
+OUTPUT_TABLE_TITLE='flow_id,flow_size,flow_time_gen,packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,' \
                     'time_intra_buffer_in,time_intra_buffer_out,time_intra_trx_in,time_intra_trx_out,' \
                    'time_tor_buffer_in,time_tor_buffer_out,time_tor_trx_in,time_tor_trx_out,' \
                    'time_inter_buffer_in,time_inter_buffer_out,time_inter_trx_in,time_inter_trx_out\n'

@@ -4,8 +4,11 @@ import os
 from torus_integrated import myglobal
 
 class Packet:
-    def __init__(self,packet_id,time,packet_size,packet_qos,source_id,
+    def __init__(self,flow_id,flow_size,flow_time_gen,packet_id,time,packet_size,packet_qos,source_id,
                  tor_id,destination_id,destination_tor):
+        self.flow_id=str(flow_id)
+        self.flow_size = float(flow_size)
+        self.flow_time_gen = float(flow_time_gen)
         self.packet_id=int(packet_id)
         self.time=float(time)
         self.packet_size=float(packet_size)
@@ -47,7 +50,10 @@ class Packet:
         return outp
 
     def show(self):
-        outp=str(self.packet_id)+','+\
+        outp= str(self.flow_id) + ',' + \
+            str(self.flow_size) + ',' + \
+            str(self.flow_time_gen) + ',' + \
+            str(self.packet_id)+','+\
              str(self.time) + ','+\
             str(self.packet_size) + ',' +\
                 str(self.packet_qos) + ',' +\
@@ -92,7 +98,8 @@ class Traffic_Per_Node():
         with open(file) as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
-                new_packet = Packet(row['packet_id'], row['time'], row['packet_size'],row['packet_qos'],
+                new_packet = Packet(row['flow_id'], row['flow_size'], row['flow_time_gen'],
+                    row['packet_id'], row['time'], row['packet_size'],row['packet_qos'],
                                     row['source_id'],row['tor_id'],row['destination_id'],row['destination_tor']
                                     )
                 self.add(new_packet)

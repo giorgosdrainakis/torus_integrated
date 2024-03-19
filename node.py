@@ -38,6 +38,17 @@ class Decoder:
                             is_big_filled = True
                 return is_big_filled
 
+    def fill_with_big_packs_vol2(self,node_id, ch_id, start_slot):
+        is_big_filled=False
+        for node in self.db:
+            if node.node_id == node_id:
+                if len(node.low_buffer) > 0:
+                    if node.low_buffer[0].slot is None:
+                        node.low_buffer[0].slot = start_slot
+                        node.low_buffer[0].channel = ch_id
+                        is_big_filled = True
+                return is_big_filled
+
     def fill_with_small_packs(self,node_id,ch_id,max_pack_num,start_slot,lucky_number):
         packs_filled=self.fill_high(node_id, max_pack_num, start_slot, ch_id)
 
@@ -52,6 +63,41 @@ class Decoder:
                     packs_filled = packs_filled + self.fill_med(node_id, max_pack_num - packs_filled, start_slot+packs_filled, ch_id)
 
         return packs_filled
+
+    def fill_with_small_packs_vol2(self,node_id,ch_id,start_slot,size_remaining):
+
+        # fill high and med combined-> rule: 1 med and then apeira high
+        for node in self.db:
+            if node.node_id == node_id:
+
+                reached_blockade=False
+                while (not reached_blockade):
+                    # fill high
+                    i=0
+                    while i < len(node.high_buffer):
+                        if node.high_buffer[i].slot is None:
+                            if node.high_buffer[i].size <= size_remaining:
+                                node.high_buffer[i].slot = start_slot + node.high_buffer[i].size
+                                node.high_buffer[i].channel = ch_id
+                                size_remaining = size_remaining - node.high_buffer[i].size
+                            else:
+                                reached_blockade = True
+                        i = i + 1
+
+                    # fill med
+                    i=0
+                    while i < len(node.med_buffer):
+                        if node.med_buffer[i].slot is None:
+                            if node.med_buffer[i].size <= size_remaining:
+                                node.med_buffer[i].slot = start_slot + node.med_buffer[i].size
+                                node.med_buffer[i].channel = ch_id
+                                size_remaining = size_remaining - node.med_buffer[i].size
+                            else:
+                                reached_blockade = True
+                        i = i + 1
+
+        return size_remaining
+
 
     def fill_high(self,node_id,max_pack_num,start_slot,ch_id):
         for node in self.db:
@@ -354,13 +400,18 @@ class Nodes:
                 print('TOR:'+str(self.tor_id)+' -----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
                 control_bitsize_per_node = myglobal.CONTROL_MSG_PACKS_PER_BUFF * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
                 control_cycle_slot_time = control_bitsize_per_node / self.channels.get_common_bitrate()
-
+                # collect (fake) control message from all nodes
                 control_msg = self.build_new_control_message()
-                decoder=self.run_distributed_algo(control_msg)
-
-                for node in self.db:
-                    node.process_new_cycle(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
-                                           self.current_cycle,self.channels,self.control_channel,total_nodes)
+                if myglobal._FRAMEWORK=='trafpy':
+                    decoder=self.run_distributed_algo_vol2(control_msg)
+                    for node in self.db:
+                        node.process_new_cycle_vol2(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
+                                               self.current_cycle,self.channels,self.control_channel,total_nodes)
+                else:
+                    decoder=self.run_distributed_algo(control_msg)
+                    for node in self.db:
+                        node.process_new_cycle(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
+                                               self.current_cycle,self.channels,self.control_channel,total_nodes)
 
             self.current_cycle=self.current_cycle+1
 
@@ -388,7 +439,6 @@ class Nodes:
                                            self.current_cycle_dedicated_ul,self.dedicated_channels_ul,self.dedicated_control_channel,total_nodes)
                 self.current_cycle_dedicated_ul=self.current_cycle_dedicated_ul+1
             return entered_new_cycle
-
 
     def check_arrival_dedicated_dl(self,current_time):
         for pack in self.data_meta_buffer_dedicated_dl:
@@ -602,16 +652,20 @@ class Nodes:
         msg=[]
         bonus=None
         for node in self.db:
+            # control msg in nodes is not "transmitted" it is rather saved at control_sent
+            # work-around when more than one msg saved
             if len(node.control_sent)==1:
                 msg.append(node.control_sent[0])
             elif len(node.control_sent)==2:
                 msg.append(node.control_sent[0])
                 bonus=node.control_sent[1]
             else:
-                print('Cannot find built message for control intra node'+str(node.id))
+                pass
+                #print('Cannot find built message for control intra node'+str(node.id)) geodranas
         if bonus is not None:
             msg.append(bonus)
         for node in self.db:
+            # make sure to clean for next control msg
             node.control_sent=[]
         return msg
 
@@ -681,6 +735,50 @@ class Nodes:
             decoder.db.append(decoded_node)
 
             #print('I decoded for node '+str(decoded_node.node_id)+' buff len h-m-l='+
+            #      str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
+            #      ','+str(db_med_1500)+')'+'-'+
+            #      str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
+            #      ',minipacklist='+str(len(control_pack.minipack_list)))
+
+        return decoder
+
+    def decode_control_msg_vol2(self,control_msg,cut1,cut2,cut3,node_id_diff):
+        decoder=Decoder()
+
+        for control_pack in control_msg:
+            decoded_node=Decoded_Node()
+            decoded_node.node_id=control_pack.source_id
+            if control_pack.is_bonus_packet:
+                continue
+
+            for minipack in control_pack.minipack_list:
+                bits_src, bits_dest, bits_qos, bits_size= minipack[0:cut1], minipack[cut1:cut2], minipack[cut2:cut3], minipack[cut3]
+
+                # check that source node is indeed the node I am checking
+                # src bits are already assumed before during source_id assignment
+                if decoded_node.node_id!=int(bits_src,2)+node_id_diff:
+                    print(str('sync ERROR - checking different packets ids'))
+                    exit()
+
+                # destination bits only for receiver, not implemented
+
+                # size,qos assignment for TR algorithm, per pack
+                decoded_pack=Decoded_Pack()
+                decoded_pack.size = int(bits_size,2)
+
+                if bits_qos=='00':
+                    decoded_node.high_buffer.append(decoded_pack)
+                elif bits_qos=='01' :
+                    decoded_node.med_buffer.append(decoded_pack)
+                elif bits_qos=='10':
+                    decoded_node.low_buffer.append(decoded_pack)
+                else:
+                    print(str('coding ERROR - unknown QOS:')+str(bits_qos))
+                    exit()
+
+            decoder.db.append(decoded_node)
+
+            #print('I decoded for node '+str(decoded_node.node_id))
             #      str(len(decoded_node.high_buffer))+'-'+str(len(decoded_node.med_buffer))+'('+str(db_med_64)+
             #      ','+str(db_med_1500)+')'+'-'+
             #      str(len(decoded_node.low_buffer))+'('+str(db_low_64)+','+str(db_low_1500)+')'+
@@ -839,6 +937,64 @@ class Nodes:
             total_str=total_str+high_str+med_str+low_str
         total_str=sorted(total_str)
         print(str(total_str))
+        return decoder
+
+    def run_distributed_algo_vol2(self,control_msg):
+        if len(control_msg)==0:
+            print('Control msg is zero-zero')
+            return None
+        lucky_node_bit_id, lucky_number=self.get_s_p_params(control_msg,break_position=myglobal.BREAK_POSITION)
+        lucky_node=lucky_node_bit_id+myglobal.ID_DIFF # zero to one-index transformation
+
+        # cuts denote size, qos , source, dest, etc
+        decoder=self.decode_control_msg_vol2(control_msg,cut1=myglobal.CUT_1,cut2=myglobal.CUT_2,cut3=myglobal.CUT_3,
+                                        node_id_diff=myglobal.ID_DIFF)
+
+        #print('Finito decode control msg')
+        self.build_trx_matrices(lucky_node)
+
+        #Assign all channels to big packets first! - Heart of the algorithm - assignment policy
+        for ch in self.channels.db:
+
+            size_remaining = myglobal.MAX_PACKET_SIZE
+            for i in range(0, len(ch.trx_matrix)):
+                size_remaining = decoder.fill_with_small_packs_vol2(node_id=ch.trx_matrix[i],
+                                                                    ch_id=ch.id,
+                                                                    start_slot=0,
+                                                                    size_remaining=size_remaining)
+            if size_remaining==myglobal.MAX_PACKET_SIZE:
+                for i in range(0, len(ch.trx_matrix)):
+                    decoder.fill_with_big_packs_vol2(node_id=ch.trx_matrix[i],
+                                                                        ch_id=ch.id,
+                                                                        start_slot=0)
+
+
+        # DEBUGG
+        total_str=[]
+        for node in decoder.db:
+            mystr='Node:'+str(node.node_id)
+            high_str=[]
+            for pack in node.high_buffer:
+                if pack.slot is not None:
+                    newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
+                    high_str.append(newstr)
+
+            med_str = []
+            for pack in node.med_buffer:
+                if pack.slot is not None:
+                    newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
+                    med_str.append(newstr)
+
+            low_str = []
+            for pack in node.low_buffer:
+                if pack.slot is not None:
+                    newstr=str(pack.channel)+'.'+str(pack.slot).zfill(2)
+                    low_str.append(newstr)
+
+            print(str(mystr)+' high slots:'+str(high_str)+' med slots:'+str(med_str)+' low slots:'+str(low_str))
+            total_str=total_str+high_str+med_str+low_str
+        total_str=sorted(total_str)
+
         return decoder
 
     def run_distributed_algo_dedicated_ul(self,control_msg):
@@ -1002,8 +1158,9 @@ class Nodes:
         for node in self.db:
             if node.have_buffers_packets():
                 return True
-        if self.inbound_buffer_high.has_packets() or self.inbound_buffer_med.has_packets() or self.inbound_buffer_low.has_packets():
-            return True
+        if myglobal._FRAMEWORK!='trafpy':
+            if self.inbound_buffer_high.has_packets() or self.inbound_buffer_med.has_packets() or self.inbound_buffer_low.has_packets():
+                return True
         return False
 
     def add_new(self,node):
@@ -1275,6 +1432,72 @@ class Node:
             self.data_meta_buffer_dedicated.append(new_pack)
             i = i + 1
 
+    def decode_previous_cycle_vol2(self, decoder, cycle_time, cycle_slot_time, current_cycle, data_channels):
+        if decoder is None:
+            return
+
+        decoded_node = None
+        for node in decoder.db:
+            if node.node_id == self.id:
+                decoded_node = node
+
+        if decoded_node is None:
+            return
+
+        i = 0
+        while i < len(decoded_node.high_buffer) and (decoded_node.high_buffer[i].slot is not None):
+            try:
+                new_pack = self.node_output_buffer_for_intra_packs_high.get_next_packet()
+            except:
+                print('error in node ' + str(self.id))
+                exit(-1)
+            new_pack.channel_id = decoded_node.high_buffer[i].channel
+            mych = data_channels.get_channel_from_id(new_pack.channel_id)
+
+            if new_pack.is_intra():
+                new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time #+ decoded_node.high_buffer[i].slot * cycle_slot_time, geodranas: assume trains, need to convert?
+                new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
+                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
+                    new_pack.packet_size)
+            else:  # inter
+                print('found inter packet exiting')
+                exit(-1)
+
+            self.data_meta_buffer.append(new_pack)
+            i = i + 1
+
+        i = 0
+        while i < len(decoded_node.med_buffer) and (decoded_node.med_buffer[i].slot is not None):
+            new_pack = self.node_output_buffer_for_intra_packs_med.get_next_packet()
+            new_pack.channel_id = decoded_node.med_buffer[i].channel
+            mych = data_channels.get_channel_from_id(new_pack.channel_id)
+            if new_pack.is_intra():
+                new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time #+ geodranas decoded_node.med_buffer[i].slot * cycle_slot_time
+                new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
+                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
+                    new_pack.packet_size)
+            else:  # inter
+                print('found inter packet exiting')
+                exit(-1)
+            self.data_meta_buffer.append(new_pack)
+            i = i + 1
+
+        i = 0
+        while i < len(decoded_node.low_buffer) and (decoded_node.low_buffer[i].slot is not None):
+            new_pack = self.node_output_buffer_for_intra_packs_low.get_next_packet()
+            new_pack.channel_id = decoded_node.low_buffer[i].channel
+            mych = data_channels.get_channel_from_id(new_pack.channel_id)
+            if new_pack.is_intra():
+                new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time #+  geodranasdecoded_node.low_buffer[i].slot * cycle_slot_time
+                new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
+                new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
+                    new_pack.packet_size)
+            else:  # inter
+                print('found inter packet exiting')
+                exit(-1)
+            self.data_meta_buffer.append(new_pack)
+            i = i + 1
+
     def build_next_rounds_control_msg(self,current_time,cycle_time, control_cycle_slot_time,
                           current_cycle, control_channel):
         mymsg=Control_Packet(current_time,self.id)
@@ -1410,6 +1633,68 @@ class Node:
         mymsg.is_bonus_packet=False
         self.control_meta_buffer_dedicated.append(mymsg)
 
+    def build_next_rounds_control_msg_vol2(self,current_time,cycle_time, control_cycle_slot_time,
+                          current_cycle, control_channel):
+
+        mymsg=Control_Packet(current_time,self.id)
+        minipack_list=[]
+        if control_channel.shared:
+            print('shared control exit')
+            exit(-2)
+            mymax=myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+        else:
+            mymax = myglobal.CONTROL_MSG_PACKS_PER_BUFF
+
+        i=0
+        for pack in self.node_output_buffer_for_intra_packs_high.db:
+            if i<mymax:
+                strr=myglobal.STR_SOURCE_DEST_ID
+                bits_src=strr.format(self.id-myglobal.ID_DIFF)
+                bits_dest=strr.format(pack.destination_id-myglobal.ID_DIFF)
+                bits_qos='00'
+                bits_size= str("{0:011b}".format(int(pack.packet_size)))
+                total_str=bits_src+bits_dest+bits_qos+bits_size
+                minipack_list.append(total_str)
+            i=i+1
+        mydbg_high=min(i,mymax)
+
+        i=0
+        for pack in self.node_output_buffer_for_intra_packs_med.db:
+            if i<mymax:
+                strr=myglobal.STR_SOURCE_DEST_ID
+                bits_src=strr.format(self.id-myglobal.ID_DIFF)
+                bits_dest=strr.format(pack.destination_id-myglobal.ID_DIFF)
+                bits_qos='01'
+                bits_size= str("{0:011b}".format(int(pack.packet_size)))
+                total_str=bits_src+bits_dest+bits_qos+bits_size
+                minipack_list.append(total_str)
+            i=i+1
+        mydbg_med=min(i,mymax)
+
+        i=0
+        for pack in self.node_output_buffer_for_intra_packs_low.db:
+            if i<mymax:
+                strr=myglobal.STR_SOURCE_DEST_ID
+                bits_src=strr.format(self.id-myglobal.ID_DIFF)
+                bits_dest=strr.format(pack.destination_id-myglobal.ID_DIFF)
+                bits_qos='10'
+                bits_size= str("{0:011b}".format(int(pack.packet_size)))
+                total_str=bits_src+bits_dest+bits_qos+bits_size
+                minipack_list.append(total_str)
+            i=i+1
+        mydbg_low=min(i,mymax)
+        #print('minipacklist='+str(minipack_list))
+        mymsg.minipack_list=minipack_list
+        bit_packet_size=mymax*myglobal.TOTAL_BUFFS_PER_NODE*\
+                              myglobal.CONTROL_MINIPACK_SIZE #bytes
+        mymsg.packet_size=bit_packet_size/8
+        myslot=self.id-myglobal.ID_DIFF
+        mymsg.time_intra_trx_in=(current_cycle+0)*cycle_time+myslot*control_cycle_slot_time
+        mymsg.channel_id=control_channel.id
+        mymsg.time_intra_trx_out=mymsg.time_intra_trx_in+control_channel.get_total_time_to_tx(mymsg.packet_size)
+        mymsg.is_bonus_packet=False
+        self.control_meta_buffer.append(mymsg)
+
     def build_bonus_msg(self,current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
 
@@ -1456,6 +1741,29 @@ class Node:
             mybn.time_intra_trx_out = mybn.time_intra_trx_in + control_channel.get_total_time_to_tx(mybn.packet_size)
             self.control_meta_buffer_dedicated.append(mybn)
 
+    def build_bonus_msg_vol2(self,current_time,decoder,cycle_time, control_cycle_slot_time,
+                          current_cycle, data_channels,control_channel,total_nodes):
+
+        unlucky_node_id=1
+
+        if self.id==unlucky_node_id:
+            max_node_id=total_nodes-myglobal.ID_DIFF
+            r = random.randint(0, max_node_id)
+            strr=myglobal.STR_SOURCE_DEST_ID
+            s = strr.format(r)
+            r = random.randint(1, 10)
+            p = "{0:04b}".format(r)
+            info=s+p
+            mybn=Control_Packet(current_time,self.id)
+            mybn.bonus_info=info
+            mybn.is_bonus_packet=True
+            mybn.packet_size=myglobal.BONUS_MSG_BITSIZE/8 #bytes
+            myslot=total_nodes
+            mybn.time_intra_trx_in = (current_cycle+0) * cycle_time + myslot * control_cycle_slot_time
+            mybn.channel_id = control_channel.id
+            mybn.time_intra_trx_out = mybn.time_intra_trx_in + control_channel.get_total_time_to_tx(mybn.packet_size)
+            self.control_meta_buffer.append(mybn)
+
     def process_new_cycle(self,current_time,decoder,cycle_time, cycle_slot_time,control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
 
@@ -1467,6 +1775,18 @@ class Node:
         self.build_bonus_msg(current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes)
 
+    def process_new_cycle_vol2(self,current_time,decoder,cycle_time, cycle_slot_time,control_cycle_slot_time,
+                          current_cycle, data_channels,control_channel,total_nodes):
+
+        self.decode_previous_cycle_vol2(decoder, cycle_time, cycle_slot_time, current_cycle, data_channels)
+
+        self.build_next_rounds_control_msg_vol2(current_time, cycle_time, control_cycle_slot_time,
+                                          current_cycle, control_channel)
+
+        self.build_bonus_msg_vol2(current_time,decoder,cycle_time, control_cycle_slot_time,
+                          current_cycle, data_channels,control_channel,total_nodes)
+
+
     def process_new_cycle_dedicated_ul(self,current_time,decoder,cycle_time, cycle_slot_time,control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
 
@@ -1477,7 +1797,6 @@ class Node:
 
         self.build_bonus_msg_dedicated_ul(current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes)
-
     def transmit_control(self,current_time):
         for control_pack in self.control_meta_buffer:
             if control_pack.time_intra_trx_in<=current_time and (not control_pack.annotated):
@@ -1626,8 +1945,9 @@ class Node:
     def have_buffers_packets(self):
         if self.node_output_buffer_for_intra_packs_low.has_packets() or self.node_output_buffer_for_intra_packs_med.has_packets() or self.node_output_buffer_for_intra_packs_high.has_packets():
             return True
-        if self.node_output_buffer_for_inter_packs_low.has_packets() or self.node_output_buffer_for_inter_packs_med.has_packets() or self.node_output_buffer_for_inter_packs_high.has_packets():
-            return True
+        if myglobal._FRAMEWORK!='trafpy':
+            if self.node_output_buffer_for_inter_packs_low.has_packets() or self.node_output_buffer_for_inter_packs_med.has_packets() or self.node_output_buffer_for_inter_packs_high.has_packets():
+                return True
         return False
 
     def check_generated_packets(self,current_time):
@@ -1685,10 +2005,10 @@ class Node:
                         exit(0)
                 self.node_output_buffer_for_intra_packs_high.add_pack(packet)
         if not can_add_pack:
-            # print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(packet.show_mini()))
+            print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(packet.show_mini()))
             self.data_dropped.append(packet)
         else:
-            # print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(packet.show_mini()))
+            print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(packet.show_mini()))
             pass
 
     def try_adding_to_output_buffers_for_inter_packs(self,current_time,packet):

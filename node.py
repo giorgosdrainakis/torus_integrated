@@ -69,32 +69,31 @@ class Decoder:
         # fill high and med combined-> rule: 1 med and then apeira high
         for node in self.db:
             if node.node_id == node_id:
-
+                # fill high
+                i=0
                 reached_blockade=False
-                while (not reached_blockade):
-                    # fill high
-                    i=0
-                    while i < len(node.high_buffer):
-                        if node.high_buffer[i].slot is None:
-                            if node.high_buffer[i].size <= size_remaining:
-                                node.high_buffer[i].slot = start_slot + node.high_buffer[i].size
-                                node.high_buffer[i].channel = ch_id
-                                size_remaining = size_remaining - node.high_buffer[i].size
-                            else:
-                                reached_blockade = True
-                        i = i + 1
+                while ( (not reached_blockade) and (i < len(node.high_buffer)) ):
+                    if node.high_buffer[i].slot is None:
+                        if node.high_buffer[i].size <= size_remaining:
+                            node.high_buffer[i].slot = start_slot + node.high_buffer[i].size
+                            node.high_buffer[i].channel = ch_id
+                            size_remaining = size_remaining - node.high_buffer[i].size
+                        else:
+                            reached_blockade = True
+                    i = i + 1
 
-                    # fill med
-                    i=0
-                    while i < len(node.med_buffer):
-                        if node.med_buffer[i].slot is None:
-                            if node.med_buffer[i].size <= size_remaining:
-                                node.med_buffer[i].slot = start_slot + node.med_buffer[i].size
-                                node.med_buffer[i].channel = ch_id
-                                size_remaining = size_remaining - node.med_buffer[i].size
-                            else:
-                                reached_blockade = True
-                        i = i + 1
+                # fill med
+                i=0
+                reached_blockade=False
+                while ( (not reached_blockade) and (i < len(node.med_buffer)) ):
+                    if node.med_buffer[i].slot is None:
+                        if node.med_buffer[i].size <= size_remaining:
+                            node.med_buffer[i].slot = start_slot + node.med_buffer[i].size
+                            node.med_buffer[i].channel = ch_id
+                            size_remaining = size_remaining - node.med_buffer[i].size
+                        else:
+                            reached_blockade = True
+                    i = i + 1
 
         return size_remaining
 

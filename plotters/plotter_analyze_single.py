@@ -29,7 +29,7 @@ my_tbegin=0
 my_tend=1 # intra 0.050
 my_samples=100 # intra 100
 #filename='log2022_07_12_23_13_52_889801_everything.csv'
-filename='log2024_03_19_04_35_08_582003_tor1_combo.csv'
+filename='20240316_id01_topo1x16_ch4x100_load500g.csv'
 # Grouping params
 start_group_value=0
 end_group_value=5e8 #intra/inter/both/bridge_dl/bridge_ul=4e6,2e7,1e8...1.8e7,1e7

@@ -67,6 +67,8 @@ class Decoder:
     def fill_with_small_packs_vol2(self,node_id,ch_id,start_slot,size_remaining):
 
         # fill high and med combined-> rule: 1 med and then apeira high
+        curr_size=size_remaining
+
         for node in self.db:
             if node.node_id == node_id:
                 # fill high
@@ -74,10 +76,10 @@ class Decoder:
                 reached_blockade=False
                 while ( (not reached_blockade) and (i < len(node.high_buffer)) ):
                     if node.high_buffer[i].slot is None:
-                        if node.high_buffer[i].size <= size_remaining:
+                        if node.high_buffer[i].size <= curr_size:
                             node.high_buffer[i].slot = start_slot + node.high_buffer[i].size
                             node.high_buffer[i].channel = ch_id
-                            size_remaining = size_remaining - node.high_buffer[i].size
+                            curr_size = curr_size - node.high_buffer[i].size
                         else:
                             reached_blockade = True
                     i = i + 1
@@ -87,15 +89,15 @@ class Decoder:
                 reached_blockade=False
                 while ( (not reached_blockade) and (i < len(node.med_buffer)) ):
                     if node.med_buffer[i].slot is None:
-                        if node.med_buffer[i].size <= size_remaining:
+                        if node.med_buffer[i].size <= curr_size:
                             node.med_buffer[i].slot = start_slot + node.med_buffer[i].size
                             node.med_buffer[i].channel = ch_id
-                            size_remaining = size_remaining - node.med_buffer[i].size
+                            curr_size = curr_size - node.med_buffer[i].size
                         else:
                             reached_blockade = True
                     i = i + 1
 
-        return size_remaining
+        return curr_size
 
 
     def fill_high(self,node_id,max_pack_num,start_slot,ch_id):
@@ -957,16 +959,20 @@ class Nodes:
 
             size_remaining = myglobal.MAX_PACKET_SIZE
             for i in range(0, len(ch.trx_matrix)):
-                size_remaining = decoder.fill_with_small_packs_vol2(node_id=ch.trx_matrix[i],
+                new_size = decoder.fill_with_small_packs_vol2(node_id=ch.trx_matrix[i],
                                                                     ch_id=ch.id,
                                                                     start_slot=0,
                                                                     size_remaining=size_remaining)
+                size_remaining=new_size
+
             if size_remaining==myglobal.MAX_PACKET_SIZE:
+                print(str('Size remaining=')+str(size_remaining))
                 for i in range(0, len(ch.trx_matrix)):
-                    decoder.fill_with_big_packs_vol2(node_id=ch.trx_matrix[i],
+                    is_big_filled=decoder.fill_with_big_packs_vol2(node_id=ch.trx_matrix[i],
                                                                         ch_id=ch.id,
                                                                         start_slot=0)
-
+                    if is_big_filled:
+                        break
 
         # DEBUGG
         total_str=[]

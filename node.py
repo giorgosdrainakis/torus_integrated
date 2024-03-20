@@ -2010,10 +2010,10 @@ class Node:
                         exit(0)
                 self.node_output_buffer_for_intra_packs_high.add_pack(packet)
         if not can_add_pack:
-            print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(packet.show_mini()))
+            #print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-drop pack:' + str(packet.show_mini()))
             self.data_dropped.append(packet)
         else:
-            print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(packet.show_mini()))
+            #print('TOR-Node:' + str(self.parent_tor_id) + '-' + str(self.id) + 'INTRA-add pack:' + str(packet.show_mini()))
             pass
 
     def try_adding_to_output_buffers_for_inter_packs(self,current_time,packet):

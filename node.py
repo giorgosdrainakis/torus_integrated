@@ -96,7 +96,7 @@ class Decoder:
                         else:
                             reached_blockade = True
                     i = i + 1
-
+        #print('Fill with small packs return='+str(curr_size))
         return curr_size
 
 
@@ -753,7 +753,7 @@ class Nodes:
                 continue
 
             for minipack in control_pack.minipack_list:
-                bits_src, bits_dest, bits_qos, bits_size= minipack[0:cut1], minipack[cut1:cut2], minipack[cut2:cut3], minipack[cut3]
+                bits_src, bits_dest, bits_qos, bits_size= minipack[0:cut1], minipack[cut1:cut2], minipack[cut2:cut3], minipack[cut3:]
 
                 # check that source node is indeed the node I am checking
                 # src bits are already assumed before during source_id assignment
@@ -955,6 +955,7 @@ class Nodes:
         self.build_trx_matrices(lucky_node)
 
         #Assign all channels to big packets first! - Heart of the algorithm - assignment policy
+        #myflag=False
         for ch in self.channels.db:
 
             size_remaining = myglobal.MAX_PACKET_SIZE
@@ -964,16 +965,17 @@ class Nodes:
                                                                     start_slot=0,
                                                                     size_remaining=size_remaining)
                 size_remaining=new_size
-
+            #print('Ch:'+str(ch.id)+',size remaining after small='+str(size_remaining))
             if size_remaining==myglobal.MAX_PACKET_SIZE:
-                print(str('Size remaining=')+str(size_remaining))
                 for i in range(0, len(ch.trx_matrix)):
                     is_big_filled=decoder.fill_with_big_packs_vol2(node_id=ch.trx_matrix[i],
                                                                         ch_id=ch.id,
                                                                         start_slot=0)
                     if is_big_filled:
                         break
-
+            else:
+                pass
+                #myflag=True
         # DEBUGG
         total_str=[]
         for node in decoder.db:
@@ -999,7 +1001,8 @@ class Nodes:
             print(str(mystr)+' high slots:'+str(high_str)+' med slots:'+str(med_str)+' low slots:'+str(low_str))
             total_str=total_str+high_str+med_str+low_str
         total_str=sorted(total_str)
-
+        #if myflag:
+            #exit()
         return decoder
 
     def run_distributed_algo_dedicated_ul(self,control_msg):

@@ -19,7 +19,7 @@ from torus_integrated.myglobal import *
 # Sampling params
 split=True
 measurement_type='post' # in [pre,post], pre refers to traffic_generation metrics, post to after_experiments metrics
-avgg=False
+avgg=True
 mode='intra' # in [intra,inter,end2end]
 servers=16 # only for intra
 tors=1 # only for inter
@@ -32,7 +32,7 @@ my_samples=100 # intra 100
 filename='20240316_id01_topo1x16_ch4x100_load500g.csv'
 # Grouping params
 start_group_value=0
-end_group_value=5e8 #intra/inter/both/bridge_dl/bridge_ul=4e6,2e7,1e8...1.8e7,1e7
+end_group_value=7e8 #intra/inter/both/bridge_dl/bridge_ul=4e6,2e7,1e8...1.8e7,1e7
 grouping_points=25
 
 class Record():

@@ -164,7 +164,7 @@ _TOR_OUTBOUND_BUFFER_SIZE_HIGH=1e6
 _TOR_INBOUND_BUFFER_SIZE_LOW=1e6
 _TOR_INBOUND_BUFFER_SIZE_MED=1e6
 _TOR_INBOUND_BUFFER_SIZE_HIGH=1e6
-_TOTAL_NODES_PER_TOR=16
+_TOTAL_NODES_PER_TOR=32
 _TOR_NODE_ID=99
 _TOTAL_INTRA_DATA_CHANNELS=4
 _INTRA_BITRATE=100e9
@@ -202,31 +202,82 @@ if _SAVE_LOGS:
     file=os.path.join(myglobal.LOGS_FOLDER,mystr)
     sys.stdout = open(file, "w")
 
-if _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9 and myglobal._FRAMEWORK=='trafpy':
-    if _SHARE_CONTROL_CHANNEL:
-        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 4  # apply in split network with shared channel
-        myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 2  # apply in split network with shared channel
-        myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
-        print('Running with 16 Servers at 100 Gbps, with shared control channel trafpy')
-    else:
-        myglobal.CONTROL_MSG_PACKS_PER_BUFF = 6
-        print('Running with 16 Servers at 100 Gbps, with dedicated control channel trafpy')
-    myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
-    myglobal.CONTROL_MINIPACK_SIZE = 21  # bits
-    myglobal.CUT_1 = 4
-    myglobal.CUT_2 = 8
-    myglobal.CUT_3 = 10
-    myglobal.BONUS_MSG_BITSIZE = 8  # bits (=cut1+4)
-    myglobal.BREAK_POSITION=4 #(cut1)
-    myglobal.LUCKY_SLOT_LEN = 0
-    myglobal.UNLUCKY_SLOT_LEN = 0
-    if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
-        myglobal.TOTAL_UNLUCKY_NODES=999
-    else:
-        myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
-    myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
-    myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
-    myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
+if myglobal._FRAMEWORK=='trafpy':
+    if _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
+        if _SHARE_CONTROL_CHANNEL:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 4  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 2  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+            print('Running with 16 Servers at 100 Gbps, with shared control channel trafpy')
+        else:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF = 6
+            print('Running with 16 Servers at 100 Gbps, with dedicated control channel trafpy')
+        myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
+        myglobal.CONTROL_MINIPACK_SIZE = 21  # bits
+        myglobal.CUT_1 = 4
+        myglobal.CUT_2 = 8
+        myglobal.CUT_3 = 10
+        myglobal.BONUS_MSG_BITSIZE = 8  # bits (=cut1+4)
+        myglobal.BREAK_POSITION=4 #(cut1)
+        myglobal.LUCKY_SLOT_LEN = 0
+        myglobal.UNLUCKY_SLOT_LEN = 0
+        if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+            myglobal.TOTAL_UNLUCKY_NODES=999
+        else:
+            myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+        myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+        myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+        myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
+    if _TOTAL_NODES_PER_TOR==24 and _INTRA_BITRATE==100e9:
+        if _SHARE_CONTROL_CHANNEL:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 2  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 1  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+            print('Running with 24 Servers at 100 Gbps, with shared control channel trafpy')
+        else:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF = 3
+            print('Running with 24 Servers at 100 Gbps, with dedicated control channel trafpy')
+        myglobal.STR_SOURCE_DEST_ID = "{0:05b}"
+        myglobal.CONTROL_MINIPACK_SIZE = 23  # bits
+        myglobal.CUT_1 = 5
+        myglobal.CUT_2 = 10
+        myglobal.CUT_3 = 12
+        myglobal.BONUS_MSG_BITSIZE = 9  # bits (=cut1+4)
+        myglobal.BREAK_POSITION=5 #(cut1)
+        myglobal.LUCKY_SLOT_LEN = 0
+        myglobal.UNLUCKY_SLOT_LEN = 0
+        if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+            myglobal.TOTAL_UNLUCKY_NODES=999
+        else:
+            myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+        myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+        myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+        myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
+    if _TOTAL_NODES_PER_TOR==32 and _INTRA_BITRATE==100e9:
+        if _SHARE_CONTROL_CHANNEL:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 1  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 0  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+            print('Running with 32 Servers at 100 Gbps, with shared control channel trafpy')
+        else:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF = 1
+            print('Running with 32 Servers at 100 Gbps, with dedicated control channel trafpy')
+        myglobal.STR_SOURCE_DEST_ID = "{0:05b}"
+        myglobal.CONTROL_MINIPACK_SIZE = 23  # bits
+        myglobal.CUT_1 = 5
+        myglobal.CUT_2 = 10
+        myglobal.CUT_3 = 12
+        myglobal.BONUS_MSG_BITSIZE = 9  # bits (=cut1+4)
+        myglobal.BREAK_POSITION=5 #(cut1)
+        myglobal.LUCKY_SLOT_LEN = 0
+        myglobal.UNLUCKY_SLOT_LEN = 0
+        if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+            myglobal.TOTAL_UNLUCKY_NODES=999
+        else:
+            myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+        myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+        myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+        myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
 else:
     if _TOTAL_NODES_PER_TOR==4:
         # total packets that will be printed per buff

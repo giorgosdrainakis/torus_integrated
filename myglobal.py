@@ -3,7 +3,7 @@ import os
 # Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
 CURR_DATASET='test_intra'
-CURR_DATASET='20240316_id01_topo1x16_ch4x100_load500g'
+CURR_DATASET='dataset_20240321_id03_topo1x32_ch4x100_load1000g'
 
 
 ###

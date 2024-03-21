@@ -133,6 +133,11 @@ def plot_delays():
 
     _linewidth=6
 
+    print('Avg:'+str(_delay_avg))
+    print('High:'+str(_delay_high))
+    print('Med:'+str(_delay_med))
+    print('Low:'+str(_delay_low))
+
     ax1.semilogy(_load, _delay_avg, color='black', label='Delay Avg',linewidth=_linewidth, linestyle='solid')
     ax1.semilogy(_load, _delay_high, color='red', label='Delay High',linewidth=_linewidth, linestyle='solid')
     ax1.semilogy(_load, _delay_med, color='green', label='Delay Med',linewidth=_linewidth, linestyle='solid')

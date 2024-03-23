@@ -59,7 +59,9 @@ def plot_thru():
 
     ax1.plot(_load, _thru, color='blue', label='Throughput',linewidth=_linewidth, linestyle='solid')
     ax1.plot(_load, _drop, color='red', label='Packet drop rate',linewidth=_linewidth, linestyle='solid')
-
+    #new_util=[100*x for x in _util]
+    #new_util.insert(0, 0)
+    #ax1.plot(_load, new_util, color='black', label='Utilization %',linewidth=_linewidth, linestyle='solid')
     try:
         ax1.set_xlim([self.lim_x_start, self.lim_x_end])
     except:

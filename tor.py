@@ -864,15 +864,19 @@ class Tor:
 
         # sort ToR
         print('Re Sorting TOR='+str(self.id))
-        with open(logfile, 'r', newline='') as f_input:
-            csv_input = csv.DictReader(f_input)
-            data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
+        s_df = pd.read_csv(logfile)
+        s_df.sort_values(['time', 'packet_id'], ascending=[True, True], inplace=True)
+        #with open(logfile, 'r', newline='') as f_input:
+        #    csv_input = csv.DictReader(f_input)
+        #    data = sorted(csv_input, key=lambda row: (float(row['time']), float(row['packet_id'])))
 
         print('Rewriting TOR='+str(self.id))
-        with open(logfile, 'w', newline='') as f_output:
-            csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
-            csv_output.writeheader()
-            csv_output.writerows(data)
+        s_df.to_csv(logfile, mode='w', index=False, header=True)
+
+        #with open(logfile, 'w', newline='') as f_output:
+        #    csv_output = csv.DictWriter(f_output, fieldnames=csv_input.fieldnames)
+        #    csv_output.writeheader()
+        #    csv_output.writerows(data)
         return logfile
 
     def add_pack_to_outbound_buffers(self,pack,current_time):

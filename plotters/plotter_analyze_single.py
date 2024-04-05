@@ -26,13 +26,13 @@ tors=1 # only for inter
 parent_tor=1 # only for intra, end2end analysis
 # Simulation params
 my_tbegin=0
-my_tend=1 # intra 0.050
+my_tend=1 # intra 0.050s
 my_samples=100 # intra 100
 #filename='log2022_07_12_23_13_52_889801_everything.csv'
-filename='20240316_id01_topo1x16_ch4x100_load500g.csv'
+filename='log_20240323_id05_topo1x16_ch8x100_load1000g\\total_log.csv'
 # Grouping params
 start_group_value=0
-end_group_value=7e8 #intra/inter/both/bridge_dl/bridge_ul=4e6,2e7,1e8...1.8e7,1e7
+end_group_value=1.3e9 #intra/inter/both/bridge_dl/bridge_ul=4e6,2e7,1e8...1.8e7,1e7
 grouping_points=25
 
 class Record():

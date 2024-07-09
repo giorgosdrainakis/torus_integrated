@@ -5,7 +5,7 @@ from torus_integrated import myglobal
 
 class Packet:
     def __init__(self,flow_id,flow_size,flow_time_gen,packet_id,time,packet_size,packet_qos,source_id,
-                 tor_id,destination_id,destination_tor):
+                 tor_id,destination_id,destination_tor,application):
         self.flow_id=str(flow_id)
         self.flow_size = float(flow_size)
         self.flow_time_gen = float(flow_time_gen)
@@ -17,6 +17,7 @@ class Packet:
         self.destination_id=int(destination_id)
         self.tor_id=int(tor_id)
         self.destination_tor=int(destination_tor)
+        self.application=application
         self.time_intra_buffer_in=-1
         self.time_intra_buffer_out=-1
         self.time_intra_trx_in=-1
@@ -61,7 +62,8 @@ class Packet:
              str(self.tor_id) + ',' + \
              str(self.destination_id) + ','+ \
              str(self.destination_tor) + ',' + \
-             str(self.time_intra_buffer_in) + ',' + \
+              str(self.application) + ',' + \
+              str(self.time_intra_buffer_in) + ',' + \
              str(self.time_intra_buffer_out) + ',' + \
              str(self.time_intra_trx_in) + ',' + \
              str(self.time_intra_trx_out) + ',' + \
@@ -100,7 +102,7 @@ class Traffic_Per_Node():
             for row in csv_reader:
                 new_packet = Packet(row['flow_id'], row['flow_size'], row['flow_time_gen'],
                     row['packet_id'], row['time'], row['packet_size'],row['packet_qos'],
-                                    row['source_id'],row['tor_id'],row['destination_id'],row['destination_tor']
+                                    row['source_id'],row['tor_id'],row['destination_id'],row['destination_tor'],row['application']
                                     )
                 self.add(new_packet)
 
@@ -146,7 +148,7 @@ class Traffic_system():
                     for row in csv_reader:
                         new_pack = Packet(row['packet_id'], row['time'], row['packet_size'], row['packet_qos'],
                                           row['source_id'], row['tor_id'], row['destination_id'],
-                                          row['destination_tor'])
+                                          row['destination_tor'],row['application'])
                         self.db.append(new_pack)
 
     def add(self,packet):

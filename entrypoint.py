@@ -153,7 +153,7 @@ def main_torus_integrated():
 
 myglobal._FRAMEWORK='trafpy' # split, integrated
 _T_BEGIN = 0
-_T_END = 1
+_T_END = 0.100
 _TOTAL_TORS=1
 _TOTAL_INTER_CHANNELS=4
 _INTER_BITRATE=10e9
@@ -166,7 +166,7 @@ _TOR_INBOUND_BUFFER_SIZE_MED=1e6
 _TOR_INBOUND_BUFFER_SIZE_HIGH=1e6
 _TOTAL_NODES_PER_TOR=16
 _TOR_NODE_ID=99
-_TOTAL_INTRA_DATA_CHANNELS=8
+_TOTAL_INTRA_DATA_CHANNELS=4
 _INTRA_BITRATE=100e9
 _INTRA_CONTROL_CHANNEL_ID=99
 _REMOVE_INTER=False
@@ -203,6 +203,31 @@ if _SAVE_LOGS:
     sys.stdout = open(file, "w")
 
 if myglobal._FRAMEWORK=='trafpy':
+    if _TOTAL_NODES_PER_TOR==8 and _INTRA_BITRATE==100e9:
+        if _SHARE_CONTROL_CHANNEL:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 6  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 11  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+            print('Running with 16 Servers at 100 Gbps, with shared control channel trafpy')
+        else:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF = 17
+            print('Running with 16 Servers at 100 Gbps, with dedicated control channel trafpy')
+        myglobal.STR_SOURCE_DEST_ID = "{0:03b}"
+        myglobal.CONTROL_MINIPACK_SIZE = 19  # bits
+        myglobal.CUT_1 = 3
+        myglobal.CUT_2 = 6
+        myglobal.CUT_3 = 8
+        myglobal.BONUS_MSG_BITSIZE = 7  # bits (=cut1+4)
+        myglobal.BREAK_POSITION=3 #(cut1)
+        myglobal.LUCKY_SLOT_LEN = 0
+        myglobal.UNLUCKY_SLOT_LEN = 0
+        if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+            myglobal.TOTAL_UNLUCKY_NODES=999
+        else:
+            myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+        myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+        myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+        myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
     if _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
         if _SHARE_CONTROL_CHANNEL:
             myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 4  # apply in split network with shared channel

@@ -1,11 +1,21 @@
-import pandas as pd
+prin=[0.35, 0.4, 119.31, 324.88]
+meta=[ 0.33, 0.33, 0.37, 0.37]
 
-logfile='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\logs\\log_20240321_id03_topo1x32_ch4x100_load1000g\\log2024_03_23_02_54_32_950410_tor1_combo.csv'
-output='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated\\logs\\log_20240321_id03_topo1x32_ch4x100_load1000g\\total_log.csv'
-# sort ToR
-print('Re Sorting TOR=')
-s_df=pd.read_csv(logfile)
-s_df.sort_values(['time', 'packet_id'], ascending=[True, True], inplace=True)
-print('Rewriting TOR=')
-s_df.to_csv(output, mode='a',index=False, header=True)
+for i in range(0,len(prin)):
+	a=(meta[i]-prin[i])/(prin[i])
+	print(100*a)
 
+
+
+
+	#4 to 6
+#5.71
+#17.5
+#99.69
+#99.84
+
+	#4 to 8
+-5.714285714285704
+-17.5
+-99.6898834967731
+-99.88611179512435

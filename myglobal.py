@@ -2,8 +2,7 @@ import os
 
 # Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-CURR_DATASET='test_intra'
-CURR_DATASET='dataset_20240323_id05_topo1x16_ch8x100_load1000g'
+CURR_DATASET='20240625_id06_topo1x16_ch4x100_load500g_end100ms_dcUNI'
 
 
 ###
@@ -50,7 +49,7 @@ INTER_CYCLE_GUARD_BAND=3 # bytes
 DEDICATED_UL_CYCLE_GUARD_BAND=3 # bytes
 
 # logging
-OUTPUT_TABLE_TITLE='flow_id,flow_size,flow_time_gen,packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,' \
+OUTPUT_TABLE_TITLE='flow_id,flow_size,flow_time_gen,packet_id,time,packet_size,packet_qos,source_id,tor_id,destination_id,destination_tor,application,' \
                     'time_intra_buffer_in,time_intra_buffer_out,time_intra_trx_in,time_intra_trx_out,' \
                    'time_tor_buffer_in,time_tor_buffer_out,time_tor_trx_in,time_tor_trx_out,' \
                    'time_inter_buffer_in,time_inter_buffer_out,time_inter_trx_in,time_inter_trx_out\n'

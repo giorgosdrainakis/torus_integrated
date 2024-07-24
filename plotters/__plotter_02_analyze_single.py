@@ -31,10 +31,10 @@ my_tbegin=0
 my_tend=0.100 # intra 0.050s
 my_samples=100 # intra 100
 #filename='log2022_07_12_23_13_52_889801_everything.csv'
-filename='log_20240625_id06_topo1x16_ch4x100_load500g_end100ms_dcUNI\\total_log_web.csv'
+filename='log_20240719_id100_topo1x16_ch1x10_load80g_end100ms_dcTF\\total_log.csv'
 # Grouping params
 start_group_value=0
-end_group_value=1.6e7 #intra/inter/both/bridge_dl/bridge_ul=4e6,2e7,1e8...1.8e7,1e7
+end_group_value=3.5e6 #intra/inter/both/bridge_dl/bridge_ul=4e6,2e7,1e8...1.8e7,1e7
 grouping_points=25
 
 class Record():

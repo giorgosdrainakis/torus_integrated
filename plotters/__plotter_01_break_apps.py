@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from torus_integrated import myglobal
 
-folder='log_20240625_id06_topo1x16_ch4x100_load500g_end100ms_dcUNI'
+folder='log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE'
 abs_folder=os.path.join(myglobal.LOGS_FOLDER, folder)
 
 input_csv=os.path.join(abs_folder, 'total_log.csv')

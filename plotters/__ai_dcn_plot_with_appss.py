@@ -11,7 +11,15 @@ import matplotlib
 from matplotlib.ticker import MaxNLocator
 from torus_integrated.myglobal import *
 
-from torus_integrated.logs.log_20240625_id02_topo1x16_ch4x100_load500g_end100ms_dcUNI.result import *
+#from torus_integrated.logs.log_20240316_id01_topo1x16_ch4x100_load500g.result import *
+#from torus_integrated.logs.log_20240321_id02_topo1x24_ch4x100_load750g.result import *
+#from torus_integrated.logs.log_20240321_id03_topo1x32_ch4x100_load1000g.result import *
+#from torus_integrated.logs.log_20240323_id04_topo1x16_ch6x100_load750.result import *
+#from torus_integrated.logs.log_20240323_id05_topo1x16_ch8x100_load1000g.result import *
+from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_cloud import *
+from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_media import *
+from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_web import *
+from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_hadoop import *
 
 
 #lanman
@@ -177,39 +185,104 @@ def plot_delays(load,thru,avg,high,med,low):
 def plot_01_thru_drop_default():
     _load_divide_factor=1e9
     _thru_divide_factor=1e9
-    _load = waa_load_total_bps_avg
-    _thru = waa_thru_total_bps_avg
-    _drop=waa_drop_total_bps_avg
 
-    selected_i = []
-    for i in range(0, len(_load)):
-        if _load[i] != 0:
-            #if _thru[i] > _load[i]:
-                #_thru[i] = _load[i]
-            if _thru[i] <= _load[i]:
-                selected_i.append(i)
-            else:
-                print('Removing-cleaning i='+str(i))
+    try:
+        _load_cloud = waa_cloud_load_total_bps_avg
+        _thru_cloud = waa_cloud_thru_total_bps_avg
+        _drop_cloud=waa_cloud_drop_total_bps_avg
 
-    _load = [_load[i] / _load_divide_factor for i in selected_i]
-    _load.insert(0, 0)
-    _thru = [_thru[i] / _thru_divide_factor for i in selected_i]
-    _thru.insert(0, 0)
-    _drop = [_drop[i] / _thru_divide_factor for i in selected_i]
-    _drop.insert(0, 0)
+        selected_i = []
+        for i in range(0, len(_load_cloud)):
+            if _load_cloud[i] != 0:
+                # if _thru[i] > _load[i]:
+                # _thru[i] = _load[i]
+                if _thru_cloud[i] <= _load_cloud[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i=' + str(i))
 
-    _nominal=[400 for x in _load]
+        _load_cloud = [_load_cloud[i] / _load_divide_factor for i in selected_i]
+        _load_cloud.insert(0, 0)
+        _thru_cloud = [_thru_cloud[i] / _thru_divide_factor for i in selected_i]
+        _thru_cloud.insert(0, 0)
+        _drop_cloud = [_drop_cloud[i] / _thru_divide_factor for i in selected_i]
+        _drop_cloud.insert(0, 0)
+    except:
+        print('Cannot find cloud')
 
-    #calcs
-    _util=[]
-    for i in range(0,len(_thru)):
-        if _load[i]!=0:
-            myutil=_thru[i]/_load[i]
-            _util.append(myutil)
-    print('_util='+str(_util))
-    print('Mean util='+str(statistics.mean(_util)))
-    print('Load=' + str(_load))
-    print('Thru='+str(_thru))
+    try:
+        _load_media = waa_media_load_total_bps_avg
+        _thru_media = waa_media_thru_total_bps_avg
+        _drop_media=waa_media_drop_total_bps_avg
+
+        selected_i = []
+        for i in range(0, len(_load_media)):
+            if _load_media[i] != 0:
+                # if _thru[i] > _load[i]:
+                # _thru[i] = _load[i]
+                if _thru_media[i] <= _load_media[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i=' + str(i))
+
+
+        _load_media = [_load_media[i] / _load_divide_factor for i in selected_i]
+        _load_media.insert(0, 0)
+        _thru_media = [_thru_media[i] / _thru_divide_factor for i in selected_i]
+        _thru_media.insert(0, 0)
+        _drop_media = [_drop_media[i] / _thru_divide_factor for i in selected_i]
+        _drop_media.insert(0, 0)
+
+    except:
+        print('Cannot find media')
+
+    try:
+        _load_web = waa_web_load_total_bps_avg
+        _thru_web = waa_web_thru_total_bps_avg
+        _drop_web=waa_web_drop_total_bps_avg
+
+        selected_i = []
+        for i in range(0, len(_load_web)):
+            if _load_web[i] != 0:
+                # if _thru[i] > _load[i]:
+                # _thru[i] = _load[i]
+                if _thru_web[i] <= _load_web[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i=' + str(i))
+
+        _load_web = [_load_web[i] / _load_divide_factor for i in selected_i]
+        _load_web.insert(0, 0)
+        _thru_web = [_thru_web[i] / _thru_divide_factor for i in selected_i]
+        _thru_web.insert(0, 0)
+        _drop_web = [_drop_web[i] / _thru_divide_factor for i in selected_i]
+        _drop_web.insert(0, 0)
+    except:
+        print('Cannot find web')
+
+    try:
+        _load_hadoop = waa_hadoop_load_total_bps_avg
+        _thru_hadoop = waa_hadoop_thru_total_bps_avg
+        _drop_hadoop = waa_hadoop_drop_total_bps_avg
+
+        selected_i = []
+        for i in range(0, len(_load_hadoop)):
+            if _load_hadoop[i] != 0:
+                # if _thru[i] > _load[i]:
+                # _thru[i] = _load[i]
+                if _thru_hadoop[i] <= _load_hadoop[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i=' + str(i))
+
+        _load_hadoop = [_load_hadoop[i] / _load_divide_factor for i in selected_i]
+        _load_hadoop.insert(0, 0)
+        _thru_hadoop = [_thru_hadoop[i] / _thru_divide_factor for i in selected_i]
+        _thru_hadoop.insert(0, 0)
+        _drop_hadoop = [_drop_hadoop[i] / _thru_divide_factor for i in selected_i]
+        _drop_hadoop.insert(0, 0)
+    except:
+        print('Cannot find hadoop')
 
     _color='black'
 
@@ -219,8 +292,30 @@ def plot_01_thru_drop_default():
 
     _linewidth=10
 
-    ax1.plot(_load, _thru, color='blue', label='Throughput',linewidth=_linewidth, linestyle='solid')
-    ax1.plot(_load, _drop, color='red', label='Dropping rate',linewidth=_linewidth, linestyle='solid')
+    try:
+        ax1.plot(_load_cloud, _thru_cloud, color='red', label='Cloud - Throughput',linewidth=_linewidth, linestyle='solid')
+        ax1.plot(_load_cloud, _drop_cloud, color='red', label='Cloud - Dropping rate',linewidth=_linewidth, linestyle='dashed')
+    except:
+        print('no cloud plot')
+
+    try:
+        ax1.plot(_load_web, _thru_web, color='blue', label='web - Throughput',linewidth=_linewidth-2, linestyle='solid')
+        ax1.plot(_load_web, _drop_web, color='blue', label='web - Dropping rate',linewidth=_linewidth-2, linestyle='dashed')
+    except:
+        print('no web plot')
+
+    try:
+        ax1.plot(_load_media, _thru_media, color='green', label='media - Throughput',linewidth=_linewidth-4, linestyle='solid')
+        ax1.plot(_load_media, _drop_media, color='green', label='media - Dropping rate',linewidth=_linewidth-4, linestyle='dashed')
+    except:
+        print('no media plot')
+
+    try:
+        ax1.plot(_load_hadoop, _thru_hadoop, color='black', label='hadoop - Throughput',linewidth=_linewidth-6, linestyle='solid')
+        ax1.plot(_load_hadoop, _drop_hadoop, color='black', label='hadoop - Dropping rate',linewidth=_linewidth-6, linestyle='dashed')
+    except:
+        print('no hadoop plot')
+
     #ax1.plot(_load, _nominal, color='black', label='Nominal rate', linewidth=_linewidth, linestyle='solid')
     #new_util=[100*x for x in _util]
     #new_util.insert(0, 0)
@@ -252,6 +347,189 @@ def plot_01_thru_drop_default():
         exit()
 
     ax1.legend(loc='best', fontsize=30)
+    ax1.grid(True, which='major', axis='both')
+    ax1.tick_params(axis='both', which='major', labelsize=35)
+    ax1.tick_params(axis='both', which='minor', labelsize=35)
+
+    plt.show()
+def plot_02_app_delays_default():
+    _load_divide_factor=1e9
+    _delay_divide_factor=1e-6
+
+
+    # App 1 cloud
+    try:
+        _load_cloud = waa_cloud_load_total_bps_avg
+        _thru_cloud = waa_cloud_thru_total_bps_avg
+        _delay_avg_cloud = waa_cloud_delay_total_avg
+        _delay_high_cloud = waa_cloud_delay_high_avg
+        _delay_med_cloud = waa_cloud_delay_med_avg
+        _delay_low_cloud = waa_cloud_delay_low_avg
+
+        selected_i = []
+        for i in range(0, len(_load_cloud)):
+            if _load_cloud[i] != 0:
+                #if _thru[i] > _load[i]:
+                    #_thru[i] = _load[i]
+                if _thru_cloud[i] <= _load_cloud[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i='+str(i))
+
+        _load_cloud = [_load_cloud[i] / _load_divide_factor for i in selected_i]
+
+        _delay_avg_cloud=[_delay_avg_cloud[i] / _delay_divide_factor for i in selected_i]
+        _delay_high_cloud=[_delay_high_cloud[i] / _delay_divide_factor for i in selected_i]
+        _delay_med_cloud=[_delay_med_cloud[i] / _delay_divide_factor for i in selected_i]
+        _delay_low_cloud=[_delay_low_cloud[i] / _delay_divide_factor for i in selected_i]
+    except:
+        print('no cloud')
+
+    # App 2 web
+    try:
+        _load_web = waa_web_load_total_bps_avg
+        _thru_web = waa_web_thru_total_bps_avg
+        _delay_avg_web = waa_web_delay_total_avg
+        _delay_high_web = waa_web_delay_high_avg
+        _delay_med_web = waa_web_delay_med_avg
+        _delay_low_web = waa_web_delay_low_avg
+
+        selected_i = []
+        for i in range(0, len(_load_web)):
+            if _load_web[i] != 0:
+                #if _thru[i] > _load[i]:
+                    #_thru[i] = _load[i]
+                if _thru_web[i] <= _load_web[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i='+str(i))
+
+        _load_web = [_load_web[i] / _load_divide_factor for i in selected_i]
+
+        _delay_avg_web=[_delay_avg_web[i] / _delay_divide_factor for i in selected_i]
+        _delay_high_web=[_delay_high_web[i] / _delay_divide_factor for i in selected_i]
+        _delay_med_web=[_delay_med_web[i] / _delay_divide_factor for i in selected_i]
+        _delay_low_web=[_delay_low_web[i] / _delay_divide_factor for i in selected_i]
+    except:
+        print('no web')
+
+
+    # App 3 media
+
+    try:
+        _load_media = waa_media_load_total_bps_avg
+        _thru_media = waa_media_thru_total_bps_avg
+        _delay_avg_media = waa_media_delay_total_avg
+        _delay_high_media = waa_media_delay_high_avg
+        _delay_med_media = waa_media_delay_med_avg
+        _delay_low_media = waa_media_delay_low_avg
+
+        selected_i = []
+        for i in range(0, len(_load_media)):
+            if _load_media[i] != 0:
+                #if _thru[i] > _load[i]:
+                    #_thru[i] = _load[i]
+                if _thru_media[i] <= _load_media[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i='+str(i))
+
+        _load_media = [_load_media[i] / _load_divide_factor for i in selected_i]
+
+        _delay_avg_media=[_delay_avg_media[i] / _delay_divide_factor for i in selected_i]
+        _delay_high_media=[_delay_high_media[i] / _delay_divide_factor for i in selected_i]
+        _delay_med_media=[_delay_med_media[i] / _delay_divide_factor for i in selected_i]
+        _delay_low_media=[_delay_low_media[i] / _delay_divide_factor for i in selected_i]
+    except:
+        print('no media')
+
+    try:
+        _load_hadoop = waa_hadoop_load_total_bps_avg
+        _thru_hadoop = waa_hadoop_thru_total_bps_avg
+        _delay_avg_hadoop = waa_hadoop_delay_total_avg
+        _delay_high_hadoop = waa_hadoop_delay_high_avg
+        _delay_med_hadoop = waa_hadoop_delay_med_avg
+        _delay_low_hadoop = waa_hadoop_delay_low_avg
+
+        selected_i = []
+        for i in range(0, len(_load_hadoop)):
+            if _load_hadoop[i] != 0:
+                # if _thru[i] > _load[i]:
+                # _thru[i] = _load[i]
+                if _thru_hadoop[i] <= _load_hadoop[i]:
+                    selected_i.append(i)
+                else:
+                    print('Removing-cleaning i=' + str(i))
+
+        _load_hadoop = [_load_hadoop[i] / _load_divide_factor for i in selected_i]
+
+        _delay_avg_hadoop = [_delay_avg_hadoop[i] / _delay_divide_factor for i in selected_i]
+        _delay_high_hadoop = [_delay_high_hadoop[i] / _delay_divide_factor for i in selected_i]
+        _delay_med_hadoop = [_delay_med_hadoop[i] / _delay_divide_factor for i in selected_i]
+        _delay_low_hadoop = [_delay_low_hadoop[i] / _delay_divide_factor for i in selected_i]
+    except:
+        print('no hadoop')
+
+    _color='black'
+
+    plt.rcParams["font.weight"] = "bold"
+    plt.rcParams["axes.labelweight"] = "bold"
+    fig, ax1 = plt.subplots(constrained_layout=False)
+
+    _linewidth=10
+
+    try:
+        ax1.semilogy(_load_cloud, _delay_avg_cloud, color='black', label='Cloud packet (mean)',linewidth=_linewidth, linestyle='solid')
+    except:
+        print('no cloud')
+
+    try:
+        ax1.semilogy(_load_media, _delay_avg_media, color='red', label='Media packet (mean)',linewidth=_linewidth, linestyle='solid')
+    except:
+        print('no media')
+
+    try:
+        ax1.semilogy(_load_web, _delay_avg_web, color='blue', label='Web packet (mean)',linewidth=_linewidth, linestyle='solid')
+    except:
+        print('no web')
+
+    try:
+        ax1.semilogy(_load_hadoop, _delay_avg_hadoop, color='black', label='hadoop packet (mean)',linewidth=_linewidth, linestyle='solid')
+    except:
+        print('no hadoop')
+
+    #ax1.semilogy(_load, _delay_high, color='red', label='High',linewidth=_linewidth, linestyle='solid')
+    #ax1.semilogy(_load, _delay_med, color='green', label='Med',linewidth=_linewidth, linestyle='solid')
+   # ax1.semilogy(_load, _delay_low, color='blue', label='Low',linewidth=_linewidth, linestyle='solid')
+
+    try:
+        ax1.set_xlim([self.lim_x_start, self.lim_x_end])
+    except:
+        pass
+    try:
+        ax1.set_ylim([self.lim_y_start, self.lim_y_end])
+    except:
+        pass
+    try:
+        my_ticks = np.arange(self.xtick_min, self.xtick_max + 1, self.xtick_step)
+        my_ticks = np.insert(my_ticks, 0, self.xtick_zero, axis=0)
+        ax1.set_xticks(my_ticks)
+    except:
+        pass
+
+    if _load_divide_factor==1e9:
+        ax1.set_xlabel('Load (Gbps)', fontsize=35)
+    else:
+        print('no load divide factor')
+        exit()
+    if _delay_divide_factor==1e-9:
+        ax1.set_ylabel('Packet latency (ns)', fontsize=35)
+    elif _delay_divide_factor==1e-6:
+        ax1.set_ylabel('Packet latency (μs)', fontsize=35)
+    else:
+        print('no delay divide factor')
+        exit()
+    ax1.legend(loc='best', fontsize=35)
     ax1.grid(True, which='major', axis='both')
     ax1.tick_params(axis='both', which='major', labelsize=35)
     ax1.tick_params(axis='both', which='minor', labelsize=35)
@@ -696,4 +974,49 @@ def plot_06_scale_ch_qos_delays():
 
 #lanman
 plot_01_thru_drop_default()
+plot_02_app_delays_default()
 plot_02_delays_default()
+plot_03_scale_servers_thru_per_server()
+if False:
+    plot_delays(load=waa_id01_load_total_bps_avg,
+                thru=waa_id01_thru_total_bps_avg,
+                avg=waa_id01_delay_total_avg,
+                high=waa_id01_delay_high_avg,
+                med=waa_id01_delay_med_avg,
+                low=waa_id01_delay_low_avg,
+                )
+    plot_delays(load=waa_id02_load_total_bps_avg,
+                thru=waa_id02_thru_total_bps_avg,
+                avg=waa_id02_delay_total_avg,
+                high=waa_id02_delay_high_avg,
+                med=waa_id02_delay_med_avg,
+                low=waa_id02_delay_low_avg,
+                )
+    plot_delays(load=waa_id03_load_total_bps_avg,
+                thru=waa_id03_thru_total_bps_avg,
+                avg=waa_id03_delay_total_avg,
+                high=waa_id03_delay_high_avg,
+                med=waa_id03_delay_med_avg,
+                low=waa_id03_delay_low_avg,
+                )
+
+plot_04_scale_servers_qos_delays()
+plot_05_scale_channels_drop_prob()
+
+if False:
+    plot_delays(load=waa_id04_load_total_bps_avg,
+                thru=waa_id04_thru_total_bps_avg,
+                avg=waa_id04_delay_total_avg,
+                high=waa_id04_delay_high_avg,
+                med=waa_id04_delay_med_avg,
+                low=waa_id04_delay_low_avg,
+                )
+    plot_delays(load=waa_id05_load_total_bps_avg,
+                thru=waa_id05_thru_total_bps_avg,
+                avg=waa_id05_delay_total_avg,
+                high=waa_id05_delay_high_avg,
+                med=waa_id05_delay_med_avg,
+                low=waa_id05_delay_low_avg,
+                )
+
+plot_06_scale_ch_qos_delays()

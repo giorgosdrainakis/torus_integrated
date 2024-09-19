@@ -2,7 +2,7 @@ import os
 
 # Param set
 ROOT='C:\\Pycharm\\Projects\\polydiavlika\\torus_integrated'
-CURR_DATASET='20240719_id100_topo1x16_ch1x10_load80g_end100ms_dcTF'
+CURR_DATASET='20240910_id301_topo1x16_ch1x10_load1200g_end10ms_dcUNI'
 
 
 ###
@@ -12,7 +12,7 @@ TRANSMISSION_INFO_FOLDER=os.path.join(ROOT,'transmission_info')
 TORUS_MATRIX_FILE=os.path.join(TRANSMISSION_INFO_FOLDER,'torus_matrix.txt')
 LOGS_FOLDER=os.path.join(ROOT,'logs')
 
-_FRAMEWORK='trafpy' #trafpy, simple
+_FRAMEWORK='ai_dcn_apps' #trafpy, simple
 
 CABLE_LEN=2.5 # m
 FIBER_FACTOR=1.5 # 1.5 if typical fyber, 1 if hollow-core (=refraction index)
@@ -53,4 +53,11 @@ OUTPUT_TABLE_TITLE='flow_id,flow_size,flow_time_gen,packet_id,time,packet_size,p
                     'time_intra_buffer_in,time_intra_buffer_out,time_intra_trx_in,time_intra_trx_out,' \
                    'time_tor_buffer_in,time_tor_buffer_out,time_tor_trx_in,time_tor_trx_out,' \
                    'time_inter_buffer_in,time_inter_buffer_out,time_inter_trx_in,time_inter_trx_out\n'
+
+APP_PRIORITY=[
+'web',
+    'media',
+'hadoop',
+'cloud',
+]
 

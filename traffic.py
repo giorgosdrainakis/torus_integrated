@@ -11,7 +11,7 @@ class Packet:
         self.flow_time_gen = float(flow_time_gen)
         self.packet_id=int(packet_id)
         self.time=float(time)
-        self.packet_size=float(packet_size)
+        self.packet_size=int(packet_size)
         self.packet_qos=packet_qos
         self.source_id=int(source_id)
         self.destination_id=int(destination_id)
@@ -102,7 +102,8 @@ class Traffic_Per_Node():
             for row in csv_reader:
                 new_packet = Packet(row['flow_id'], row['flow_size'], row['flow_time_gen'],
                     row['packet_id'], row['time'], row['packet_size'],row['packet_qos'],
-                                    row['source_id'],row['tor_id'],row['destination_id'],row['destination_tor'],row['application']
+                                    row['source_id'],row['tor_id'],row['destination_id'],row['destination_tor'],
+                                    row['application']
                                     )
                 self.add(new_packet)
 

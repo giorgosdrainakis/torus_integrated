@@ -99,6 +99,65 @@ class Decoder:
         #print('Fill with small packs return='+str(curr_size))
         return curr_size
 
+    def fill_with_small_packs_vol3(self,node_id,ch_id,start_slot,size_remaining):
+
+        # fill high 
+        curr_size=size_remaining
+        
+        # find node
+        for node in self.db:
+            if node.node_id == node_id:
+                
+                for qos_series in ['high']:
+                    for app_series in ['web','media','hadoop','cloud',]:
+                        for buff in node.buffer_list:
+                            if buff.qos==qos_series and buff.app==app_series:
+                                
+                                # fill...
+                                i = 0
+                                reached_blockade = False
+                                while ( (not reached_blockade) and (i < len(buff.packet_list)) ):
+                                    if buff.packet_list[i].slot is None:
+                                        if buff.packet_list[i].size <= curr_size:
+                                            buff.packet_list[i].slot = start_slot + buff.packet_list[i].size
+                                            buff.packet_list[i].channel = ch_id
+                                            curr_size = curr_size - buff.packet_list[i].size
+                                        else:
+                                            reached_blockade = True
+                                    i = i + 1
+
+        #print('Fill with small packs return='+str(curr_size))
+        return curr_size
+
+    def fill_with_big_packs_vol3(self, node_id, ch_id, start_slot, size_remaining):
+
+        # fill high
+        curr_size = size_remaining
+
+        # find node
+        for node in self.db:
+            if node.node_id == node_id:
+
+                for qos_series in ['med']:
+                    for app_series in ['web', 'media', 'hadoop', 'cloud', ]:
+                        for buff in node.buffer_list:
+                            if buff.qos == qos_series and buff.app == app_series:
+
+                                # fill...
+                                i = 0
+                                reached_blockade = False
+                                while ((not reached_blockade) and (i < len(buff.packet_list))):
+                                    if buff.packet_list[i].slot is None:
+                                        if buff.packet_list[i].size <= curr_size:
+                                            buff.packet_list[i].slot = start_slot + buff.packet_list[i].size
+                                            buff.packet_list[i].channel = ch_id
+                                            curr_size = curr_size - buff.packet_list[i].size
+                                        else:
+                                            reached_blockade = True
+                                    i = i + 1
+
+        # print('Fill with small packs return='+str(curr_size))
+        return curr_size
 
     def fill_high(self,node_id,max_pack_num,start_slot,ch_id):
         for node in self.db:
@@ -155,6 +214,20 @@ class Decoded_Node:
         self.high_buffer=[]
         self.med_buffer=[]
         self.low_buffer=[]
+
+        self.buffer_list=[]
+        for app in ['web', 'media', 'hadoop', 'cloud']:
+            for qos in ['high', 'med']:
+                new_buff = Decoded_Buffer(app=app,qos=qos)
+                self.buffer_list.append(new_buff)
+    
+    
+class Decoded_Buffer():
+    def __init__(self,app,qos):
+        self.app=app
+        self.qos=qos
+        self.packet_list=[]
+
 class Decoded_Pack:
     def __init__(self):
         self.size=None
@@ -242,9 +315,9 @@ class Nodes:
             node.create_node_output_buffers_for_inter_packs(low_size,med_size,high_size)
 
     def create_tor_inbound_buffers(self,buffer_size_low,buffer_size_med,buffer_size_high):
-        self.inbound_buffer_low = Buffer(buffer_size_low)
-        self.inbound_buffer_med = Buffer(buffer_size_med)
-        self.inbound_buffer_high = Buffer(buffer_size_high)
+        self.inbound_buffer_low = Buffer(buffer_size_low,app='',qos='low')
+        self.inbound_buffer_med = Buffer(buffer_size_med,app='',qos='low')
+        self.inbound_buffer_high = Buffer(buffer_size_high,app='',qos='low')
 
     def add_inter_packet_to_local_tor(self,pack,curr_time):
         for node in self.db:
@@ -398,16 +471,29 @@ class Nodes:
                                            self.current_cycle_dedicated_ul,self.dedicated_channels_ul,self.control_channel,total_nodes)
                 self.current_cycle_dedicated_ul = self.current_cycle_dedicated_ul + 1
             else:
-                print('TOR:'+str(self.tor_id)+' -----------Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
-                control_bitsize_per_node = myglobal.CONTROL_MSG_PACKS_PER_BUFF * myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
+                print('TOR:'+str(self.tor_id)+' -----------'
+                    'Entered new cycle=' + str(self.current_cycle) + ' at=' + str(current_time))
+
+                control_bitsize_per_node = myglobal.CONTROL_MSG_PACKS_PER_BUFF * \
+                                           myglobal.TOTAL_BUFFS_PER_NODE * myglobal.CONTROL_MINIPACK_SIZE
                 control_cycle_slot_time = control_bitsize_per_node / self.channels.get_common_bitrate()
+
                 # collect (fake) control message from all nodes
                 control_msg = self.build_new_control_message()
+
                 if myglobal._FRAMEWORK=='trafpy':
                     decoder=self.run_distributed_algo_vol2(control_msg)
                     for node in self.db:
-                        node.process_new_cycle_vol2(current_time,decoder,cycle_time,cycle_slot_time,control_cycle_slot_time,
-                                               self.current_cycle,self.channels,self.control_channel,total_nodes)
+                        node.process_new_cycle_vol2(current_time,decoder,
+                        cycle_time,cycle_slot_time,control_cycle_slot_time,
+                        self.current_cycle,self.channels,self.control_channel,total_nodes)
+                elif myglobal._FRAMEWORK=='ai_dcn_apps':
+                    decoder=self.run_distributed_algo_vol3(control_msg)
+                    for node in self.db:
+                        node.process_new_cycle_vol3(current_time,decoder,
+                        cycle_time,cycle_slot_time,control_cycle_slot_time,
+                        self.current_cycle,self.channels,self.control_channel,total_nodes)
+
                 else:
                     decoder=self.run_distributed_algo(control_msg)
                     for node in self.db:
@@ -787,6 +873,69 @@ class Nodes:
 
         return decoder
 
+    def decode_control_msg_vol3(self,control_msg,cut1,cut2,cut3,node_id_diff):
+        decoder=Decoder()
+
+        for control_pack in control_msg:
+
+            decoded_node=Decoded_Node()
+            decoded_node.node_id=control_pack.source_id
+            if control_pack.is_bonus_packet:
+                continue
+
+            for minipack in control_pack.minipack_list:
+
+                bits_src, bits_dest, bits_app, bits_size= \
+                    minipack[0:cut1], minipack[cut1:cut2], minipack[cut2:cut3], minipack[cut3:]
+
+                # check that source node is indeed the node I am checking
+                # src bits are already assumed before during source_id assignment
+                if decoded_node.node_id!=int(bits_src,2)+node_id_diff:
+                    print(str('sync ERROR - checking different packets ids'))
+                    exit()
+
+                # destination bits only for receiver, not implemented
+
+                # size,qos assignment for TR algorithm, per pack
+                decoded_pack=Decoded_Pack()
+                decoded_pack.size = int(bits_size,2)
+                if decoded_pack.size>200:
+                    myqos='med'
+                else:
+                    myqos='high'
+
+                if bits_app=='00':
+                    myapp='web'
+                elif bits_app=='01' :
+                    myapp='media'
+                elif bits_app=='10':
+                    myapp='hadoop'
+                elif bits_app == '11':
+                    myapp='cloud'
+                else:
+                    print(str('coding ERROR - unknown app:')+str(bits_app))
+                    myapp=None
+                    exit()
+
+                foundd=False
+                for dec_buffer in decoded_node.buffer_list:
+                    if (dec_buffer.qos==myqos) and (dec_buffer.app==myapp):
+                        print('I decoded for node: ' + str(decoded_node.node_id)
+                              +',app='+str(myapp)+',size='+str(decoded_pack.size))
+
+                        dec_buffer.packet_list.append(decoded_pack)
+                        foundd=True
+
+                if not foundd:
+                    print(str('coding ERROR - cannot find pack in decoder'))
+                    print(str('myqos=')+str(myqos))
+                    print(str('myapp=')+str(myapp))
+                    exit()
+
+            decoder.db.append(decoded_node)
+
+        return decoder
+
     def build_trx_matrices(self,lucky_node):
         total_nodes = len(self.db)
 
@@ -1005,6 +1154,55 @@ class Nodes:
             #exit()
         return decoder
 
+    def run_distributed_algo_vol3(self,control_msg):
+        if len(control_msg)==0:
+            print('Control msg is zero-zero')
+            return None
+        lucky_node_bit_id, lucky_number=self.get_s_p_params(control_msg,break_position=myglobal.BREAK_POSITION)
+        lucky_node=lucky_node_bit_id+myglobal.ID_DIFF # zero to one-index transformation
+
+        # cuts denote size, qos , source, dest, etc
+        decoder=self.decode_control_msg_vol3(control_msg,cut1=myglobal.CUT_1,cut2=myglobal.CUT_2,cut3=myglobal.CUT_3,
+                                        node_id_diff=myglobal.ID_DIFF)
+
+        #print('Finito decode control msg')
+        self.build_trx_matrices(lucky_node)
+
+        #Assign all channels to big packets first! - Heart of the algorithm - assignment policy
+        #myflag=False
+        for ch in self.channels.db:
+
+            size_remaining = myglobal.MAX_PACKET_SIZE
+            for i in range(0, len(ch.trx_matrix)):
+                new_size = decoder.fill_with_small_packs_vol3(node_id=ch.trx_matrix[i],
+                                                                    ch_id=ch.id,
+                                                                    start_slot=0,
+                                                                    size_remaining=size_remaining)
+                size_remaining=new_size
+            #print('Ch:'+str(ch.id)+',size remaining after small='+str(size_remaining))
+
+            for i in range(0, len(ch.trx_matrix)):
+                if size_remaining > 0:
+                    new_size = decoder.fill_with_big_packs_vol3(node_id=ch.trx_matrix[i],
+                                                                  ch_id=ch.id,
+                                                                  start_slot=0,
+                                                                  size_remaining=size_remaining)
+                    size_remaining=new_size
+
+        # DEBUGG
+        total_str=[]
+        print(str('Decoder='))
+        for node in decoder.db:
+            output_str='Node'+str(node.node_id)+':'
+            for buff in node.buffer_list:
+                for pack in buff.packet_list:
+                    if pack.slot is not None:
+                        newstr=str(pack.channel)+'.'+str(pack.size)+'.'+str(buff.app)
+                        output_str=output_str+','+newstr
+            print(str(output_str))
+
+        return decoder
+
     def run_distributed_algo_dedicated_ul(self,control_msg):
         print('Dedicated ul network')
         if len(control_msg)==0:
@@ -1166,8 +1364,12 @@ class Nodes:
         for node in self.db:
             if node.have_buffers_packets():
                 return True
-        if myglobal._FRAMEWORK!='trafpy':
-            if self.inbound_buffer_high.has_packets() or self.inbound_buffer_med.has_packets() or self.inbound_buffer_low.has_packets():
+        if myglobal._FRAMEWORK in ['trafpy','ai_dcn_apps']:
+            pass
+        else:
+            if self.inbound_buffer_high.has_packets() or \
+                self.inbound_buffer_med.has_packets() or \
+                self.inbound_buffer_low.has_packets():
                 return True
         return False
 
@@ -1197,6 +1399,8 @@ class Node:
             self.is_tor = False
 
         self.parent_tor_id=int(parent_tor_id)
+
+        self.node_output_buffer_list=[]
 
         self.node_output_buffer_for_intra_packs_low=None
         self.node_output_buffer_for_intra_packs_med=None
@@ -1506,6 +1710,48 @@ class Node:
             self.data_meta_buffer.append(new_pack)
             i = i + 1
 
+    def decode_previous_cycle_vol3(self, decoder, cycle_time, cycle_slot_time, current_cycle, data_channels):
+
+
+
+        if decoder is None:
+            return
+
+        decoded_node = None
+        for node in decoder.db:
+            if node.node_id == self.id:
+                decoded_node = node
+
+        if decoded_node is None:
+            return
+
+        for dec_buffer in decoded_node.buffer_list:
+            i = 0
+            while i < len(dec_buffer.packet_list) and (dec_buffer.packet_list[i].slot is not None):
+
+                for buff in self.node_output_buffer_list:
+                    if (buff.qos==dec_buffer.qos) and (buff.app==dec_buffer.app):
+                        new_pack = buff.get_next_packet()
+                if new_pack is None:
+                    print('error in node ' + str(self.id))
+                    exit(-1)
+
+                new_pack.channel_id = dec_buffer.packet_list[i].channel
+                mych = data_channels.get_channel_from_id(new_pack.channel_id)
+
+                if new_pack.is_intra():
+                    new_pack.time_intra_trx_in = (current_cycle + 0) * cycle_time #+ decoded_node.high_buffer[i].slot * cycle_slot_time, geodranas: assume trains, need to convert?
+                    new_pack.time_intra_buffer_out = new_pack.time_intra_trx_in
+                    new_pack.time_intra_trx_out = new_pack.time_intra_trx_in + mych.get_total_time_to_tx(
+                        new_pack.packet_size)
+                else:  # inter
+                    print('found inter packet exiting')
+                    exit(-1)
+
+                self.data_meta_buffer.append(new_pack)
+                i = i + 1
+
+
     def build_next_rounds_control_msg(self,current_time,cycle_time, control_cycle_slot_time,
                           current_cycle, control_channel):
         mymsg=Control_Packet(current_time,self.id)
@@ -1703,6 +1949,57 @@ class Node:
         mymsg.is_bonus_packet=False
         self.control_meta_buffer.append(mymsg)
 
+    def build_next_rounds_control_msg_vol3(self,current_time,cycle_time, control_cycle_slot_time,
+                          current_cycle, control_channel):
+
+        mymsg=Control_Packet(current_time,self.id)
+        minipack_list=[]
+        if control_channel.shared:
+            print('shared control exit')
+            exit(-2)
+            mymax=myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+        else:
+            mymax = myglobal.CONTROL_MSG_PACKS_PER_BUFF
+
+        for buff in self.node_output_buffer_list:
+            i=0
+            for pack in buff.db:
+                if i<mymax:
+                    strr=myglobal.STR_SOURCE_DEST_ID
+                    bits_src=strr.format(self.id-myglobal.ID_DIFF)
+                    bits_dest=strr.format(pack.destination_id-myglobal.ID_DIFF)
+
+                    if pack.application=='web':
+                        bits_app = '00'
+                    elif pack.application=='media':
+                        bits_app = '01'
+                    elif pack.application=='hadoop':
+                        bits_app = '10'
+                    elif pack.application == 'cloud':
+                        bits_app = '11'
+                    else:
+                        print('Decoding issue app=...'+str(pack.application))
+                        exit()
+
+                    bits_size= str("{0:011b}".format(int(pack.packet_size)))
+                    total_str=bits_src+bits_dest+bits_app+bits_size
+                    minipack_list.append(total_str)
+                    print('I encode for Buff, app='+str(buff.app)+',qos='+str(buff.qos))
+                    print('node='+str(self.id)+
+                          ',app='+str(pack.application)+',size='+str(pack.packet_size))
+                i=i+1
+
+        mymsg.minipack_list=minipack_list
+        bit_packet_size=mymax*myglobal.TOTAL_BUFFS_PER_NODE*\
+                              myglobal.CONTROL_MINIPACK_SIZE #bytes
+        mymsg.packet_size=bit_packet_size/8
+        myslot=self.id-myglobal.ID_DIFF
+        mymsg.time_intra_trx_in=(current_cycle+0)*cycle_time+myslot*control_cycle_slot_time
+        mymsg.channel_id=control_channel.id
+        mymsg.time_intra_trx_out=mymsg.time_intra_trx_in+control_channel.get_total_time_to_tx(mymsg.packet_size)
+        mymsg.is_bonus_packet=False
+        self.control_meta_buffer.append(mymsg)
+
     def build_bonus_msg(self,current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
 
@@ -1794,6 +2091,17 @@ class Node:
         self.build_bonus_msg_vol2(current_time,decoder,cycle_time, control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes)
 
+    def process_new_cycle_vol3(self,current_time,decoder,cycle_time, cycle_slot_time,control_cycle_slot_time,
+                          current_cycle, data_channels,control_channel,total_nodes):
+
+
+        self.decode_previous_cycle_vol3(decoder, cycle_time, cycle_slot_time, current_cycle, data_channels)
+
+        self.build_next_rounds_control_msg_vol3(current_time, cycle_time, control_cycle_slot_time,
+                                          current_cycle, control_channel)
+
+        self.build_bonus_msg_vol2(current_time,decoder,cycle_time, control_cycle_slot_time,
+                          current_cycle, data_channels,control_channel,total_nodes)
 
     def process_new_cycle_dedicated_ul(self,current_time,decoder,cycle_time, cycle_slot_time,control_cycle_slot_time,
                           current_cycle, data_channels,control_channel,total_nodes):
@@ -1951,25 +2259,77 @@ class Node:
         mystr='-'+str(self.node_output_buffer_for_intra_packs_low.get_current_size())+'-'+str(self.node_output_buffer_for_intra_packs_med.get_current_size())+'-'+str(self.node_output_buffer_for_intra_packs_high.get_current_size())
         return mystr
     def have_buffers_packets(self):
-        if self.node_output_buffer_for_intra_packs_low.has_packets() or self.node_output_buffer_for_intra_packs_med.has_packets() or self.node_output_buffer_for_intra_packs_high.has_packets():
-            return True
-        if myglobal._FRAMEWORK!='trafpy':
-            if self.node_output_buffer_for_inter_packs_low.has_packets() or self.node_output_buffer_for_inter_packs_med.has_packets() or self.node_output_buffer_for_inter_packs_high.has_packets():
+        if myglobal._FRAMEWORK=='ai_dcn_apps':
+            for buff in self.node_output_buffer_list:
+                if buff.has_packets():
+                    return True
+        else:
+            if self.node_output_buffer_for_intra_packs_low.has_packets() or \
+                self.node_output_buffer_for_intra_packs_med.has_packets() or \
+                self.node_output_buffer_for_intra_packs_high.has_packets():
                 return True
+            if myglobal._FRAMEWORK=='trafpy':
+                pass
+            else:
+                if self.node_output_buffer_for_inter_packs_low.has_packets() or \
+                    self.node_output_buffer_for_inter_packs_med.has_packets() or \
+                    self.node_output_buffer_for_inter_packs_high.has_packets():
+                    return True
         return False
 
     def check_generated_packets(self,current_time):
         new_packets=self.traffic.get_new_packets(current_time)
         for packet in new_packets:
-            self.try_adding_to_output_buffers_for_intra_packs(current_time,packet)
+            if myglobal._FRAMEWORK=='ai_dcn_apps':
+                self.try_add_packet_to_buff(current_time,packet)
+            else:
+                self.try_adding_to_output_buffers_for_intra_packs(current_time,packet)
 
     def check_generated_packets_split(self,current_time):
         new_packets=self.traffic.get_new_packets(current_time)
         for packet in new_packets:
-            if packet.is_intra():
-                self.try_adding_to_output_buffers_for_intra_packs(current_time,packet)
+            if myglobal._FRAMEWORK == 'ai_dcn_apps':
+                self.try_add_packet_to_buff(current_time,packet)
             else:
-                self.try_adding_to_output_buffers_for_inter_packs(current_time, packet)
+                if packet.is_intra():
+                    self.try_adding_to_output_buffers_for_intra_packs(current_time,packet)
+                else:
+                    self.try_adding_to_output_buffers_for_inter_packs(current_time, packet)
+
+    def try_add_packet_to_buff(self,current_time,packet):
+
+        buff_found=False
+        for buff in self.node_output_buffer_list:
+
+            check_qos=(buff.qos==packet.packet_qos)
+            check_app=(buff.app==packet.application)
+            check_network=(buff.network=='intra' and packet.is_intra()) or \
+                          (buff.network=='inter' and (not packet.is_intra()))
+
+            if check_qos and check_app and check_network:
+                buff_found=True
+                can_add_pack=buff.can_add_pack(packet)
+
+                if can_add_pack:
+                    if packet.is_intra():
+                        packet.time_intra_buffer_in = current_time
+                    else:
+                        if self.parent_tor_id == packet.tor_id:  # packet is still in source Tor
+                            packet.time_intra_buffer_in = current_time
+                        else:
+                            packet.time_inter_buffer_in = current_time  # packet in dest TOR
+                            print('Dont know how i got hereeeeeeeeeee geodranas')
+                            exit(0)
+
+
+                    buff.add_pack(packet)
+                else:
+                    self.data_dropped.append(packet)
+
+        if not buff_found:
+            print('ERROR: unknow packet tried entered a buffer')
+            print(str(packet.show()))
+            exit(0)
 
     def try_adding_to_output_buffers_for_intra_packs(self,current_time,packet):
         can_add_pack = False

@@ -2,9 +2,11 @@ import csv
 from torus_integrated import myglobal
 
 class Buffer():
-    def __init__(self,size):
+    def __init__(self,size,app,qos):
         self.size=size
         self.db=[]
+        self.app=app
+        self.qos=qos
 
     def has_packets(self):
         if len(self.db)>0:
@@ -17,8 +19,12 @@ class Buffer():
                 break
 
     def get_next_packet(self):
-        mypacket=self.db[0]
-        self.db.pop(0)
+        try:
+            mypacket=self.db[0]
+            self.db.pop(0)
+        except Exception as ex:
+            print('Buffer issue='+str(ex))
+            return None
         return mypacket
 
     def delete_by_id(self,id):
@@ -44,11 +50,13 @@ class Buffer():
         self.db.append(packet)
 
 class Node_Output_Buffer(Buffer):
-    def __init__(self,size,parent_tor_id):
+    def __init__(self,size,parent_tor_id,network='',app='',qos=''):
         self.parent_tor_id=parent_tor_id
-        Buffer.__init__(self,size)
+        self.network=network
+        Buffer.__init__(self,size,app,qos)
 
 class Tor_Outbound_Buffer(Buffer):
-    def __init__(self,size,destination_tor):
+    def __init__(self,size,destination_tor,network='intra',app='media',qos='high'):
         self.destination_tor=int(destination_tor)
-        Buffer.__init__(self,size)
+        self.network=network
+        Buffer.__init__(self,size,app,qos)

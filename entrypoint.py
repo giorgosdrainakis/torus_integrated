@@ -9,6 +9,74 @@ from torus_integrated.channel import *
 from torus_integrated.tor import *
 import sys
 
+def main_ai_dcn_apps():
+    print('AI DCN with apps setup running...')
+    tors=Tors()
+    tors.create_tors(total_tors=_TOTAL_TORS)
+    tors.create_inter_channels(total_inter_channels=_TOTAL_INTER_CHANNELS,
+                               inter_bitrate=_INTER_BITRATE,tx_per_tor=_TX_PER_TOR)
+    tors.create_tor_outbound_buffers(buffer_size_low=_TOR_OUTBOUND_BUFFER_SIZE_LOW,
+                                     buffer_size_med=_TOR_OUTBOUND_BUFFER_SIZE_MED,
+                                     buffer_size_high=_TOR_OUTBOUND_BUFFER_SIZE_HIGH)
+    tors.create_nodes()
+    tors.init_nodes(total_nodes_per_tor=_TOTAL_NODES_PER_TOR,tor_node_id=_TOR_NODE_ID)
+    tors.create_tor_inbound_buffers(buffer_size_low=_TOR_INBOUND_BUFFER_SIZE_LOW,
+                                    buffer_size_med=_TOR_INBOUND_BUFFER_SIZE_MED,
+                                    buffer_size_high=_TOR_INBOUND_BUFFER_SIZE_HIGH)
+    tors.create_intra_data_channels(total_intra_data_channels=_TOTAL_INTRA_DATA_CHANNELS,
+                                    intra_bitrate=_INTRA_BITRATE)
+    tors.create_intra_control_channel(intra_control_channel_id=_INTRA_CONTROL_CHANNEL_ID,
+                                      shared=_SHARE_CONTROL_CHANNEL)
+    #tors.create_intra_dedicated_data_channels_dl(total_intra_data_channels_dl=_TOTAL_INTRA_DEDICATED_DATA_CHANNELS_DL, intra_dedicated_bitrate=_INTRA_DEDICATED_BITRATE)
+    #tors.create_intra_dedicated_data_channels_ul(total_intra_data_channels_ul=_TOTAL_INTRA_DEDICATED_DATA_CHANNELS_UL, intra_dedicated_bitrate=_INTRA_DEDICATED_BITRATE)
+    #tors.create_intra_dedicated_control_channel(intra_dedicated_control_channel_id=_INTRA_DEDICATED_CONTROL_CHANNEL_ID,shared=_SHARE_CONTROL_CHANNEL)
+
+    tors.create_intra_traffic_datasets(remove_inter=_REMOVE_INTER)
+
+    # need to fix the decoded node buffers every time
+    for tor in tors.db:
+        for server in tor.nodes.db:
+            for app in ['web','media','hadoop','cloud']:
+                for network in ['intra']:
+                    for qos in ['high','med']:
+                        new_buff=Node_Output_Buffer(size=1e6,
+                                                    parent_tor_id=server.parent_tor_id,
+                                                    network=network,
+                                                    app=app,
+                                                    qos=qos)
+                        server.node_output_buffer_list.append(new_buff)
+
+    # run simulation
+    CURRENT_TIME=_T_BEGIN
+    while (CURRENT_TIME<=_T_END or tors.have_buffers_packets()) and (CURRENT_TIME<=_T_END*1.1):
+        # add newly generated packets to intra buffers
+        if CURRENT_TIME<=_T_END*1.01:
+            tors.check_generated_packets(CURRENT_TIME,split=True)
+        # intra network
+        tors.check_arrival_intra_and_add_to_outbound_buffers(CURRENT_TIME)
+
+        tors.process_new_cycle(CURRENT_TIME)
+
+        tors.transmit_intra(CURRENT_TIME)
+        # dedicated network UL
+        #tors.check_arrival_dedicated_ul_and_add_to_outbound_buffers(CURRENT_TIME)
+        #tors.process_new_cycle_dedicated_ul(CURRENT_TIME)
+        #tors.transmit_dedicated_ul(CURRENT_TIME)
+        # dedicated network DL
+        #tors.check_arrival_dedicated_dl(CURRENT_TIME)
+        #tors.process_new_cycle_dedicated_dl(CURRENT_TIME)
+        #tors.transmit_dedicated_dl(CURRENT_TIME)
+        # inter network
+        #tors.inter_check_arrival_and_add_to_inbound_buffers(CURRENT_TIME,split=True)
+        #tors.inter_transmit(CURRENT_TIME)
+        # guard band
+        CURRENT_TIME=CURRENT_TIME+((myglobal.INTRA_CYCLE_GUARD_BAND*8)/tors.intra_bitrate)
+        CURRENT_TIME=CURRENT_TIME+_TIMESTEP
+
+    # print buffer etc. content
+    print('FINISH! Have buffers in packets?='+str(tors.have_buffers_packets()))
+    tors.write_log()
+
 def main_torus_trafpy():
     print('Torus trafpy setup running...')
     tors=Tors()
@@ -60,7 +128,6 @@ def main_torus_trafpy():
     # print buffer etc. content
     print('FINISH! Have buffers in packets?='+str(tors.have_buffers_packets()))
     tors.write_log()
-
 
 def main_torus_split():
     print('Torus split setup running...')
@@ -151,9 +218,9 @@ def main_torus_integrated():
     print('FINISH! Have buffers in packets?='+str(tors.have_buffers_packets()))
     tors.write_log()
 
-myglobal._FRAMEWORK='trafpy' # split, integrated
+_FRAMEWORK='ai_dcn_apps' # split, integrated
 _T_BEGIN = 0
-_T_END = 0.100
+_T_END = 0.010
 _TOTAL_TORS=1
 _TOTAL_INTER_CHANNELS=4
 _INTER_BITRATE=10e9
@@ -167,7 +234,7 @@ _TOR_INBOUND_BUFFER_SIZE_HIGH=1e6
 _TOTAL_NODES_PER_TOR=16
 _TOR_NODE_ID=99
 _TOTAL_INTRA_DATA_CHANNELS=4
-_INTRA_BITRATE=2.5e9
+_INTRA_BITRATE=100e9
 _INTRA_CONTROL_CHANNEL_ID=99
 _REMOVE_INTER=False
 _NODE_OUTPUT_BUFFERS_FOR_INTRA_PACKS_SIZE_LOW=1e6
@@ -202,7 +269,37 @@ if _SAVE_LOGS:
     file=os.path.join(myglobal.LOGS_FOLDER,mystr)
     sys.stdout = open(file, "w")
 
-if myglobal._FRAMEWORK=='trafpy':
+if myglobal._FRAMEWORK=='ai_dcn_apps':
+    myglobal.TOTAL_BUFFS_PER_NODE=8
+
+    if _TOTAL_NODES_PER_TOR==16 and _INTRA_BITRATE==100e9:
+        if _SHARE_CONTROL_CHANNEL:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 1  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER = 1  # apply in split network with shared channel
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF =myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA+\
+                                                 myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTER
+            print('Running with 16 Servers at 100 Gbps, with shared control channel ai_dcn_apps')
+        else:
+            myglobal.CONTROL_MSG_PACKS_PER_BUFF = 2
+            print('Running with 16 Servers at 100 Gbps, with dedicated control channel ai_dcn_apps')
+        myglobal.STR_SOURCE_DEST_ID = "{0:04b}"
+        myglobal.CONTROL_MINIPACK_SIZE = 21  # bits
+        myglobal.CUT_1 = 4
+        myglobal.CUT_2 = 8
+        myglobal.CUT_3 = 10
+        myglobal.BONUS_MSG_BITSIZE = 8  # bits (=cut1+4)
+        myglobal.BREAK_POSITION=4 #(cut1)
+        myglobal.LUCKY_SLOT_LEN = 0
+        myglobal.UNLUCKY_SLOT_LEN = 0
+        if _INTRA_GUARD_BAND: # total packs per cycle=22 (need to calculate)
+            myglobal.TOTAL_UNLUCKY_NODES=999
+        else:
+            myglobal.TOTAL_UNLUCKY_NODES=999 # total packs per cycle=23 (need to calculate)
+        myglobal.TOTAL_LUCKY_NODES=_TOTAL_NODES_PER_TOR-myglobal.TOTAL_UNLUCKY_NODES
+        myglobal.INTRA_CYCLE_GUARD_BAND=23 #byte
+        myglobal.MAX_SLOTS_FOR_SMALL_PACKS=17
+elif myglobal._FRAMEWORK=='trafpy':
+    myglobal.TOTAL_BUFFS_PER_NODE=3
     if _TOTAL_NODES_PER_TOR==8 and _INTRA_BITRATE==100e9:
         if _SHARE_CONTROL_CHANNEL:
             myglobal.CONTROL_MSG_PACKS_PER_BUFF_FOR_INTRA = 6  # apply in split network with shared channel
@@ -505,5 +602,7 @@ if myglobal._FRAMEWORK=='integrated':
     main_torus_integrated() # will create N logfiles for N nodes and a combined csv with all packets in root/log
 elif myglobal._FRAMEWORK=='trafpy':
     main_torus_trafpy()
-else:
+elif myglobal._FRAMEWORK == 'split':
     main_torus_split()
+elif myglobal._FRAMEWORK == 'ai_dcn_apps':
+    main_ai_dcn_apps()

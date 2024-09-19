@@ -796,16 +796,19 @@ class Tor:
         return list_of_sent_packs
 
     def have_buffers_packets(self):
-        # check inter buffers
-        for buffer in self.outbound_buffers_high_list:
-            if buffer.has_packets():
-                return True
-        for buffer in self.outbound_buffers_med_list:
-            if buffer.has_packets():
-                return True
-        for buffer in self.outbound_buffers_low_list:
-            if buffer.has_packets():
-                return True
+        if myglobal._FRAMEWORK == 'ai_dcn_apps':
+            pass
+        else:
+            # check inter buffers
+            for buffer in self.outbound_buffers_high_list:
+                if buffer.has_packets():
+                    return True
+            for buffer in self.outbound_buffers_med_list:
+                if buffer.has_packets():
+                    return True
+            for buffer in self.outbound_buffers_low_list:
+                if buffer.has_packets():
+                    return True
         # check intra buffers
         return self.nodes.have_buffers_packets()
 

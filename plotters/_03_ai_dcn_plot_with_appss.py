@@ -16,10 +16,10 @@ from torus_integrated.myglobal import *
 #from torus_integrated.logs.log_20240321_id03_topo1x32_ch4x100_load1000g.result import *
 #from torus_integrated.logs.log_20240323_id04_topo1x16_ch6x100_load750.result import *
 #from torus_integrated.logs.log_20240323_id05_topo1x16_ch8x100_load1000g.result import *
-from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_cloud import *
-from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_media import *
-from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_web import *
-from torus_integrated.logs.log_20240625_id10_topo1x16_ch4x100_load500g_end100ms_dcPRIVATE.result_hadoop import *
+from torus_integrated.logs.log_20240910_id301_topo1x16_ch1x10_load1200g_end10ms_dcUNI.result import *
+from torus_integrated.logs.log_20240910_id301_topo1x16_ch1x10_load1200g_end10ms_dcUNI.result_media import *
+from torus_integrated.logs.log_20240910_id301_topo1x16_ch1x10_load1200g_end10ms_dcUNI.result_web import *
+from torus_integrated.logs.log_20240910_id301_topo1x16_ch1x10_load1200g_end10ms_dcUNI.result_cloud import *
 
 
 #lanman
@@ -973,11 +973,13 @@ def plot_06_scale_ch_qos_delays():
     plt.show()
 
 #lanman
-plot_01_thru_drop_default()
-plot_02_app_delays_default()
-plot_02_delays_default()
-plot_03_scale_servers_thru_per_server()
+
 if False:
+    plot_01_thru_drop_default()
+    plot_02_app_delays_default()
+    plot_02_delays_default()
+    plot_03_scale_servers_thru_per_server()
+
     plot_delays(load=waa_id01_load_total_bps_avg,
                 thru=waa_id01_thru_total_bps_avg,
                 avg=waa_id01_delay_total_avg,
@@ -999,9 +1001,9 @@ if False:
                 med=waa_id03_delay_med_avg,
                 low=waa_id03_delay_low_avg,
                 )
+    plot_04_scale_servers_qos_delays()
+    plot_05_scale_channels_drop_prob()
 
-plot_04_scale_servers_qos_delays()
-plot_05_scale_channels_drop_prob()
 
 if False:
     plot_delays(load=waa_id04_load_total_bps_avg,
@@ -1019,4 +1021,33 @@ if False:
                 low=waa_id05_delay_low_avg,
                 )
 
-plot_06_scale_ch_qos_delays()
+plot_thru()
+plot_delays(load=waa_load_total_bps_avg,
+            thru=waa_thru_total_bps_avg,
+            avg=waa_delay_total_avg,
+            high=waa_delay_high_avg,
+            med=waa_delay_med_avg,
+            low=waa_delay_low_avg)
+
+plot_01_thru_drop_default()
+print('delay cloud.....')
+plot_delays(load=waa_cloud_load_total_bps_avg,
+            thru=waa_cloud_thru_total_bps_avg,
+            avg=waa_cloud_delay_total_avg,
+            high=waa_cloud_delay_high_avg,
+            med=waa_cloud_delay_med_avg,
+            low=waa_cloud_delay_low_avg)
+print('delay media.....')
+plot_delays(load=waa_media_load_total_bps_avg,
+            thru=waa_media_thru_total_bps_avg,
+            avg=waa_media_delay_total_avg,
+            high=waa_media_delay_high_avg,
+            med=waa_media_delay_med_avg,
+            low=waa_media_delay_low_avg)
+print('delay web.....')
+plot_delays(load=waa_web_load_total_bps_avg,
+            thru=waa_web_thru_total_bps_avg,
+            avg=waa_web_delay_total_avg,
+            high=waa_web_delay_high_avg,
+            med=waa_web_delay_med_avg,
+            low=waa_web_delay_low_avg)
